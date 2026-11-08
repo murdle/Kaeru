@@ -7833,9 +7833,9 @@ const CINE_SCENES = {
         { h: ['h4', 760, 420], k: ['k4', 330], cam: [.5, .52, 1.06] },
         { n: { f: ['l0', 'l1', 'l2'], d: .55, x: 1120, y: 640, sc: 1.3, glow: .6 }, h: ['h1', 700, 380], fx: 'chains' },
         { n: { s: 'l2', x: 1120, y: 640, sc: 1.3 }, k: ['k5', 330], h: ['h5', 560, 420] },
-        { n: { f: ['l2', 'l3'], d: .6, fade: true, x: 1120, y: 640, sc: 1.3 }, n2: { s: 'l4', x: 1150, y: 560, sc: 1.05, add: true, a: .55, up: [70, 4] }, fx: 'warm', cam: [.6, .4, 1.0] },
-        { n: { s: 'l3', x: 1120, y: 640, sc: 1.3, a: .35 }, n2: { s: 'l4', x: 1150, y: 490, sc: 1.05, add: true, a: .9, bob: 8 }, k: ['k5', 330], cam: [.6, .35, 1.0] },
-        { n: null, n2: { f: ['l4', 'l5'], d: 1.1, fade: true, x: 1150, y: 480, sc: 1.05, add: true, a: .9, up: [50, 4] }, fx: 'gold', h: ['h2', 480, 440], cam: [.5, .4, 1.0] }] },
+        { n: { f: ['l2', 'l3'], d: .6, fade: true, x: 1120, y: 640, sc: 1.3 }, n2: { s: 'l4', x: 1150, y: 560, sc: 1.05, a: 0 }, fx: 'warm', cam: [.6, .4, 1.0] },
+        { n: { s: 'l0', x: 1120, y: 640, sc: 1.3, a: .35 }, n2: { s: 'l4', x: 1150, y: 490, sc: 1.05, a: 1, glow: .45, bob: 8 }, k: ['k5', 330], cam: [.6, .35, 1.0] },
+        { n: null, n2: { f: ['l4', 'l5'], d: 1.1, fade: true, x: 1150, y: 480, sc: 1.05, a: 1, glow: .45, up: [50, 4] }, fx: 'gold', h: ['h2', 480, 440], cam: [.5, .4, 1.0] }] },
     { img: 'ci_nam3', ph: 'w_gouf2_ciel', a: [.5, .5, 1.15], b: [.45, .55, 1.03], fx: 'flies',
       lines: ['Le lac redevient immobile. Pour la première fois depuis sept ans, ses eaux commencent à baisser.',
         'Hinoko : Il est parti en souriant, Kaeru. Je l’ai senti.', 'Kaeru : Même les gardiens ont le droit de dormir.',
@@ -7843,11 +7843,11 @@ const CINE_SCENES = {
   ] },
   /* ---------------- CHAPITRE 2 · LA BAMBOUSERAIE ---------------- */
   bambou: { music: 'bambou', steps: [
-    { img: 'ci_hin1', ph: 'w_bamb3j_ciel', a: [.5, .6, 1.2], b: [.5, .4, 1.05], fx: 'leaves',
+    { img: 'w_bamb2_fond', ph: 'w_bamb3j_ciel', a: [.3, .55, 1.25], b: [.6, .45, 1.05], fx: 'leaves',
       lines: ['La bambouseraie. Ici, la pluie arrive filtrée par mille feuilles, presque douce.',
         'Kaeru : Ō-namazu avait raison. Le clan voulait noyer la plaine pour mieux la tenir.',
         'Hinoko : Il a parlé d’une chanteuse. Les bambous se souviennent d’elle, il a dit.'] },
-    { img: 'ci_hin1', ph: 'w_bamb3j_ciel', a: [.45, .45, 1.05], b: [.55, .5, 1.2], fx: 'leaves',
+    { img: 'w_bamb3j_ciel', ph: 'w_bamb3j_ciel', a: [.45, .6, 1.2], b: [.55, .5, 1.04], fx: 'leaves',
       lines: ['Hinoko : Une chanteuse ?', 'Kaeru : Une légende des coupeurs. Une femme qui chantait aux bambous pour qu’ils poussent droit.',
         'Kaeru : On dit qu’elle était une hi-no-ko descendue trop tard, qui n’a jamais pu remonter.',
         'Hinoko : …Alors je ne suis pas la première à rester bloquée en bas.',
@@ -8551,6 +8551,20 @@ function stgUpdate(dt) {
   for (const p of STG.parts) { p.l -= dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.k !== 'g') p.vy += 1300 * dt; else p.vx += Math.sin(p.y * .02) * 30 * dt; if (p.rot != null) p.rot += dt * 6; }
   STG.parts = STG.parts.filter(p => p.l > 0);
 }
+function stgSmooth(key, f, X, Y, SC, a, live) {
+  STG.sm = STG.sm || {}; const now = performance.now() / 1000; let q = STG.sm[key];
+  if (!live || !q || q.id !== STG.id) { q = STG.sm[key] = { id: STG.id, f, pf: null, ft: 1, x: X, y: Y, sc: SC, a, last: now }; return q; }
+  const dt = Math.min(.1, now - q.last); q.last = now; const k = 1 - Math.exp(-dt * 3.2);
+  if (f !== q.f) { q.pf = q.f; q.f = f; q.ft = 0; }
+  q.ft = Math.min(1, q.ft + dt / .45);
+  q.x += (X - q.x) * k; q.y += (Y - q.y) * k; q.sc += (SC - q.sc) * k; q.a += (a - q.a) * Math.min(1, k * 1.5);
+  return q;
+}
+function stgDrawSm(q, add, flip, ext) {
+  const e = q.ft * q.ft * (3 - 2 * q.ft);
+  if (q.pf && e < 1) stgFrame(q.pf, q.x, q.y, q.sc, q.a * (1 - e) * (ext || 1), add, flip);
+  stgFrame(q.f, q.x, q.y, q.sc, q.a * (q.pf ? e : 1) * (ext || 1), add, flip);
+}
 function drawStage(st, t, alpha, l, live) {
   const bg = cineReq(st.img + '.jpg'); if (!cineReady(bg)) return;
   STGO = Object.assign({}, STG_DEF, typeof st.stage === 'object' ? st.stage : {}); STGM = STGMS[STGO.atl];
@@ -8566,18 +8580,20 @@ function drawStage(st, t, alpha, l, live) {
   ctx.translate(ox, oy); ctx.scale(cover, cover);
   const lt = live ? CINE.lt : 9, bob = Math.sin(t * 1.6);
   // le silure (derrière le quai) et son esprit
-  for (const key of ['n', 'n2']) { const q = B[key]; if (!q) continue;
+  for (const key of ['n', 'n2']) { const q = B[key]; if (!q) { const o = STG.sm && STG.sm[key]; if (live && o && o.id === CINE.id + ':' + CINE.s && o.a > .02) { o.a *= .9; stgDrawSm(o, o.add, false); } continue; }
     const [f, pf, fu] = q.f ? stgSeq(q, lt) : [q.s, null, 1], rise = q.rise ? (1 - clamp(lt / q.rise[1], 0, 1)) ** 2 * q.rise[0] : 0, up = q.up ? clamp(lt / q.up[1], 0, 1) * q.up[0] : 0;
     let X = q.x, Y = q.y + rise - up + (q.bob ? bob * q.bob : 0), a = q.a == null ? 1 : q.a, SC = q.sc;
     if (q.mv) { const v = clamp(lt / q.mv[3], 0, 1), ev = v * v * (3 - 2 * v); X = lerp(q.mv[0], X, ev); Y = lerp(q.mv[1], Y, ev); SC = lerp(q.mv[2], SC, ev); if (q.mv[4]) a *= clamp(lt / q.mv[4], 0, 1); }
-    if (pf && fu < 1) stgFrame(pf, X, Y, SC, a * (1 - fu), q.add, q.flip);
-    stgFrame(f, X, Y, SC, a * fu, q.add, q.flip);
+    STG.id = CINE.id + ':' + CINE.s;
+    const sm = stgSmooth(key, f, X, Y, SC, a, live); sm.add = q.add;
+    stgDrawSm(sm, q.add, q.flip);
+    X = sm.x; Y = sm.y;
     if (q.glow) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = alpha * q.glow * (.6 + .2 * Math.sin(t * 3)); ctx.drawImage(GLOW_GOLD, X - 380, Y - 520, 760, 620); ctx.restore(); } }
   // le quai et l'eau proche repassent devant
   const drawOver = () => { if (!STGO.over) return; const qi = stgImg(STGO.over); const P = STGPACK[STGO.over]; if (qi.complete && qi.naturalWidth) { if (P) ctx.drawImage(qi, 0, P[1], P[2], P[3], 0, IH - P[3], P[2], P[3]); else ctx.drawImage(qi, 0, IH - qi.naturalHeight); } };
   if (!STGO.overFront) drawOver();
   // Kaeru et Hinoko, sur le quai
-  if (B.k) { const k = Array.isArray(B.k) ? B.k : B.k.f ? [stgSeq(B.k, lt)[0], B.k.x || STGO.kx || 330] : [B.k, STGO.kx || 330]; stgFrame(k[0], k[1], STGO.ky + Math.sin(t * 2) * .8, STGO.ks, 1, false, k[2]); }
+  if (B.k) { const k = Array.isArray(B.k) ? B.k : B.k.f ? [stgSeq(B.k, lt)[0], B.k.x || STGO.kx || 330] : [B.k, STGO.kx || 330]; STG.id = CINE.id + ':' + CINE.s; stgDrawSm(stgSmooth('k', k[0], k[1], STGO.ky + Math.sin(t * 2) * .8, STGO.ks, 1, live), false, k[2]); }
   if (B.h) { const [hf, hx, hy] = B.h; STG.hx = live && STG.hx != null ? lerp(STG.hx, hx, .04) : hx; STG.hy = live && STG.hy != null ? lerp(STG.hy, hy, .04) : hy;
     const X = STG.hx, Y = STG.hy + Math.sin(t * 3.1) * 6; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = alpha * (.55 + .15 * Math.sin(t * 7)); ctx.drawImage(GLOW_GOLD, X - 120, Y - 170, 240, 240); ctx.restore();
     stgFrame(hf, X, Y, STGO.hs, 1); }
