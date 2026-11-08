@@ -48,6 +48,66 @@ addEventListener('unhandledrejection', e => __showErr('promesse : ' + (e.reason 
 const VW = 1920, VH = 1080;
 const cv = document.getElementById('game');
 let ctx = cv.getContext('2d');
+/* ---------- performance : tuiles pour les grandes images, cache du texte à contour ---------- */
+(function () {
+  const BIG = 2048, T = 1024, P = 2, TILES = new WeakMap(), di = ctx.drawImage.bind(ctx);
+  window.__big = { n: 0 };
+  function tile(img, tx, ty) {
+    let m = TILES.get(img); if (!m) { m = new Map(); TILES.set(img, m); }
+    const k = tx + ',' + ty; let c = m.get(k);
+    if (!c) {
+      const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+      const x0 = Math.max(0, tx * T - P), y0 = Math.max(0, ty * T - P), x1 = Math.min(W, (tx + 1) * T + P), y1 = Math.min(H, (ty + 1) * T + P);
+      c = document.createElement('canvas'); c.width = x1 - x0; c.height = y1 - y0; c._x0 = x0; c._y0 = y0;
+      c.getContext('2d').drawImage(img, x0, y0, c.width, c.height, 0, 0, c.width, c.height); m.set(k, c);
+    }
+    return c;
+  }
+  ctx.drawImage = function (img, a, b, c, d, e, f, g, h) {
+    const W = img && (img.naturalWidth || img.width), H = img && (img.naturalHeight || img.height);
+    if (!W || (W <= BIG && H <= BIG) || !(img instanceof HTMLImageElement || img instanceof HTMLCanvasElement)) return di.apply(null, arguments);
+    let sx = 0, sy = 0, sw = W, sh = H, dx, dy, dw, dh;
+    if (arguments.length === 3) { dx = a; dy = b; dw = W; dh = H; }
+    else if (arguments.length === 5) { dx = a; dy = b; dw = c; dh = d; }
+    else { sx = a; sy = b; sw = c; sh = d; dx = e; dy = f; dw = g; dh = h; }
+    if (sw <= 0 || sh <= 0) return;
+    window.__big.n++;
+    const kx = dw / sw, ky = dh / sh;
+    const tx0 = Math.max(0, Math.floor(sx / T)), tx1 = Math.min(Math.ceil(W / T) - 1, Math.floor((sx + sw - 1e-6) / T));
+    const ty0 = Math.max(0, Math.floor(sy / T)), ty1 = Math.min(Math.ceil(H / T) - 1, Math.floor((sy + sh - 1e-6) / T));
+    for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
+      // part de la source couverte par cette tuile (débordant d'1 px sur la suivante : pas de couture)
+      const ax = Math.max(sx, tx * T), ay = Math.max(sy, ty * T);
+      const bx = Math.min(sx + sw, (tx + 1) * T + (tx < tx1 ? 1 : 0)), by = Math.min(sy + sh, (ty + 1) * T + (ty < ty1 ? 1 : 0));
+      if (bx <= ax || by <= ay) continue;
+      const t = tile(img, tx, ty);
+      di(t, ax - t._x0, ay - t._y0, bx - ax, by - ay, dx + (ax - sx) * kx, dy + (ay - sy) * ky, (bx - ax) * kx, (by - ay) * ky);
+    }
+  };
+  // texte à contour : le contour est dessiné une fois dans une petite image, puis réutilisé
+  const SC = new Map(), st = ctx.strokeText.bind(ctx);
+  ctx.strokeText = function (txt, x, y) {
+    if (arguments.length > 3) return st.apply(null, arguments);
+    const font = ctx.font, lw = ctx.lineWidth, col = ctx.strokeStyle;
+    if (typeof col !== 'string') return st(txt, x, y);
+    const key = font + '|' + lw + '|' + col + '|' + txt;
+    let e = SC.get(key);
+    if (!e) {
+      const c = document.createElement('canvas'), g = c.getContext('2d'); g.font = font;
+      const m = g.measureText(txt), asc = Math.ceil(m.actualBoundingBoxAscent || 30), des = Math.ceil(m.actualBoundingBoxDescent || 10), pad = Math.ceil(lw) + 2;
+      const w = Math.ceil(m.width) + pad * 2 + 4, h = asc + des + pad * 2;
+      c.width = Math.max(1, w); c.height = Math.max(1, h);
+      g.font = font; g.lineWidth = lw; g.strokeStyle = col; g.lineJoin = ctx.lineJoin; g.miterLimit = ctx.miterLimit; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+      g.strokeText(txt, pad, pad + asc);
+      e = { c, w: m.width, pad, asc, des }; SC.set(key, e); if (SC.size > 400) SC.delete(SC.keys().next().value);
+    }
+    const al = ctx.textAlign, dir = ctx.direction, bl = ctx.textBaseline;
+    let ox = al === 'center' ? -e.w / 2 : (al === 'right' || (al === 'end' && dir !== 'rtl') || (al === 'start' && dir === 'rtl')) ? -e.w : 0;
+    let oy = bl === 'top' || bl === 'hanging' ? e.asc : bl === 'middle' ? (e.asc - e.des) / 2 : bl === 'bottom' || bl === 'ideographic' ? -e.des : 0;
+    di(e.c, x + ox - e.pad, y + oy - e.pad - e.asc);
+  };
+})();
+
 
 /* =========================== CONFIG =========================== */
 const CFG = {
@@ -3694,7 +3754,7 @@ function drawGfFx() {
 function drawLinearHint() {
   if (!LV.linear || !WAVE.wait || enemies.some(e => !e.dead) || WAVE.calm > 0) return;
   ctx.save(); ctx.globalAlpha = .7 + .3 * Math.sin(t * 4); ctx.font = 'italic 600 30px "Shippori Mincho", serif'; ctx.textAlign = 'right'; ctx.fillStyle = '#efe3c8';
-  ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 8; ctx.fillText('Avance vers le gouffre   →', VW - 60, VH * .42); ctx.restore();
+  ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 8; ctx.fillText((LVID === 'l_digue' || LVID === 'l_phare' ? 'Avance vers le gouffre' : 'Avance') + '   →', VW - 60, VH * .42); ctx.restore();
 }
 window.__cfg2 = () => JSON.stringify({far: CFG.far, fh: L.far && L.far.height, mid: CFG.mid, gl: CFG.groundLine, surf: CFG.surfY});
 
@@ -5230,6 +5290,8 @@ const SINGLE_WALK = { coeur: .8, aosarene: .8, dortoir: .72, refuge: .76, jardin
 const SETVIS = {
   coeur:      { indoor: true, bg: '#0c0a14', flies: 14, mists: [['B', 760, .95, 3, .1], ['SMOKE', 900, 1, 5, .05]] },
   aosarene:   { bg: '#0c0e1a', leaves: 18, leafSet: 'petal', snow: .2, birds: false, mists: [['B', 700, .9, 6, .14], ['A', 860, .95, 10, .1]] },
+  flammes:    { base: 'florissant', walk: 180, rain: .7, rainDark: .2, leaves: 26, leafSet: 'ash', flies: 0, water: 330, birds: false, front: ['herbes_avant'],
+    tint: ['multiply', '#c0583a', .42], mists: [['SMOKE', 420, .2, 6, .5], ['EMBERMIST', 640, .45, 10, .3]] },
   florissant: { walk: 180, rain: .18, rainDark: .06, leaves: 10, leafSet: 'petal', flies: 30, water: 330, birds: true, front: ['herbes_avant'], mists: [['B', 520, .14, 8, .26], ['A', 700, .45, 12, .16]] },
   roseaux:    { walk: 290, sky: 'lac', skyS: 1.42, farSet: 'lac', farS: 1.1, farLift: 60, rain: 0, leaves: 16, leafSet: 'red', flies: 40, birds: true, front: ['herbes_avant'], mists: [['A', 430, .16, 9, .45], ['B', 600, .5, 16, .25]] },
   barques:    { walk: 290, sky: 'lac', skyS: 1.42, farSet: 'lac', farS: 1.1, farLift: 60, rain: .15, rainDark: .1, leaves: 10, leafSet: 'red', flies: 14, front: ['herbes_avant'], mists: [['B', 470, .16, 6, .6], ['B', 700, .5, 10, .4]] },
@@ -5420,11 +5482,11 @@ const NODES = [
   { id: 'm_mare', props: { ground: ['f_statue', 'f_lotus', 'f_panier', 'f_encens', 'f_cairn', 'f_shimenawa', 'f_lanternes', 'f_ema', 'f_natte', 'f_iris'], front: ['fp_herbes', 'fp_saule', 'fp_riz', 'fp_glycine'] }, r: 0, kind: 'repos', title: 'L’étang sacré', sub: '聖 な る 池   ·   la rencontre', set: 'mare', mid: 'all', x: .62, y: .3, links: ['m_rizieres'],
     story: 'Sous une feuille de lotus, une petite flamme tremble. « Là-haut, il fait chaud. Tu m’y ramènes ? »', desc: 'Kaeru y trouve Hinoko. Au loin, une corne de guerre.' },
   { id: 'm_rizieres', r: 0, kind: 'arene', title: 'Les rizières inondées', sub: '水 田', set: 'mar3c', mid: 'all', midOff: 3, props: { back: ['m3_digue@.06', 'm3_epouvantail@.18', 'm3_digue@.3', 'm3_epouvantail@.44', 'm3_digue@.56', 'm3_lanterne@.7', 'm3_epouvantail@.82', 'm3_digue@.92'], ground: [], front: ['m3_riz', 'm3_feuilles', 'm3_saule', 'm3_quenouilles', 'm3_riz', 'm3_libellule', 'm3_feuilles', 'm3_riz'] }, gates: [.1, .38, .66], heal: [.5], x: 0.76, y: 0.5, links: [], blocked: true, story: 'Au loin, une corne de guerre. Le ciel rougit du côté du village.', desc: 'Kaeru court entre les rizières. Les éclaireurs du clan sont déjà là.' },
-  { id: 'm_flammes', r: 0, kind: 'boss', lv: 'marais', title: 'Le village en flammes', sub: '燃 え る 里   ·   l’attaque', x: .92, y: .3, links: ['l_greve'],
+  { id: 'm_flammes', set: 'flammes', mid: 'all', props: { ground: ['f_charrette', 'f_tonneaux', 'f_banniere', 'f_bac', 'f_barque', 'f_filet', 'f_banniere'], front: ['fp_herbes', 'fp_saule', 'fp_riz'] }, r: 0, kind: 'boss', title: 'Le village en flammes', sub: '燃 え る 里   ·   l’attaque', x: .92, y: .3, links: ['l_greve'],
     story: 'Le Clan du Héron surgit de la brume. Kaeru tranche la corde blanche.', desc: 'Mamushi et sa meute de yokai brûlent le village.' },
   // ── Chapitre 1 : le Lac aux Torii
   { id: 'l_greve', r: 1, kind: 'arene', title: 'La grève aux galets', sub: '石 浜', set: 'lac2a', mid: 'all', midOff: 0, props: { back: ['l2_barque@.07', 'l2_filets@.2', 'l2_nasses@.33', 'l2_phare@.56', 'l2_barque@.45', 'l2_filets@.7', 'l2_nasses@.84'], ground: [], front: ['l2_susuki', 'l2_branche', 'l2_poteau', 'l2_susuki', 'l2_filet', 'l2_pilier', 'l2_susuki'] }, gates: [.1, .4, .7], heal: [.56], x: .05, y: .3, links: ['l_rive'], story: 'Le marais brûle derrière lui. Devant, le lac, et l’aube.', desc: 'Des barques tirées sur les galets. Les premiers yokai sortent de la brume.' },
-  { id: 'l_rive', r: 1, kind: 'arene', lv: 'lac', title: 'La rive des torii', sub: '湖 の 鳥 居', x: .15, y: .45, links: ['l_pecheurs'], desc: 'Le lac et ses torii dans l’eau.' },
+  { id: 'l_rive', set: 'lac2j', mid: 'all', midOff: 2, props: { back: ['l2_torii@.1', 'l2_cabane@.26', 'l2_torii@.42', 'l2_barque@.58', 'l2_torii@.74', 'l2_cabane@.88'], ground: [], front: ['l2_susuki', 'l2_poteau', 'l2_branche', 'l2_susuki', 'l2_susuki', 'l2_poteau'] }, gates: [.15, .45, .75], r: 1, kind: 'arene', title: 'La rive des torii', sub: '湖 の 鳥 居', x: .15, y: .45, links: ['l_pecheurs'], desc: 'Le lac et ses torii dans l’eau.' },
   { id: 'l_roseaux', r: 1, kind: 'arene', title: 'Les roseaux chantants', sub: '葦 の 歌', set: 'roseaux', mid: 'all', props: { ground: ['l_susuki', 'l_torii', 'l_susuki', 'l_lanterne', 'l_susuki'] }, x: .35, y: .45, links: ['l_englouti', 'l_barques'], waves: 't1', desc: 'Les herbes argentées chantent dans le vent du lac.' },
   { id: 'l_barques', r: 1, kind: 'defi', title: 'Le cimetière de barques', sub: '舟 の 墓   ·   défi', set: 'barques', mid: 'all', props: { ground: ['l_barque', 'l_susuki', 'l_pilier', 'l_barque', 'l_flottante'] }, x: .35, y: .7, links: ['l_pilotis'], waves: 't3', doors: [{ to: 'l_grotte', x: .3, kind: 'trappe' }], desc: 'Défi. Sous une coque retournée, une trappe mène sous le lac.' },
   { id: 'l_ile', r: 1, kind: 'repos', title: 'L’île aux lanternes', sub: '灯 の 島', set: 'ile', mid: 'all', x: .71, y: .45, links: ['l_phare'], props: { ground: ['l_lanterne', 'l_susuki', 'l_lanterne', 'l_torii', 'l_susuki'] },
@@ -5597,6 +5659,8 @@ const WAVEX = {
   m_nenuphars: W(['kasa'], ['kasa', 'onibi']),
   m_ponton:   W(['kasa', 'kozo'], ['kasa', 'onibi', 'kasa'], ['kozo', 'kasa', 'kozo']),
   m_passerelle: W(['kasa', 'kodama'], ['kozo', 'kasa', 'onibi'], ['kodama', 'kasa', 'kozo']),
+  m_flammes:  W(['kasa', 'kasa'], ['kasa', 'onibi', 'kasa'], ['tengu', 'kasa', 'onibi'], ['heron', 'kasa', 'heron']),
+  l_rive:     W(['kasa', 'kozo'], ['kodama', 'kasa', 'kozo'], ['kasa', 'kozo', 'onibi']),
   m_rizieres: W(['heron', 'kasa'], ['heron', 'kasa', 'onibi'], ['heron', 'heron', 'kasa']),
   l_greve:    W(['kasa', 'kozo'], ['kasa', 'kozo', 'kasa'], ['kozo', 'onibi', 'kasa', 'kozo']),
   l_pecheurs: W(['heron', 'kasa'], ['kozo', 'heron', 'kasa'], ['heron', 'kodama', 'kasa'], ['heron', 'heron', 'onibi', 'kozo']),
@@ -8929,7 +8993,10 @@ function invReset() {
     hpBonus: 0, tasted: {}, recipes: { onigiri: 1, miso_soupe: 1 }, alch: {}, ame: 0, nrj: 0, blade: 0, plants: {}, talis: [null, null], regen: 0 });
   invApply();
 }
-function invSave() { try { localStorage.setItem('kaeru_inv', JSON.stringify({ ...INV, regen: 0 })); } catch (_) {} }
+let INVSAVE_T = 0;
+function invSave() { if (INVSAVE_T) return; INVSAVE_T = setTimeout(() => { INVSAVE_T = 0; try { localStorage.setItem('kaeru_inv', JSON.stringify({ ...INV, regen: 0 })); } catch (_) {} }, 800); }
+addEventListener('pagehide', () => { if (INVSAVE_T) { clearTimeout(INVSAVE_T); INVSAVE_T = 0; try { localStorage.setItem('kaeru_inv', JSON.stringify({ ...INV, regen: 0 })); } catch (_) {} } });
+addEventListener('visibilitychange', () => { if (document.hidden && INVSAVE_T) { clearTimeout(INVSAVE_T); INVSAVE_T = 0; try { localStorage.setItem('kaeru_inv', JSON.stringify({ ...INV, regen: 0 })); } catch (_) {} } });
 function invLoad() {
   invReset();
   try { const s = JSON.parse(localStorage.getItem('kaeru_inv') || 'null'); if (s) Object.assign(INV, s); } catch (_) {}
@@ -11756,6 +11823,7 @@ function frame(now) {
   catch (e) { if (renderFails++ < 3) __showErr((e && e.message) + '\n' + (e && e.stack || '').split('\n').slice(0, 3).join('\n')); }
 }
 
+setTimeout(() => { try { audioInit(); } catch (_) {} }, 1500);   // le son se prépare tout de suite (il reste muet jusqu'au premier appui)
 /* =========================== ENTRÉES =========================== */
 addEventListener('keydown', e => {
   audioInit();
@@ -11912,7 +11980,7 @@ window.__mapGo = (id) => { mapTravel(id); return MAPV.msg; };
 window.__world = () => ({ cur: LVID, visited: [...WORLD.visited], cleared: [...WORLD.cleared], doors: DOORS.map(d => [d.to, Math.round(d.x)]), C, door: DOOR.near && DOOR.near.to, state: STATE });
 window.__hero = (x) => { if (x != null) { hero.x = x; cam.x = camPrev = x - VW / 2; } return hero.x; };
 window.__clear = () => { for (const en of enemies) en.dead = .01; WAVE.i = WAVES.length - 1; WAVE.delay = 0; WAVE.calm = 0; };
-window.__exits = () => LV.exits; window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
+window.__exits = () => LV.exits; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
 window.__goto = (frac) => { hero.x = frac * C; cam.x = camPrev = hero.x - VW / 2; };
 window.__k4 = () => K4; window.__pose = () => k3PoseOf();
 window.__advance = (sec) => { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); };
