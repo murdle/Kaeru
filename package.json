@@ -1,0 +1,42 @@
+{
+  "name": "kaeru",
+  "productName": "Kaeru",
+  "version": "1.0.0",
+  "description": "Kaeru — La Voie de l'Étang",
+  "author": "LS Forge",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "fr.lsforge.kaeru",
+    "productName": "Kaeru",
+    "copyright": "LS Forge",
+    "files": ["main.js", "game/**/*", "package.json"],
+    "asar": false,
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico",
+      "artifactName": "Kaeru-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kaeru",
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [{ "provider": "github", "owner": "murdle", "repo": "Kaeru", "releaseType": "release" }]
+  }
+}
