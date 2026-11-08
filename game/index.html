@@ -1948,8 +1948,8 @@ const LAMES = [
   { id: 'esprit', n: 'Lame spectrale', v: [.76, .5, 2], trail: [200, 160, 255], glow: [180, 130, 255] },
 ];
 const MASQUES = [{ id: 'aucun', n: 'Aucun' }, { id: 'menpo', n: 'Demi-masque laqué' }, { id: 'kitsune', n: 'Masque de renard' }];
-const EQ = { lame: 0, masque: 0 };
-try { EQ.lame = Math.max(0, LAMES.findIndex(x => x.id === localStorage.getItem('kaeru_lame'))); EQ.masque = Math.max(0, MASQUES.findIndex(x => x.id === localStorage.getItem('kaeru_masque'))); } catch (_) {}
+const EQ = { lame: 0, masque: 0 }; try { localStorage.removeItem('kaeru_lame'); localStorage.removeItem('kaeru_masque'); } catch (_) {}
+
 function lameRecolor(cv, n) {
   const L = LAMES[EQ.lame], sg = EQUIP.b[n]; if (!L.v || !sg) return;
   const [x1, y1, x2, y2, hw] = sg, g = cv.getContext('2d'), W = cv.width, H = cv.height;
@@ -7558,7 +7558,7 @@ function menuItems() {
     { label: 'Nouvelle partie', act: () => { WORLD.visited.clear(); WORLD.cleared.clear(); storyReset(); startGame('m_nenuphars', true); } },
     { label: 'Options', act: () => openOptions() },
     { label: 'Plein écran', act: () => toggleFullscreen() },
-    { label: 'Galerie (test)', act: () => { MENU.galBack = 'title'; STATE = 'gallery'; MENU.sel = 0; } },
+    ...(IS_APP ? [{ label: 'Quitter le jeu', act: () => quitGame() }] : []),
   ];
   if (STATE === 'pause') return [
     { label: 'Reprendre', act: () => { STATE = 'play'; } },
@@ -7567,13 +7567,10 @@ function menuItems() {
     { label: 'Boutons de la manette', act: () => { MENU.back = 'pause'; STATE = 'pads'; MENU.sel = 0; } },
     { label: 'Boutons de la souris', act: () => { MENU.back = 'pause'; STATE = 'mouse'; MENU.sel = 0; } },
     { label: 'Carte du chemin', act: () => openMap(false) },
-    { label: 'Galerie (test)', act: () => { MENU.galBack = 'pause'; STATE = 'gallery'; MENU.sel = 0; } },
-    { get label() { return 'Compteur d’images (test) : ' + (HITCH.on ? 'oui' : 'non'); }, act: () => { HITCH.on = !HITCH.on; HITCH.n = 0; } },
-    { get label() { return 'Lame (test) : ' + LAMES[EQ.lame].n; }, act: () => { EQ.lame = (EQ.lame + 1) % LAMES.length; equipApply(); sfx('uimove'); } },
-    { get label() { return 'Masque (test) : ' + MASQUES[EQ.masque].n; }, act: () => { EQ.masque = (EQ.masque + 1) % MASQUES.length; equipApply(); sfx('uimove'); } },
     { label: 'Options', act: () => openOptions() },
     { label: 'Commandes', act: () => { MENU.prev = STATE; STATE = 'controls'; MENU.sel = 0; } },
-    { label: 'Retour au titre', act: () => toTitle() },
+    { label: 'Sauvegarder la progression', act: () => { saveNow(); STATE = 'play'; invMsg('Progression sauvegardée.', 2.2); } },
+    { label: IS_APP ? 'Sauvegarder et quitter le jeu' : 'Sauvegarder et revenir au titre', act: () => { saveNow(); if (IS_APP) quitGame(); else { toTitle(); } } },
   ];
   if (STATE === 'options') return [
     { label: 'Musique', slider: 'music' },
@@ -7604,6 +7601,9 @@ async function startGame(level, intro) {
   if (intro) { STATE = 'play'; cineStart('ouverture'); } else { STATE = 'play'; introT = 0; }
   saveGame();
 }
+const IS_APP = /Electron/i.test(navigator.userAgent);
+function saveNow() { saveGame(); try { if (INVSAVE_T) clearTimeout(INVSAVE_T); INVSAVE_T = 0; localStorage.setItem('kaeru_inv', JSON.stringify({ ...INV, regen: 0 })); } catch (_) {} sfx('uimove'); }
+function quitGame() { saveNow(); setTimeout(() => { try { window.close(); } catch (_) {} setTimeout(toTitle, 400); }, 150); }
 function toTitle() { inGame = false; STATE = 'title'; MENU.sel = 0; enemies.length = 0; shots.length = 0; showHero = false; }
 /* =========================== TOUCHES CONFIGURABLES (clavier et manette) =========================== */
 /* Chaque action a une touche « canonique » que le jeu écoute déjà (J, Espace, PadX…).
