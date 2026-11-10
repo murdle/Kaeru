@@ -2105,13 +2105,13 @@ function k3PoseOf() {
       const SEQ = K4.img[base + 'c0'] ? ['a0', 'c0', 'a1', 'c1', 'a2', 'c2', 'b0', 'd0', 'b1', 'd1', 'b2', 'd2'] : ['a0', 'a1', 'a2', 'b0', 'b1', 'b2'], N = SEQ.length;
       const P = hero.phase * 500 / 600, ph = ((P % 6.2832) + 6.2832) % 6.2832, u = ph / 6.2832 * N, i = Math.floor(u) % N, fr = u - Math.floor(u);
       if (i !== A.kwI) { A.kwI = i; if (i % (N / 2) === 0) puff(hero.x + hero.dir * 30, 0, 3, .7); }
-      return { k4: base + SEQ[i], a: 'hh', next: base + SEQ[(i + 1) % N], mix: Math.max(0, (fr - .8) / .2), yo: 0 };
+      return { k4: base + SEQ[i], a: 'hh', next: base + SEQ[(i + 1) % N], mix: Math.max(0, (fr - .6) / .4), yo: 0 };
     }
     const ph = ((hero.phase % 6.2832) + 6.2832) % 6.2832, i = Math.floor(ph / 6.2832 * 8) % 8;
     const u = ph / 6.2832 * 8, fr = u - Math.floor(u), j = (i + 1) % 8, nm = q => base + (q < 4 ? 'a' : 'b') + (q % 4);
     const bob = (run ? 9 : 4) * (.5 - .5 * Math.cos(ph * 2));
     const kw = K4.img[nm(i)] && K4.img[nm(i)]._kw;
-    return { k4: nm(i), a: 'hh', next: nm(j), mix: Math.max(0, (fr - (kw ? .7 : .78)) / (kw ? .3 : .22)), yo: kw ? 0 : bob };
+    return { k4: nm(i), a: 'hh', next: nm(j), mix: Math.max(0, (fr - (kw ? .62 : .7)) / (kw ? .38 : .3)), yo: kw ? 0 : bob };
   }
   return { k4: sw ? 'demitour_sabre0' : 'demitour0', a: 'foot' };
 }
@@ -2144,6 +2144,7 @@ function k3DrawState(x, y, P, st, grounded, live, alpha) {
     const fl = st.flip || face, sy = st.breathe ? 1 + Math.sin(t * 2.2) * .008 : 1;
     const yy = y + (st.drop ? K4_AIR * K4.S * .45 : 0) - (st.yo || 0);
     tip = k4Draw(ctx, x, yy, st.k4, fl, st.a, sy, st.rot || 0);
+    if (st.next && st.mix > 0) { const g2 = ctx.globalAlpha; ctx.globalAlpha = g2 * st.mix; k4Draw(ctx, x, yy, st.next, fl, st.a, sy, st.rot || 0); ctx.globalAlpha = g2; }
 
     if (st.blend !== undefined) {
       const A0 = st.from && k4Tip(x, y, st.from, fl, st.a), A1 = k4Tip(x, y, st.k4, fl, st.a), A2 = st.to && k4Tip(x, y, st.to, fl, st.a);
@@ -2171,8 +2172,9 @@ function drawKaeruV3(x, y, P, recordTrail, grounded) {
   if (!recordTrail) { k3DrawState(x, y, P, st, grounded, false); return; }
   // fondu court quand on passe de la marionnette à une pose peinte (et inversement)
   const key = st ? (st.k4 || st.n) : 'rig';
-  if (key !== K3X.last) { K3X.fade = .09; K3X.prevPose = K3X.lastPose; K3X.prevP = K3X.lastP; K3X.last = key; }
+  if (key !== K3X.last) { const pv = K3X.lastPose; K3X.dur = st && st.k4 && pv && pv.k4 ? .085 : .09; K3X.fade = pv && pv.next === key && pv.mix > .5 ? 0 : K3X.dur; K3X.prevPose = pv; K3X.prevP = K3X.lastP; K3X.last = key; }
   const tip = k3DrawState(x, y, P, st, grounded, true);
+  if (K3X.fade > 0 && K3X.prevPose && K3X.prevPose.k4 && st && st.k4 && K3X.prevP) { const u = K3X.fade / (K3X.dur || .09); k3DrawState(x, y, K3X.prevP, Object.assign({}, K3X.prevPose, { next: null, blend: undefined }), grounded, false, u * u * .9); }
   K3X.lastP = P; K3X.lastPose = st;
   if (tip && (ACT.drawn > 0 || ACT.atk)) k3Blade(tip);
 }
@@ -3171,7 +3173,7 @@ function enfLoad(base, ld) {
 /* boucle de poses avec fondu court entre deux images */
 function enfCyc(list, fps, tt) {
   const u = tt * fps, i = Math.floor(u) % list.length, fr = u - Math.floor(u);
-  return { a: list[i], b: list[(i + 1) % list.length], k: clamp((fr - .72) / .28, 0, 1) };
+  return { a: list[i], b: list[(i + 1) % list.length], k: clamp((fr - .5) / .5, 0, 1) };
 }
 /* o : c (ancre au centre au lieu des pieds), rot, sx, sy, alpha, flash, tele */
 function enfDraw(en, p, X, Y, F, o = {}) {
@@ -3186,6 +3188,13 @@ function enfDraw(en, p, X, Y, F, o = {}) {
     ctx.restore();
   };
   one(pp.a, 1); if (pp.k > 0 && pp.b) one(pp.b, pp.k);
+  // fondu depuis la pose précédente (par ennemi) : plus de saut sec d'une pose à l'autre
+  const E = ENF.cur;
+  if (E) {
+    if (E._pa !== pp.a || E._pen !== en) { E._pv = E._pen === en && E._pa && E._pb !== pp.a ? E._pa : null; E._pt = t; E._pa = pp.a; E._pen = en; }
+    E._pb = pp.k > .5 ? pp.b : null;
+    if (E._pv) { const u = 1 - (t - E._pt) / .1; if (u > 0) one(E._pv, u * u * .9); else E._pv = null; }
+  }
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 function enfShadow(X, w, hk, a) { ctx.globalAlpha = a; ctx.fillStyle = `rgba(8,6,14,${.36 * hk})`; ctx.beginPath(); ctx.ellipse(X, CFG.groundLine + 4, w * hk, 13 * hk, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; }
@@ -4996,7 +5005,7 @@ function drawOnibi(e) {
   drawEnemyHp(e, sx, y - r * 3);
 }
 function drawEnemies() {
-  for (const e of enemies) if (!e.decap) { const go = gOff(e.x); ctx.save(); ctx.translate(0, go); (NEW_EN[e.type] ? drawNew : e.type === 'kasa' ? drawKasa : e.type === 'tengu' ? drawTengu : drawOnibi)(e); ctx.restore(); }
+  for (const e of enemies) if (!e.decap) { const go = gOff(e.x); ctx.save(); ctx.translate(0, go); ENF.cur = e; (NEW_EN[e.type] ? drawNew : e.type === 'kasa' ? drawKasa : e.type === 'tengu' ? drawTengu : drawOnibi)(e); ENF.cur = null; ctx.restore(); }
   drawBossBar();
 }
 function drawShotsAndInk() {
