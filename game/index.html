@@ -752,7 +752,7 @@ function drawRain() {
 const SUBCV = new Map();
 function subCv(im, x, y, w, h) {
   const key = im.src + '|' + x + '|' + y + '|' + w + '|' + h; let c = SUBCV.get(key);
-  if (!c) { c = document.createElement('canvas'); c.width = Math.max(1, w); c.height = Math.max(1, h); c.getContext('2d').drawImage(im, x, y, w, h, 0, 0, w, h); SUBCV.set(key, c); if (SUBCV.size > 220) SUBCV.delete(SUBCV.keys().next().value); }
+  if (!c) { c = document.createElement('canvas'); c.width = Math.max(1, w); c.height = Math.max(1, h); c.getContext('2d').drawImage(im, x, y, w, h, 0, 0, w, h); SUBCV.set(key, c); if (SUBCV.size > 700) SUBCV.delete(SUBCV.keys().next().value); }
   return c;
 }
 
@@ -960,6 +960,7 @@ function updateKaeru(dt) {
   if (A.jumpBuf > 0 && A.dash <= 0 && A.crouch <= 0 && canCancel()) {
     if (A.coyote > 0 && A.onGround) { A.crouch = MOVE.crouchTime; A.jumpBuf = 0; if (A.atk) endAttack(); A.slide = 0; A.roll = 0; }
     else if (A.coyote > 0) { launch(MOVE.jumpV); A.jumpBuf = 0; }
+    else if (A.wallT > 0 && !A.onGround && !A.hang) { vertWallJump(); A.jumpBuf = 0; }
     else if (A.airJumps > 0) {
       if (A.atk) endAttack();
       A.vy = MOVE.jump2V * (hasDon('saut') ? 1.15 : 1); A.airJumps--; A.flip = 0.0001; A.holdT = MOVE.holdTime * .6; A.jumpBuf = 0;
@@ -1050,7 +1051,7 @@ function updateKaeru(dt) {
   } else {
     if (want && A.crouch <= 0 && !(A.atk)) hero.dir = Math.sign(want);
     const accel = A.hurt > 0 ? 1.5 : A.onGround ? (want ? (Math.sign(want) !== Math.sign(hero.vx) && Math.abs(hero.vx) > 60 ? 18 : 10) : 14) : 5;
-    hero.vx = lerp(hero.vx, want * (A.skid > 0 ? .4 : 1), dt * accel);
+    if (!(A.wjT > 0)) hero.vx = lerp(hero.vx, want * (A.skid > 0 ? .4 : 1), dt * accel);
   }
   const xPrevRL = hero.x;
   hero.x += hero.vx * dt;
@@ -1085,6 +1086,7 @@ function updateKaeru(dt) {
       A.vy = 0; A.onGround = true; A.airJumps = 1; A.airDash = true; A.flip = 0;
     } else A.onGround = false;
   }
+  vertAfter(dt, xPrevRL);
   if (A.flip > 0) { A.flip += dt / .38; if (A.flip >= 1) A.flip = 0; }
   A.land = Math.max(0, A.land - dt);
 
@@ -2039,6 +2041,10 @@ function k3PoseOf() {
   const A = ACT, sw = A.drawn > 0 || !!A.atk;
   if (HERO.dead > 0) return A.onGround ? { n: 'pose_chute2' } : { n: 'pose_chute1', rot: (2.6 - HERO.dead) * 300, lift: 260 };
   if (!K4.ready) return null;
+  if (A.hang) { const c = A.climbT > 0, u = c ? 1 - A.climbT / VERT.climb : 0;
+    if (K4.img.accroche0) return c ? { k4: 'retab' + Math.min(3, Math.floor(u * 4)), a: 'foot' } : { k4: 'accroche' + (Math.floor(t * 2) % 2), a: 'foot' };
+    return c ? { k4: u < .5 ? 'saut1' : 'accroupi2', a: 'foot' } : { k4: 'saut2', a: 'c' }; }
+  if (A.wall && !A.onGround && A.vy < 0 && !A.atk) return { k4: K4.img.mur0 ? 'mur' + (Math.floor(t * 6) % 2) : 'chute1', a: 'c', flip: A.wall };
   if (A.hurt > 0) return { k4: 'touche' + Math.min(3, Math.floor((1 - A.hurt / .32) * 4)), a: 'h' };
   if (A.roll > 0) {   // roulade : la boule du salto, au ras du sol
     const u = clamp(A.rollT / K3MOVE.rollTime, 0, 1), R = ['saut0', 'salto10', 'salto11', 'salto12', 'salto13', 'salto20', 'salto21', 'chute3'];
@@ -5650,6 +5656,7 @@ const NODES = [
   { id: 's_aosagi', r: 7, kind: 'boss', title: 'Aosagi, le Héron Gris', sub: '青 鷺   ·   devant la Lanterne', set: 'aosarene', x: .93, y: .35, story: 'La Lanterne éteinte. Devant elle, le vieux maître attend, le sabre posé sur les genoux.', desc: 'Le choix final.' },
 ];
 NODES.find(n => n.id === 's_saisons').links = ['s_aosagi'];
+NODES.push({ id: 'l_hauteurs', r: 1, kind: 'arene', title: 'Les hauteurs des pilotis', sub: '高 み   ·   zone test', set: 'lac2a', mid: 'all', midOff: 3, props: { back: ['l2_cabane@.3', 'l2_phare@.62'], ground: [], front: ['l2_susuki', 'l2_poteau'] }, x: .5, y: .95, hidden: true, test: true, links: [], desc: 'Zone test : grimper, s’accrocher, rallumer les lanternes.' });
 const NODE = Object.fromEntries(NODES.map(n => [n.id, n]));
 /* ennemis par lieu : le clan du Héron (soldats à la lance) là où il occupe le pays, et les trois boss peints */
 const BOSS = (pre, name, type) => [...pre, { name, list: [type] }];
@@ -6361,6 +6368,139 @@ const HG = { y: 0 };
 
 
 const CFG_RESET = { surfY: null, sky: null, far: null, mid: null, snow: 0, bg: '#14101c', fireflies: 0, leafSet: 'red', groundLine: 888, midGlowSize: 46, groundGlows: [], midGlows: [], rainDrops: 260 };
+
+/* =========================== VERTICALITÉ (zone test) ===========================
+   Appuis posés à la main, poteaux (glissade + saut mural), accroche aux rebords, lanternes à rallumer, défi chronométré. */
+const VERT = { lv: null, camTop: 1700, walls: [], lans: [], bell: null, temps: [], tips: [], timer: 0, time: 12, climb: .3, done: false, msgT: 0 };
+const VERT_DEF = {
+  l_hauteurs: {
+    camTop: 2700,
+    plats: [[0, 1700, 0], [1, 2330, 0], [2, 2830, 600], [2, 3430, 860], [2, 3480, 1560]],          // [type d'appui, x, hauteur (0 = posé au sol)]
+    walls: [[4010, 1130, 1560], [4250, 760, 1660]],                                                // [x, bas, haut]
+    lans: [[3045, 600], [3620, 1560], [1975, 2160]],
+    bell: [3800, 1560], time: 12,
+    temps: [[2, 2900, 1760], [2, 2330, 1960], [2, 1760, 2160]],
+    tips: [[1950, 300, 'Saute de toit en toit'], [3430, 1000, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [4130, 700, 'Contre un poteau : glisse, puis Saut pour rebondir de l’un à l’autre'], [3800, 1700, 'Frappe la cloche : des appuis apparaissent, fais vite !']],
+  },
+};
+function vertPlat(q, x, h, extra) { const M = PLATM[1][q], w = M.R - M.L + 1, hh = h || M.ah - M.top; return Object.assign({ x, w, h: hh, M, q: h ? 2 : q, ropes: h ? [M.L + 40, M.R - 40] : null }, extra || {}); }
+function vertBuild() {
+  const D = VERT_DEF[LVID]; VERT.lv = D ? LVID : null; VERT.camTop = D ? D.camTop : 1700; VERT.walls = []; VERT.lans = []; VERT.temps = []; VERT.bell = null; VERT.tips = []; VERT.timer = 0; VERT.done = false;
+  ACT.hang = null; ACT.wall = 0; ACT.wallT = 0; ACT.wjT = 0; ACT.climbT = 0;
+  if (!D) return;
+  for (const [q, x, h] of D.plats) PROG.plats.push(vertPlat(q, x, h));
+  VERT.walls = D.walls.map(([x, h0, h1]) => ({ x, h0, h1 }));
+  VERT.lans = D.lans.map(([x, h], i) => ({ x, h, on: false, i, t: 0 }));
+  VERT.bell = D.bell ? { x: D.bell[0], h: D.bell[1], sw: 0, cd: 0 } : null; VERT.time = D.time || 12;
+  VERT.temps = D.temps.map(([q, x, h]) => vertPlat(q, x, h, { temp: true })); VERT.tips = D.tips || [];
+}
+function vertWallJump() {
+  const A = ACT, s = A.wall || A.wallSide || 1;   // s = côté du poteau (1 : à droite de Kaeru)
+  if (A.atk) endAttack();
+  hero.dir = -s; hero.vx = -s * 640; A.vy = 1010; A.holdT = MOVE.holdTime; A.wjT = .2; A.wallT = 0; A.wall = 0; A.airJumps = 1; A.airDash = true; A.flip = 0;
+  ring(hero.x + s * 30, A.y + 60, .6); puff(hero.x + s * 30, 0, 3, .6); sfx('dash');
+}
+function vertAfter(dt, xPrev) {
+  const A = ACT; if (VERT.lv !== LVID || PROG.lv !== LVID) { A.hang = null; A.wall = 0; return; }
+  A.wjT = Math.max(0, (A.wjT || 0) - dt); A.wallT = Math.max(0, (A.wallT || 0) - dt); A.hangCd = Math.max(0, (A.hangCd || 0) - dt);
+  const inp = (isDown('ArrowRight', 'KeyD', 'PadRight') || touchDir > 0) - (isDown('ArrowLeft', 'KeyA', 'KeyQ', 'PadLeft') || touchDir < 0);
+  // --- suspendu à un rebord
+  if (A.hang) {
+    const H = A.hang, p = H.p, ex = H.side < 0 ? p.x : p.x + p.w;   // H.side : -1 = rebord gauche de l'appui
+    if (!PROG.plats.includes(p) || A.hurt > 0 || HERO.dead > 0 || A.dash > 0) { A.hang = null; A.climbT = 0; A.hangCd = .3; return; }
+    if (A.climbT > 0) {   // rétablissement
+      A.climbT -= dt; const u = 1 - Math.max(0, A.climbT) / VERT.climb, e = u * u * (3 - 2 * u);
+      hero.x = ex + H.side * 36 - H.side * 76 * e; A.y = p.h - 215 + 215 * Math.min(1, u * 1.35); hero.vx = 0; A.vy = 0; A.onGround = false;
+      if (A.climbT <= 0) { A.hang = null; A.y = p.h; A.onGround = true; A.airJumps = 1; A.airDash = true; A.land = .08; A.landK = .3; A.hangCd = .25; puff(hero.x, 0, 3, .6); }
+      return;
+    }
+    const jumped = A.vy > 400 || A.crouch > 0;
+    hero.x = ex + H.side * 36; A.y = p.h - 215; hero.vx = 0; A.vy = 0; A.onGround = false; A.airJumps = 1; A.flip = 0; A.crouch = 0; hero.dir = -H.side; A.glide = false;
+    if (A.atk) endAttack();
+    if (jumped || isDown('ArrowUp', 'KeyW', 'KeyZ', 'PadUp') || inp === -H.side && H.t > .25) { A.climbT = VERT.climb; sfx('step'); }
+    else if (isDown(...DOWN_KEYS) || inp === H.side && H.t > .12) { A.hang = null; A.hangCd = .35; A.vy = -80; hero.vx = H.side * 120; }
+    H.t += dt; return;
+  }
+  // --- poteaux : on bute dessus, on glisse, on rebondit
+  A.wall = 0;
+  if (!A.onGround || true) for (const w of VERT.walls) {
+    if (A.y + 225 < w.h0 || A.y > w.h1) continue;
+    const L = w.x - 56, R = w.x + 56;
+    if (xPrev <= L + 1 && hero.x > L) { hero.x = L; if (hero.vx > 0) hero.vx = 0; if (!A.onGround && inp >= 0) { A.wall = 1; A.wallSide = 1; A.wallT = .14; } }
+    else if (xPrev >= R - 1 && hero.x < R) { hero.x = R; if (hero.vx < 0) hero.vx = 0; if (!A.onGround && inp <= 0) { A.wall = -1; A.wallSide = -1; A.wallT = .14; } }
+  }
+  if (A.wall && !A.onGround) { if (A.vy < -230) A.vy = -230; A.airDash = true; if (Math.random() < dt * 14) puff(hero.x + A.wall * 40, A.y + 40, 1, .5); if (A.atk === 'plunge') endAttack(); }
+  // --- accroche : en retombant près d'un rebord, face à lui
+  if (!A.onGround && A.vy <= 160 && A.hangCd <= 0 && !A.atk && A.dash <= 0 && A.hurt <= 0 && HERO.dead <= 0 && !A.wall) {
+    for (const p of PROG.plats) {
+      if (A.y < p.h - 262 || A.y > p.h - 120) continue;
+      const dl = hero.x - p.x, dr = hero.x - (p.x + p.w);
+      const side = dl > -70 && dl < 10 && (hero.vx > 30 || inp > 0) ? -1 : dr < 70 && dr > -10 && (hero.vx < -30 || inp < 0) ? 1 : 0;
+      if (!side) continue;
+      A.hang = { p, side, t: 0 }; A.climbT = 0; A.vy = 0; hero.vx = 0; A.flip = 0; A.glide = false; sfx('step'); ring(hero.x, A.y + 200, .4); break;
+    }
+  }
+  // --- lanternes, cloche, appuis du défi
+  const Q = progQ();
+  for (const l of VERT.lans) { l.t += dt;
+    if (!l.on && Math.abs(hero.x - l.x) < 120 && Math.abs(A.y - l.h) < 190 && HERO.dead <= 0) {
+      l.on = true; sfx('special'); const n = VERT.lans.filter(k => k.on).length, N = VERT.lans.length;
+      for (let k = 0; k < 26; k++) inkFx.push({ x: l.x + rr(-50, 50), y: l.h + 90 + rr(-40, 40), vx: rr(-130, 130), vy: rr(60, 260), r: rr(4, 9), a: .9, col: 'gold', glow: true });
+      if (HK) { HK.mood = 'joy'; HK.moodT = 1.2; }
+      if (n >= N) { VERT.done = true; INV.ryo += 150; invMsg('Toutes les lanternes du lieu brillent !  ·  + 150 ryō', 5); for (const tp of VERT.temps) tp.keep = true; VERT.timer = 0; }
+      else invMsg('Hinoko rallume une lanterne : ' + n + ' / ' + N, 3.5);
+    } }
+  const B = VERT.bell;
+  if (B) { B.cd = Math.max(0, B.cd - dt); B.sw *= Math.exp(-dt * 2.2);
+    if (A.atk && A.atkT > .05 && B.cd <= 0 && Math.abs(hero.x - B.x) < 190 && Math.abs(A.y - B.h) < 210 && !VERT.done) {
+      B.cd = 1; B.sw = 1; sfx('block'); shake = Math.max(shake, 6); ring(B.x, B.h + 150, 1.2);
+      if (VERT.timer <= 0) { for (const tp of VERT.temps) if (!PROG.plats.includes(tp)) PROG.plats.push(tp); invMsg('Les appuis d’esprit apparaissent : ' + VERT.time + ' secondes !', 3); }
+      VERT.timer = VERT.time;
+    } }
+  if (VERT.timer > 0) { VERT.timer -= dt;
+    if (VERT.timer <= 0 && !VERT.done) { PROG.plats = PROG.plats.filter(p => !p.temp || p.keep); if (A.hang && A.hang.p.temp && !A.hang.p.keep) A.hang = null; invMsg('Les appuis d’esprit s’effacent… Frappe encore la cloche.', 3); sfx('ui'); } }
+}
+function vertLantern(X, Y, on, tt) {
+  ctx.save(); ctx.translate(X, Y);
+  if (on) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .55 + .12 * Math.sin(tt * 3); ctx.drawImage(GLOW_GOLD, -150, -235, 300, 300); ctx.restore(); }
+  ctx.lineJoin = 'round'; ctx.strokeStyle = '#1b1310'; ctx.lineWidth = 4;
+  ctx.fillStyle = '#2a1d14'; ctx.fillRect(-7, -44, 14, 44); ctx.fillRect(-30, -8, 60, 10);
+  ctx.fillStyle = on ? '#ffdf9a' : '#8f897c'; rrect(-32, -132, 64, 90, 6); ctx.fill(); ctx.stroke();
+  if (on) { const g = ctx.createRadialGradient(0, -86, 4, 0, -86, 46); g.addColorStop(0, 'rgba(255,255,235,.95)'); g.addColorStop(1, 'rgba(255,190,90,0)'); ctx.fillStyle = g; ctx.fillRect(-30, -130, 60, 86); }
+  ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-11, -132); ctx.lineTo(-11, -42); ctx.moveTo(11, -132); ctx.lineTo(11, -42); ctx.moveTo(-32, -87); ctx.lineTo(32, -87); ctx.stroke();
+  ctx.fillStyle = '#2a1d14'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-44, -132); ctx.lineTo(44, -132); ctx.lineTo(26, -156); ctx.lineTo(-26, -156); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function vertDraw() {
+  if (VERT.lv !== LVID) return;
+  const G = CFG.groundLine;
+  for (const w of VERT.walls) { const X = wx2sx(w.x); if (X < -120 || X > VW + 120) continue;
+    const y0 = G - w.h1, y1 = G - w.h0, g = ctx.createLinearGradient(X - 24, 0, X + 24, 0); g.addColorStop(0, '#3a281b'); g.addColorStop(.45, '#7a5a3c'); g.addColorStop(1, '#2c1d13');
+    ctx.save(); ctx.strokeStyle = '#b39a62'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, -40); ctx.stroke();
+    ctx.fillStyle = g; ctx.strokeStyle = '#17100b'; ctx.lineWidth = 4; rrect(X - 24, y0, 48, y1 - y0, 10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#d9c391'; for (let y = y0 + 70; y < y1 - 30; y += 190) { ctx.fillRect(X - 27, y, 54, 14); ctx.strokeRect(X - 27, y, 54, 14); }
+    ctx.restore(); }
+  for (const l of VERT.lans) { const X = wx2sx(l.x); if (X < -200 || X > VW + 200) continue; vertLantern(X, G - l.h, l.on, l.t); }
+  const B = VERT.bell;
+  if (B) { const X = wx2sx(B.x), Y = G - B.h; if (X > -200 && X < VW + 200) { ctx.save(); ctx.translate(X, Y);
+      ctx.strokeStyle = '#17100b'; ctx.lineWidth = 4; ctx.fillStyle = '#4a3020'; ctx.fillRect(-58, -210, 12, 210); ctx.strokeRect(-58, -210, 12, 210); ctx.fillRect(46, -210, 12, 210); ctx.strokeRect(46, -210, 12, 210); ctx.fillRect(-72, -224, 144, 16); ctx.strokeRect(-72, -224, 144, 16);
+      ctx.translate(0, -208); ctx.rotate(Math.sin(t * 14) * .35 * B.sw);
+      const g = ctx.createLinearGradient(-36, 0, 36, 0); g.addColorStop(0, '#6b4a16'); g.addColorStop(.4, '#e0b24a'); g.addColorStop(1, '#5a3c10'); ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.quadraticCurveTo(30, 14, 34, 80); ctx.lineTo(42, 98); ctx.lineTo(-42, 98); ctx.lineTo(-34, 80); ctx.quadraticCurveTo(-30, 14, -10, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#2a1d14'; ctx.beginPath(); ctx.arc(0, 104, 9, 0, 6.283); ctx.fill(); ctx.restore(); } }
+  for (const [x, h, txt] of VERT.tips) { const X = wx2sx(x); if (Math.abs(hero.x - x) > 620 || Math.abs(ACT.y - h + 300) > 520 || X < 200 || X > VW - 200) continue; plaque(X, G - h - 60, [{ t: txt, s: 21 }], { a: .93 }); }
+}
+function vertHud() {
+  if (VERT.lv !== LVID || !VERT.lans.length) return;
+  const n = VERT.lans.filter(l => l.on).length, N = VERT.lans.length, x = VW - 250, y = 232;
+  ctx.save(); ctx.fillStyle = 'rgba(20,12,16,.55)'; rrect(x - 16, y - 46, 220, 62, 10); ctx.fill();
+  ctx.save(); ctx.translate(x + 14, y + 8); ctx.scale(.36, .36); vertLantern(0, 0, n > 0, t); ctx.restore();
+  ctx.textAlign = 'left'; ctx.fillStyle = n >= N ? '#bfe0a0' : '#efe3c8'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Lanternes  ' + n + ' / ' + N, x + 44, y - 6);
+  if (VERT.timer > 0 && !VERT.done) { const k = clamp(VERT.timer / VERT.time, 0, 1), W = 520, bx = VW / 2 - W / 2, by = 150;
+    ctx.fillStyle = 'rgba(20,12,16,.65)'; rrect(bx - 8, by - 8, W + 16, 34, 8); ctx.fill(); ctx.fillStyle = k < .25 ? '#e0603a' : '#ffd27a'; ctx.fillRect(bx, by, W * k, 18);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#efe3c8'; ctx.font = '700 26px "Shippori Mincho", Georgia, serif'; ctx.fillText('Défi : ' + Math.ceil(VERT.timer) + ' s', VW / 2, by - 18); }
+  ctx.restore();
+}
 /* ---------- anti-saccades : tout ce que le niveau va afficher est décodé pendant l'écran de chargement ---------- */
 const WARM = { g: null, hero: false, on: true };
 function warmFlush(c) { try { if (!WARM.g) WARM.g = mk(8, 8).getContext('2d', { willReadFrequently: true }); WARM.g.drawImage(c, 0, 0, 8, 8); WARM.g.getImageData(0, 0, 1, 1); } catch (e) {} }
@@ -6371,7 +6511,10 @@ async function warmLevel() {
   try {
     // 1) le décor : on balaie tout le niveau une fois, hors écran de jeu
     const cx = cam.x, cp = camPrev, end = LV.room ? 0 : LV.linear ? Math.max(0, T - VW) : C, sh = showHero;
-    for (let x = 0; x <= end; x += VW * .85) { cam.x = camPrev = x; try { render(); } catch (e) {} warmFlush(cv); await nap(); }
+    try { if (PROG.lv !== LVID) progBuild(); } catch (e) {}
+    WARM.log = { st: STATE, n: 0, err: '', t: performance.now() };
+    for (let x = 0; x <= end; x += VW * .85) { cam.x = camPrev = x; try { render(); WARM.log.n++; } catch (e) { WARM.log.err = String(e && e.message); } warmFlush(cv); await nap(); }
+    WARM.log.ms = Math.round(performance.now() - WARM.log.t);
     cam.x = cx; camPrev = cp; showHero = sh;
     // 2) les ennemis des vagues de ce niveau (et leur contour d'encre)
     const types = new Set(); for (const w of WAVES || []) for (const e of (w.list || [])) types.add(typeof e === 'string' ? e : e && (e.type || e[0]));
@@ -6424,7 +6567,7 @@ async function loadLevel(id, spawnFrac) {
   enemies.length = 0; shots.length = 0; inkFx.length = 0; trail.length = 0; blood.length = 0; splats.length = 0; arcs.length = 0; gibs.length = 0;
   WAVES = LV.waves; Object.assign(WAVE, { i: -1, delay: 2.4, banner: 0, calm: 0, done: false });
   REVISIT = revisitOk(id); PROG.revMsg = false; if (!WAVES.length || (WORLD.cleared.has(id) && !REVISIT)) WAVE.done = true;
-  WORLD.cur = id; WORLD.visited.add(id);
+  WORLD.cur = id; if (!(NODE[id] && NODE[id].test)) WORLD.visited.add(id);
   Object.assign(HERO, { hp: HERO_HP, inv: 1, dead: 0 });
   hero.x = spawnFrac != null ? spawnFrac * C + 170 : LV.node && LV.node.parent ? .1 * C + 200 : 900; hero.vx = 0; hero.dir = 1; ACT.y = 0; ACT.vy = 0; ACT.onGround = true; if (ACT.atk) endAttack();
   cam.x = camPrev = LV.room ? 0 : LV.linear ? clamp(hero.x - VW / 2 + 170, 0, T - VW) : hero.x - VW / 2 + 170; GF.list.length = 0; FXB.list.length = 0; cam.y = 0; cam.ty = 0; BX.haz.length = 0;
@@ -6670,13 +6813,6 @@ function drawToriiPT() {
     if (suck > 0 && PT.img.tfx2) { const g = 1 + suck * .5; ctx.globalAlpha = Math.min(1, suck * 1.6); ctx.drawImage(PT.img.tfx2, -iw * g * .7, vy - vh * (g - 1) * .5, iw * g * 1.4, vh * g); }
     ctx.restore();
   }
-  if (!open) {   // fermé : une corde sacrée et ses papiers pliés barrent le passage
-    const ry = vy + vh * .4, sag = 30, xa = ix0 - 8, xb = ix0 + iw + 8, rope = () => { ctx.beginPath(); ctx.moveTo(xa, ry); ctx.quadraticCurveTo((xa + xb) / 2, ry + sag * 2, xb, ry); ctx.stroke(); };
-    ctx.lineCap = 'round'; ctx.strokeStyle = '#2a1d14'; ctx.lineWidth = 13; rope(); ctx.strokeStyle = '#d9c391'; ctx.lineWidth = 8; rope();
-    ctx.strokeStyle = '#2a1d14'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
-    for (const k of [.22, .5, .78]) { const x = xa + (xb - xa) * k, y0 = ry + 4 * k * (1 - k) * sag + 4, sw2 = Math.sin(t * 1.6 + k * 9) * 3;
-      ctx.fillStyle = '#f6efdc'; ctx.beginPath(); ctx.moveTo(x - 7, y0); ctx.lineTo(x + 9, y0); ctx.lineTo(x + 9 + sw2, y0 + 22); ctx.lineTo(x + 19 + sw2, y0 + 22); ctx.lineTo(x + 19 + sw2 * 2, y0 + 46); ctx.lineTo(x + 3 + sw2 * 2, y0 + 46); ctx.lineTo(x + 3 + sw2 * 3, y0 + 70); ctx.lineTo(x - 13 + sw2 * 3, y0 + 70); ctx.lineTo(x - 13 + sw2 * 2, y0 + 40); ctx.lineTo(x - 3 + sw2, y0 + 40); ctx.lineTo(x - 3 + sw2, y0 + 20); ctx.lineTo(x - 7, y0 + 20); ctx.closePath(); ctx.fill(); ctx.stroke(); }
-  }
   // particules aspirées (reprises du portail d'origine)
   if (open) { ctx.save(); ctx.translate(0, vy + vh / 2); ctx.globalCompositeOperation = 'lighter';
     for (const p of PORTAL.parts) { const x = Math.cos(p.a) * iw * .5 * p.r, yy = Math.sin(p.a) * vh * .5 * p.r, s2 = 4 + p.r * 4;
@@ -6838,7 +6974,7 @@ function plaque(cx, y, lines, o = {}) {
   ctx.save(); ctx.textAlign = 'center';
   const F = l => `${l.b ? 700 : 600} ${l.s || 22}px "Shippori Mincho", Georgia, serif`;
   let W = 0, H = 18; for (const l of lines) { ctx.font = F(l); W = Math.max(W, ctx.measureText(l.t).width); H += (l.s || 22) + 9; }
-  const sw = o.seal ? 56 : 0; W += 52 + sw; const x0 = cx - W / 2;
+  const sw = o.seal ? 56 : 0; W += 52 + sw; if (y < 260 && cx - W / 2 < 660) cx = 660 + W / 2; if (cx + W / 2 > VW - 240 && y < 200) cx = VW - 240 - W / 2; const x0 = cx - W / 2;
   ctx.globalAlpha = o.a == null ? 1 : o.a;
   ctx.fillStyle = 'rgba(20,12,16,.3)'; rrect(x0 + 4, y + 7, W, H, 10); ctx.fill();
   ctx.fillStyle = '#f1e6cb'; rrect(x0, y, W, H, 10); ctx.fill(); ctx.strokeStyle = o.lock ? '#c23b22' : '#1b1714'; ctx.lineWidth = 3; ctx.stroke();
@@ -6895,7 +7031,7 @@ function drawPassage(e) {
   const gi = GATES.findIndex(g => g.don === e.gate); if (gi < 0) return;
   const im = invImg('passages.webp'); if (!im.complete || !im.naturalWidth) return;
   const sx = wx2sx(e.x * C); if (sx < -900 || sx > VW + 300) return;
-  const y = CFG.groundLine + 22 + gOff(e.x * C), on = hasDon(e.gate);
+  const y = CFG.groundLine + 22 + gOff(e.x * C), on = hasDon(e.gate); if (!on) return;   // passage fermé : rien n'est dessiné
   const R = PASSM[(on ? 'o' : 'f') + gi], w = R[2] * PASS_K, h = R[3] * PASS_K;
   ctx.drawImage(im, R[0], R[1], R[2], R[3], sx + 190, y - h, w, h);   // juste à droite du torii : le passage qu'il ouvre
 }
@@ -7645,7 +7781,7 @@ function applyBright() { const b = SETTINGS.bright || 1; cv.style.filter = b ===
 setTimeout(applyBright, 0);
 function saveSettings() { applyBright(); try { localStorage.setItem('kaeru_settings', JSON.stringify(SETTINGS)); } catch (_) {} applyVolumes(); }
 function saveGame() {
-  if (NODE[LVID]) SAVE.level = LVID; SAVE.exists = true; SAVE.visited = [...WORLD.visited]; SAVE.cleared = [...WORLD.cleared];
+  if (NODE[LVID] && !NODE[LVID].test) SAVE.level = LVID; SAVE.exists = true; SAVE.visited = [...WORLD.visited]; SAVE.cleared = [...WORLD.cleared];
   try { localStorage.setItem('kaeru_save', JSON.stringify({ level: SAVE.level, seen: true, visited: SAVE.visited, cleared: SAVE.cleared, story: { hinoko: STORY.hinoko, alarm: STORY.alarm } })); } catch (_) {}
   invSave();
 }
@@ -7673,6 +7809,7 @@ function menuItems() {
   if (STATE === 'title') return [
     ...(SAVE.exists ? [{ label: 'Continuer · ' + NODE[SAVE.level].title, act: () => startGame(SAVE.level, false) }] : []),
     { label: 'Nouvelle partie', act: () => { WORLD.visited.clear(); WORLD.cleared.clear(); storyReset(); startGame('m_nenuphars', true); } },
+    { label: 'Zone test · les hauteurs', act: () => startGame('l_hauteurs', false) },
     { label: 'Options', act: () => openOptions() },
     { label: 'Plein écran', act: () => toggleFullscreen() },
     ...(IS_APP ? [{ label: 'Quitter le jeu', act: () => quitGame() }] : []),
@@ -8557,7 +8694,7 @@ const CINE_AT = { c_onsen: 'onsen', m_mare: 'hinoko', m_flammes: 'attaque', l_gr
   s_escalier: 'sanctuaire', s_saisons: 'lanterne', s_aosagi: 'aosagi2' };
 const CINE = { on: false, id: null, s: 0, l: 0, t: 0, lt: 0, chars: 0, prev: null, fade: 0, after: null, pending: null, img: {}, parts: [], skipT: 0,
   seen: new Set((() => { try { return JSON.parse(localStorage.getItem('kaeru_cine') || '[]'); } catch (_) { return []; } })()) };
-function cineReq(f) { if (CINE.img[f] === undefined) { const i = new Image(); i.onerror = () => { CINE.img[f] = null; }; i.src = 'assets/' + f; CINE.img[f] = i; } return CINE.img[f]; }
+function cineReq(f) { if (CINE.img[f] === undefined) { const i = new Image(); i.onerror = () => { CINE.img[f] = null; }; i.src = 'assets/' + f; if (i.decode) i.decode().catch(() => {}); CINE.img[f] = i; } return CINE.img[f]; }
 function cineReady(i) { return i && i.complete && i.naturalWidth; }
 function cineImg(st) {
   const a = cineReq(st.img + '.jpg'), b = cineReq(st.ph + '.jpg');
@@ -10356,7 +10493,7 @@ function progBuild() {
       if (avoid.some(a => { const d = dxTo((L + Rr) / 2, a); return Math.abs(d) < (Rr - L) / 2; })) { PROG.plats.length = g0; used.pop(); }
     }
   }
-  rlBuild();
+  rlBuild(); vertBuild();
   if (RL.list.length && !(Q.tre || []).includes(LVID)) { const tops = RL.list.map(rlTop).sort((a, b) => b.h - a.h); PROG.items.push({ k: 'tre', x: tops[0].x, h: tops[0].h + 70, t: 0 }); }
   for (const w of want) {
     let x = LV.linear ? clamp(w.f * W, 700, W - 900) : w.f * W, h = 150;
@@ -10500,6 +10637,7 @@ function drawReliefs() {
 
 function drawPlatforms() {
   if (PROG.lv !== LVID) return;
+  vertDraw();
   const im = invImg('plat_atlas.webp'); if (!im.complete || !im.naturalWidth) return;
   for (const p of PROG.plats) {
     const M = p.M, X0 = wx2sx(p.x) - M.L; if (X0 + M.aw < -60 || X0 > VW + 60) continue;
@@ -10507,7 +10645,9 @@ function drawPlatforms() {
     ctx.save();
     if (p.q !== 2) { ctx.fillStyle = 'rgba(10,6,12,.32)'; ctx.beginPath(); ctx.ellipse(X0 + M.aw / 2, gy + 2, M.aw * .48, 12, 0, 0, 6.283); ctx.fill(); }
     else { ctx.fillStyle = 'rgba(10,6,12,.18)'; ctx.beginPath(); ctx.ellipse(X0 + M.aw / 2, gy + 2, M.aw * .3, 8, 0, 0, 6.283); ctx.fill(); }
-    if (M.ropes && M.ropes.length) { ctx.strokeStyle = '#b39a62'; ctx.lineWidth = 3; for (const r of M.ropes) { ctx.beginPath(); ctx.moveTo(X0 + r + 1, top + 4); ctx.lineTo(X0 + r + 1, -20); ctx.stroke(); } }
+    if (p.temp) ctx.globalAlpha = VERT.timer > 0 && VERT.timer < 3 ? .45 + .4 * Math.abs(Math.sin(t * 12)) : .92;
+    const rps = p.ropes || M.ropes;
+    if (rps && rps.length) { ctx.strokeStyle = '#b39a62'; ctx.lineWidth = 3; for (const r of rps) { ctx.beginPath(); ctx.moveTo(X0 + r + 1, top + 4); ctx.lineTo(X0 + r + 1, -20); ctx.stroke(); } }
     ctx.drawImage(im, M.ax, M.ay, M.aw, M.ah, X0, top, M.aw, M.ah);
     ctx.restore();
   }
@@ -11176,7 +11316,7 @@ function pnjTalkDone(n) { const f = QPEND[n.who]; delete QPEND[n.who]; if (f) { 
 /* ---------- carnet (onglet de la besace) ---------- */
 /* objectif en cours, déduit de l'avancement */
 function carnetGoal() {
-  const vis = id => WORLD.visited.has(id), R = Math.max(0, ...NODES.filter(n => vis(n.id)).map(n => n.r || 0));
+  const vis = id => WORLD.visited.has(id), R = Math.max(0, ...NODES.filter(n => vis(n.id) && !n.test).map(n => n.r || 0));
   if (!DONS_ALL) {
     for (const g of GATES) if (hasDon(g.don) && !vis(g.to)) return { t: 'Un nouveau chemin est ouvert : ' + g.lab.replace(/^(Le|La|Les|L’)/, m => m.toLowerCase()) + '.', s: DONS[g.don].go, r: R };
     if (hasDon('perle') && !NODES.some(n => n.r === 2 && vis(n.id))) return { t: 'Le tourbillon du gouffre s’est ouvert.', s: DONS.perle.go, r: R };
@@ -11876,9 +12016,9 @@ function update(dt) {
   cam.x = LV.room ? 0 : lerp(cam.x, target, dt * (ACT.dash > 0 ? 5 : 2.6));
   if (LV.room) { cam.y = cam.ty = 0; } else {
     const fall = !ACT.onGround && ACT.vy < -250;
-    if (ACT.onGround) cam.ty = clamp(ACT.y - 300, 0, 1700);
-    else if (fall) cam.ty = clamp(ACT.y - 300 + ACT.vy * .22, 0, 1700);           // anticipe la chute
-    else if (ACT.y - 300 > (cam.ty || 0) + 380) cam.ty = clamp(ACT.y - 300, 0, 1700); // grand saut vers le haut
+    if (ACT.onGround) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop);
+    else if (fall) cam.ty = clamp(ACT.y - 300 + ACT.vy * .22, 0, VERT.camTop);           // anticipe la chute
+    else if (ACT.y - 300 > (cam.ty || 0) + 380) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop); // grand saut vers le haut
     const d = (cam.ty || 0) - cam.y, sp = fall ? 7 : 3.2;
     cam.y += clamp(d * Math.min(1, dt * sp), -3200 * dt, 1400 * dt);
     cam.y = clamp(cam.y, Math.max(0, ACT.y - 760), Math.max(0, ACT.y + 60));      // bornes dures : jamais hors écran
@@ -11969,7 +12109,7 @@ function render() {
   ctx.drawImage(VIGNETTE, 0, 0);
   if (inGame && STATE === 'play') drawZone();
   if (inGame && STATE !== 'title' && STATE !== 'intro') {
-    if (!TALK.on && !SCENE.on && !ZONE.on) { drawUI(); drawHud(); drawHinokoHud(); drawInvHud(); drawCombatHud(); drawMoveList(); drawLinearHint(); } drawBindMsg();
+    if (!TALK.on && !SCENE.on && !ZONE.on) { drawUI(); drawHud(); drawHinokoHud(); drawInvHud(); drawCombatHud(); vertHud(); drawMoveList(); drawLinearHint(); } drawBindMsg();
     if (QUAL.msg > 0) { QUAL.msg -= 1 / 60; ctx.globalAlpha = clamp(QUAL.msg, 0, 1); ctx.font = '500 22px "Shippori Mincho", serif'; ctx.textAlign = 'right'; ctx.fillStyle = '#efe3c8'; ctx.fillText('Qualité réduite automatiquement pour garder la fluidité', VW - 40, VH - 70); ctx.globalAlpha = 1; }
     if (STATE === 'play') { drawTouchButtons(); drawPauseButton(); }
   }
@@ -12162,7 +12302,7 @@ window.__hero = (x) => { if (x != null) { hero.x = x; cam.x = camPrev = x - VW /
 window.__clear = () => { for (const en of enemies) en.dead = .01; WAVE.i = WAVES.length - 1; WAVE.delay = 0; WAVE.calm = 0; };
 window.__exits = () => LV.exits; window.__mou = () => MOU; window.__mouGo = () => { const f = MOU.list.find(f => !f.got); if (!f) return null; window.__hero(f.x - 120); return f.id; }; window.__mouEat = () => { const f = MOU.list.find(f => !f.got); hero.dir = 1; MOU.anim = { f, t: 0, fr: 0 }; f.got = true; }; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
 window.__goto = (frac) => { hero.x = frac * C; cam.x = camPrev = hero.x - VW / 2; };
-window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
+window.__warm = () => WARM; window.__vert = () => VERT; window.__act = () => ACT; window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
 window.__advance = (sec) => { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); };
 window.__key = (code, down) => { if (down) { press(code); keys.add(code); } else keys.delete(code); };
 boot().catch(e => __showErr('Chargement : ' + (e && (e.stack || e.message))));
