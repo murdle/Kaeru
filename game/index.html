@@ -20,9 +20,9 @@
   body { margin: 0; background: var(--ink); color: var(--washi); overflow: hidden; font-family: var(--font-display); }
   #stage { position: fixed; inset: 0; display: grid; place-items: center; }
   #game { width: min(100vw, calc(100vh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; max-width: 100%; display: block; background: var(--ink); touch-action: none; }
-  #loader { position: fixed; inset: 0; display: grid; place-items: center; gap: 14px; align-content: center; background: var(--ink); transition: opacity .8s; }
+  #loader { position: fixed; inset: 0; display: grid; place-items: center; gap: 14px; align-content: center; background: var(--washi); transition: opacity .8s; }
   #loader[hidden] { display: none; }
-  #loader p { margin: 0; letter-spacing: .3em; font-size: 15px; color: var(--washi-dim); }
+  #loader p { margin: 0; letter-spacing: .3em; font-size: 17px; font-weight: 700; color: #1b1714; }
   #bar { width: min(320px, 70vw); height: 3px; background: #2a2420; }
   #bar i { display: block; height: 100%; width: 0; background: var(--vermillon); transition: width .2s; }
   @media (prefers-reduced-motion: reduce) { #loader { transition: none; } }
@@ -3189,21 +3189,22 @@ function enfCyc(list, fps, tt) {
 function enfDraw(en, p, X, Y, F, o = {}) {
   const pp = typeof p === 'string' ? { a: p, k: 0 } : p;
   const one = (n, al) => {
-    const M = ENF.M[en], f = M.f[n], im = ENF.img[en + ':' + n]; if (!f || !im || al <= 0) return;
-    const S = M.S * (o.s || 1), ax = o.c ? f[7] : f[5], ay = o.c ? f[8] : f[6];
+    const M = ENF.M[en], f = M.f[n]; let im = ENF.img[en + ':' + n]; if (!f || !im || al <= 0) return;
+    if (INK.on && !im._ol && !INK_SKIP.test(en + ':' + n)) im = ENF.img[en + ':' + n] = inkOutline(im);
+    const pd = im._pad || 0, S = M.S * (o.s || 1), ax = (o.c ? f[7] : f[5]) + pd, ay = (o.c ? f[8] : f[6]) + pd;
     ctx.save(); ctx.globalAlpha = (o.alpha ?? 1) * al; ctx.translate(X, Y); if (o.rot) ctx.rotate(o.rot); ctx.scale(F * S * (o.sx || 1), S * (o.sy || 1));
     ctx.drawImage(im, -ax, -ay);
     const fl = Math.max(o.flash || 0, o.tele ? o.tele * (.18 + .14 * Math.sin(t * 38)) : 0);
     if (fl > 0) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (o.alpha ?? 1) * al * Math.min(1, fl); ctx.drawImage(im, -ax, -ay); }
     ctx.restore();
   };
-  one(pp.a, 1); if (pp.k > 0 && pp.b) one(pp.b, pp.k);
+  if (K4FADE.on) { one(pp.a, 1); if (pp.k > 0 && pp.b) one(pp.b, pp.k); } else one(pp.k > .5 && pp.b ? pp.b : pp.a, 1);
   // fondu depuis la pose précédente (par ennemi) : plus de saut sec d'une pose à l'autre
   const E = ENF.cur;
   if (E) {
     if (E._pa !== pp.a || E._pen !== en) { E._pv = E._pen === en && E._pa && E._pb !== pp.a ? E._pa : null; E._pt = t; E._pa = pp.a; E._pen = en; }
     E._pb = pp.k > .5 ? pp.b : null;
-    if (E._pv) { const u = 1 - (t - E._pt) / .1; if (u > 0) one(E._pv, u * u * .9); else E._pv = null; }
+    if (E._pv && K4FADE.on) { const u = 1 - (t - E._pt) / .1; if (u > 0) one(E._pv, u * u * .9); else E._pv = null; }
   }
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
@@ -3484,7 +3485,7 @@ function drawArcherF(e) {
 const STUCK = [];
 function drawArrowShot(p) {
   const im = ENF.img['archer:' + (p.fire ? 'fl1' : 'fl0')]; if (!im) return;
-  const x = wx2sx(p.x), y = CFG.groundLine - p.y, a = Math.atan2(-p.vy, p.vx), S = ENF.M.archer.S * .8;
+  const x = wx2sx(p.x), y = CFG.groundLine - p.y, a = Math.atan2(-p.vy, p.vx), S = ENF.M.archer.S * .5;
   if (p.rain && p.y > 0) {   // ombre au sol : on voit où la pluie va tomber
     const k = clamp(1 - p.y / 1400, 0, 1);
     ctx.globalAlpha = .15 + .45 * k; ctx.fillStyle = 'rgba(120,10,10,.8)';
@@ -5031,6 +5032,17 @@ function sepHalo(X, Y, w, h, a) {
     gr.addColorStop(0, 'rgba(255,246,226,1)'); gr.addColorStop(.45, 'rgba(255,246,226,.55)'); gr.addColorStop(1, 'rgba(255,246,226,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); }
   const day = sepLum() > 105; ctx.save(); ctx.globalAlpha = a * (day ? .3 : .16); ctx.drawImage(SEP.halo, X - w / 2, Y - h / 2, w, h); ctx.restore();
 }
+const INK = { on: true, pad: 3, map: new Map() };
+function inkOutline(src, sx, sy, sw, sh) {
+  const P = INK.pad, w = sw || src.width, h = sh || src.height, c = mk(w + P * 2, h + P * 2), g = c.getContext('2d'), sil = mk(w, h), sg = sil.getContext('2d');
+  if (sw) sg.drawImage(src, sx, sy, sw, sh, 0, 0, w, h); else sg.drawImage(src, 0, 0);
+  sg.globalCompositeOperation = 'source-in'; sg.fillStyle = '#17111a'; sg.fillRect(0, 0, w, h);
+  g.globalAlpha = .85; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; g.drawImage(sil, P + Math.cos(a) * P * .85, P + Math.sin(a) * P * .85); }
+  g.globalAlpha = 1; if (sw) g.drawImage(src, sx, sy, sw, sh, P, P, w, h); else g.drawImage(src, P, P);
+  c._ol = 1; c._pad = P; return c;
+}
+function inkOf(img, key, f) { const k = key + (f ? ':' + f[0] + ',' + f[1] : ''); let c = INK.map.get(k); if (!c) { c = f ? inkOutline(img, f[0], f[1], f[2], f[3]) : inkOutline(img); INK.map.set(k, c); } return c; }
+const INK_SKIP = /^(onibi|hotaru)|:(fx|fl|feu|eclair|onde|aura|flam|fum)/;
 function drawEnemies() {
   for (const e of enemies) if (!e.decap) { const go = gOff(e.x); ctx.save(); ctx.translate(0, go); ENF.cur = e;  (NEW_EN[e.type] ? drawNew : e.type === 'kasa' ? drawKasa : e.type === 'tengu' ? drawTengu : drawOnibi)(e); ENF.cur = null; ctx.restore(); }
   drawBossBar();
@@ -6101,15 +6113,15 @@ function drawMap() {
   for (const it of items) {
     const n = it.n, S = mapState(it.id), sel = MAPV.sel === it.id, rad = it.ext ? 30 : n.parent ? 34 : 44;
     if (it.ext) {
-      const known = regionKnown(n.r) || S.reach;
-      ctx.globalAlpha = known ? 1 : .35;
+      const known = regionKnown(n.r) || S.reach, glock = it.gate && !hasDon(it.gate.don);
+      ctx.globalAlpha = known || glock ? 1 : .35;
       ctx.fillStyle = sel ? red : ink; ctx.beginPath(); ctx.arc(it.px, it.py, rad, 0, 6.283); ctx.fill();
       ctx.fillStyle = '#efe3c8'; ctx.font = '700 30px "Shippori Mincho", serif'; ctx.textAlign = 'center'; ctx.fillText(REGIONS[n.r].kanji, it.px, it.py + 11);
-      ctx.fillStyle = ink; ctx.font = '500 17px "Shippori Mincho", Georgia, serif'; ctx.fillText(it.gate && !hasDon(it.gate.don) ? '封 ' + DONS[it.gate.don].n : it.ext === 'out' ? 'vers →' : '← depuis', it.px, it.py + rad + 24);
+      ctx.fillStyle = glock ? red : ink; ctx.font = (glock ? '700 ' : '500 ') + '17px "Shippori Mincho", Georgia, serif'; ctx.fillText(glock ? '封 ' + DONS[it.gate.don].n : it.ext === 'out' ? 'vers →' : '← depuis', it.px, it.py + rad + 24);
       ctx.globalAlpha = 1; continue;
     }
     const faint = !S.visited && !S.reach && !n.parent;
-    ctx.globalAlpha = faint ? .35 : 1;
+    ctx.globalAlpha = faint ? .6 : 1;
     if (sel) { ctx.fillStyle = 'rgba(194,59,34,.18)'; ctx.beginPath(); ctx.arc(it.px, it.py, rad + 16, 0, 6.283); ctx.fill(); }
     ctx.lineWidth = sel ? 5 : 3;
     if (!S.paint) { ctx.setLineDash([6, 7]); ctx.fillStyle = 'rgba(233,220,192,1)'; ctx.strokeStyle = S.sealed ? red : '#7a6a54'; }
@@ -6127,9 +6139,16 @@ function drawMap() {
       ctx.fillStyle = red; ctx.fillRect(it.px - 20, it.py - rad - 54 + b, 40, 40); ctx.fillStyle = '#efe3c8'; ctx.font = '700 28px "Shippori Mincho", serif'; ctx.fillText('蛙', it.px, it.py - rad - 24 + b);
     }
     ctx.fillStyle = ink; ctx.font = (n.parent ? '500 17px ' : '600 19px ') + '"Shippori Mincho", Georgia, serif';
-    const lab = n.title.length > 24 ? n.title.slice(0, 23) + '…' : n.title;
-    ctx.fillText(lab, it.px, it.py + rad + 24);
-    if (!S.paint) { ctx.fillStyle = '#8a7a62'; ctx.font = 'italic 500 15px "Shippori Mincho", Georgia, serif'; ctx.fillText(S.sealed ? 'scellé' : 'à peindre', it.px, it.py + rad + 44); }
+    { // nom : au-dessus pour la rangée du haut, en dessous pour celle du bas (les noms ne se chevauchent plus) ; lieu inconnu = « ？ »
+      const known = S.visited || S.reach || sel || S.sealed || n.parent, up = n.y < .5 && !S.here && !n.parent;
+      const lab = !known ? '？' : sel ? n.title : n.title.length > 21 ? n.title.slice(0, 20) + '…' : n.title, ly = up ? it.py - rad - 14 : it.py + rad + 24;
+      if (sel) { ctx.font = '700 20px "Shippori Mincho", Georgia, serif'; const w = ctx.measureText(lab).width + 18; ctx.fillStyle = '#e9dcc0'; ctx.fillRect(it.px - w / 2, ly - 20, w, 27); ctx.fillStyle = ink; }
+      ctx.fillText(lab, it.px, ly);
+      if (S.sealed) {   // cadenas rouge
+        const lx = it.px + rad * .7, lyy = it.py + rad * .62; ctx.fillStyle = red; ctx.strokeStyle = red; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(lx, lyy - 9, 8, Math.PI, 0); ctx.stroke(); rrect(lx - 12, lyy - 9, 24, 19, 4); ctx.fill(); ctx.fillStyle = '#f1e6cb'; ctx.beginPath(); ctx.arc(lx, lyy, 3.2, 0, 6.283); ctx.fill();
+      } else if (!S.paint && known) { ctx.fillStyle = '#8a7a62'; ctx.font = 'italic 500 15px "Shippori Mincho", Georgia, serif'; ctx.fillText('à peindre', it.px, up ? ly - 22 : ly + 20); }
+    }
     ctx.globalAlpha = 1;
   }
   // panneau d'information
@@ -6142,8 +6161,10 @@ function drawMap() {
     ctx.fillText((si.ext ? REGIONS[n.r].title + ' · ' : '') + n.title, B.x0 + 70, 918);
     ctx.fillStyle = '#5a4a3a'; ctx.font = '500 20px "Shippori Mincho", Georgia, serif';
     let state = kind;
-    if (!S.paint) state += S.sealed ? ' · scellé' : ' · pas encore peint'; else if (S.cleared) state += ' · vaincu'; else if (S.visited) state += ' · visité';
-    ctx.fillText(state + '  —  ' + (n.desc || ''), B.x0 + 70, 952);
+    const gl = si.gate && !hasDon(si.gate.don) ? lockNeed({ gate: si.gate.don, to: si.id }) : S.sealed ? (lockNeed({ to: si.id }) || { t: 'Scellé : il te faudra ' + (n.need || 'un pouvoir que tu n’as pas encore'), w: '' }) : null;
+    if (gl) state += ' · scellé'; else if (!S.paint) state += ' · pas encore peint'; else if (S.cleared) state += ' · vaincu'; else if (S.visited) state += ' · visité';
+    if (gl) { ctx.fillStyle = red; ctx.font = '700 20px "Shippori Mincho", Georgia, serif'; ctx.fillText(gl.t + (gl.w ? '   ·   ' + gl.w : ''), B.x0 + 70, 952); }
+    else ctx.fillText(state + '  —  ' + (n.desc || ''), B.x0 + 70, 952);
     let act = '';
     if (S.here) act = 'Tu es ici';
     else if (n.parent) act = 'Par une porte';
@@ -6208,7 +6229,7 @@ const NPC_DEF = {
     'Réveille-toi, Kaeru. Le pont t’attend. Et Ame attend sa poupée.'] }],
 };
 const NPCS = [], NPC_IMG = {};
-function npcImg(f) { return NPC_IMG[f] || (NPC_IMG[f] = (() => { const i = new Image(); i.src = 'assets/' + f; return i; })()); }
+function npcImg(f) { return NPC_IMG[f] || (NPC_IMG[f] = (() => { const i = new Image(); i.src = 'assets/' + f; if (i.decode) i.decode().catch(() => {}); return i; })()); }
 function buildNPCs(id) {
   NPCS.length = 0;
   for (const d of NPC_DEF[id] || []) {
@@ -6305,11 +6326,11 @@ function drawNPCs() {
     ctx.fillStyle = 'rgba(10,6,12,.35)'; ctx.beginPath(); ctx.ellipse(0, 0, bw * .38, 10, 0, 0, 6.283); ctx.fill();
     ctx.scale(-1, 1);
     const ox = -bw / 2;
-    ctx.save(); ctx.translate(0, 0); ctx.scale(1, breathe); ctx.drawImage(n.body, ox, -bh, bw, bh); ctx.restore();
+    ctx.save(); ctx.translate(0, 0); ctx.scale(1, breathe); if (INK.on) { const q = INK.pad * s; ctx.drawImage(inkOf(n.body, 'b:' + n.who), ox - q, -bh - q, bw + q * 2, bh + q * 2); } else ctx.drawImage(n.body, ox, -bh, bw, bh); ctx.restore();
     const nx = ox + n.neck[0] * s, ny = -bh * breathe + n.neck[1] * s;
     const hw = n.head.naturalWidth * s, hh = n.head.naturalHeight * s, cx = M.chin[0] * s, cy = M.chin[1] * s;
     const rot = (Math.sin(n.t * 1.3) * 2.5 + Math.sin(n.nod * 9) * n.nod * 8) * Math.PI / 180;
-    ctx.translate(nx, ny + hh * .22); ctx.rotate(rot); ctx.drawImage(n.head, -cx, -cy, hw, hh);
+    ctx.translate(nx, ny + hh * .22); ctx.rotate(rot); if (INK.on) { const q = INK.pad * s; ctx.drawImage(inkOf(n.head, 'h:' + n.who), -cx - q, -cy - q, hw + q * 2, hh + q * 2); } else ctx.drawImage(n.head, -cx, -cy, hw, hh);
     ctx.restore();
   }
 }
@@ -6340,6 +6361,31 @@ const HG = { y: 0 };
 
 
 const CFG_RESET = { surfY: null, sky: null, far: null, mid: null, snow: 0, bg: '#14101c', fireflies: 0, leafSet: 'red', groundLine: 888, midGlowSize: 46, groundGlows: [], midGlows: [], rainDrops: 260 };
+/* ---------- anti-saccades : tout ce que le niveau va afficher est décodé pendant l'écran de chargement ---------- */
+const WARM = { g: null, hero: false, on: true };
+function warmFlush(c) { try { if (!WARM.g) WARM.g = mk(8, 8).getContext('2d', { willReadFrequently: true }); WARM.g.drawImage(c, 0, 0, 8, 8); WARM.g.getImageData(0, 0, 1, 1); } catch (e) {} }
+async function warmLevel() {
+  if (!WARM.on) return;
+  const nap = () => new Promise(r => setTimeout(r, 0)); let t0 = performance.now();
+  const tick = async () => { if (performance.now() - t0 > 14) { await nap(); t0 = performance.now(); } };
+  try {
+    // 1) le décor : on balaie tout le niveau une fois, hors écran de jeu
+    const cx = cam.x, cp = camPrev, end = LV.room ? 0 : LV.linear ? Math.max(0, T - VW) : C, sh = showHero;
+    for (let x = 0; x <= end; x += VW * .85) { cam.x = camPrev = x; try { render(); } catch (e) {} warmFlush(cv); await nap(); }
+    cam.x = cx; camPrev = cp; showHero = sh;
+    // 2) les ennemis des vagues de ce niveau (et leur contour d'encre)
+    const types = new Set(); for (const w of WAVES || []) for (const e of (w.list || [])) types.add(typeof e === 'string' ? e : e && (e.type || e[0]));
+    for (const k of Object.keys(ENF.img)) {
+      const en = k.split(':')[0]; if (!types.has(en)) continue;
+      let im = ENF.img[k]; if (!im) continue;
+      if (INK.on && !im._ol && !INK_SKIP.test(k)) im = ENF.img[k] = inkOutline(im);
+      if (!im._w) { warmFlush(im); im._w = 1; await tick(); }
+    }
+    // 3) Kaeru, une seule fois
+    if (!WARM.hero && K4.ready) { WARM.hero = true; for (const n in K4.img) { const im = K4.img[n]; if (im && im.getContext) { warmFlush(im); await tick(); } } }
+    try { render(); } catch (e) {} warmFlush(cv);
+  } catch (e) {}
+}
 async function loadLevel(id, spawnFrac) {
   id = storyAlias(id); if (!SCENE.on) SCENE.actors = []; STORY.msg = 0;
   if (!LEVELS[id] && NODE[id]) levelFor(id);
@@ -6387,6 +6433,7 @@ async function loadLevel(id, spawnFrac) {
   if (LV.lake) initRipples();
   HG.y = gOff(hero.x); LV.layout(); finalizeObjects(); initParticles(); initDummies(); buildDoors(LV.node); buildHeals(LV.node); buildNPCs(id); buildSpirits(id); buildErrants(id); ABBE.i = 0;
   introT = 0;
+  await warmLevel();
   ld.style.opacity = 0; ld.style.pointerEvents = 'none'; setTimeout(() => { if (ld.style.opacity === '0') ld.hidden = true; }, 900);
   { const c = CINE_AT[id]; if (c && !CINE.seen.has(c)) CINE.pending = c; }
 }
@@ -6613,15 +6660,22 @@ function drawToriiPT() {
   ptDraw(tn, H, 0, { dark: !open });
   // voile entre les piliers
   const suck = TRANS.to && TRANS.phase === 0 ? clamp(TRANS.t / 1.1, 0, 1) : 0;
-  const fr = 'voile' + (Math.floor(t * 7) % 4);
-  const vim = PT.img[fr];
+  const vu = t * 1.8, vi = Math.floor(vu) % 4, vf = vu - Math.floor(vu);
+  const vim = PT.img['voile' + vi], vim2 = PT.img['voile' + (vi + 1) % 4];
   if (vim) {
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    if (!open) { const b = PT.img.tfx0; if (b) { ctx.globalAlpha = .55; ctx.drawImage(b, ix0, vy, iw, vh); } }
-    else { ctx.globalAlpha = clamp(PORTAL.open, 0, 1) * (.85 + .15 * Math.sin(t * 4)); ctx.drawImage(vim, ix0, vy, iw, vh); }
+    ctx.save(); ctx.globalCompositeOperation = 'screen';
+    if (open) { const va = clamp(PORTAL.open, 0, 1) * .88; ctx.globalAlpha = va * (1 - vf); ctx.drawImage(vim, ix0, vy, iw, vh); if (vim2) { ctx.globalAlpha = va * vf; ctx.drawImage(vim2, ix0, vy, iw, vh); } }
+    ctx.globalCompositeOperation = 'lighter';
     if (PT.openFlash > 0 && PT.img.tfx1) { ctx.globalAlpha = Math.min(1, PT.openFlash / .35); ctx.drawImage(PT.img.tfx1, ix0 - iw * .1, vy, iw * 1.2, vh); }
     if (suck > 0 && PT.img.tfx2) { const g = 1 + suck * .5; ctx.globalAlpha = Math.min(1, suck * 1.6); ctx.drawImage(PT.img.tfx2, -iw * g * .7, vy - vh * (g - 1) * .5, iw * g * 1.4, vh * g); }
     ctx.restore();
+  }
+  if (!open) {   // fermé : une corde sacrée et ses papiers pliés barrent le passage
+    const ry = vy + vh * .4, sag = 30, xa = ix0 - 8, xb = ix0 + iw + 8, rope = () => { ctx.beginPath(); ctx.moveTo(xa, ry); ctx.quadraticCurveTo((xa + xb) / 2, ry + sag * 2, xb, ry); ctx.stroke(); };
+    ctx.lineCap = 'round'; ctx.strokeStyle = '#2a1d14'; ctx.lineWidth = 13; rope(); ctx.strokeStyle = '#d9c391'; ctx.lineWidth = 8; rope();
+    ctx.strokeStyle = '#2a1d14'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    for (const k of [.22, .5, .78]) { const x = xa + (xb - xa) * k, y0 = ry + 4 * k * (1 - k) * sag + 4, sw2 = Math.sin(t * 1.6 + k * 9) * 3;
+      ctx.fillStyle = '#f6efdc'; ctx.beginPath(); ctx.moveTo(x - 7, y0); ctx.lineTo(x + 9, y0); ctx.lineTo(x + 9 + sw2, y0 + 22); ctx.lineTo(x + 19 + sw2, y0 + 22); ctx.lineTo(x + 19 + sw2 * 2, y0 + 46); ctx.lineTo(x + 3 + sw2 * 2, y0 + 46); ctx.lineTo(x + 3 + sw2 * 3, y0 + 70); ctx.lineTo(x - 13 + sw2 * 3, y0 + 70); ctx.lineTo(x - 13 + sw2 * 2, y0 + 40); ctx.lineTo(x - 3 + sw2, y0 + 40); ctx.lineTo(x - 3 + sw2, y0 + 20); ctx.lineTo(x - 7, y0 + 20); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   }
   // particules aspirées (reprises du portail d'origine)
   if (open) { ctx.save(); ctx.translate(0, vy + vh / 2); ctx.globalCompositeOperation = 'lighter';
@@ -6778,24 +6832,47 @@ function drawPortal(open) {
   ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .35 * open;
   ctx.drawImage(GLOW_GOLD, -rx * 1.6, -24, rx * 3.2, 60); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
+function rrect(x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+/* plaque de papier : une seule étiquette par passage (nom, conseil, condition) */
+function plaque(cx, y, lines, o = {}) {
+  ctx.save(); ctx.textAlign = 'center';
+  const F = l => `${l.b ? 700 : 600} ${l.s || 22}px "Shippori Mincho", Georgia, serif`;
+  let W = 0, H = 18; for (const l of lines) { ctx.font = F(l); W = Math.max(W, ctx.measureText(l.t).width); H += (l.s || 22) + 9; }
+  const sw = o.seal ? 56 : 0; W += 52 + sw; const x0 = cx - W / 2;
+  ctx.globalAlpha = o.a == null ? 1 : o.a;
+  ctx.fillStyle = 'rgba(20,12,16,.3)'; rrect(x0 + 4, y + 7, W, H, 10); ctx.fill();
+  ctx.fillStyle = '#f1e6cb'; rrect(x0, y, W, H, 10); ctx.fill(); ctx.strokeStyle = o.lock ? '#c23b22' : '#1b1714'; ctx.lineWidth = 3; ctx.stroke();
+  if (o.seal) { ctx.fillStyle = '#c23b22'; rrect(x0 + 14, y + H / 2 - 21, 42, 42, 6); ctx.fill(); ctx.fillStyle = '#f1e6cb'; ctx.font = '700 28px "Shippori Mincho", serif'; ctx.fillText(o.seal, x0 + 35, y + H / 2 + 10); }
+  let yy = y + 10; for (const l of lines) { yy += (l.s || 22); ctx.font = F(l); ctx.fillStyle = l.c || '#1b1714'; ctx.fillText(l.t, cx + sw / 2, yy); yy += 9; }
+  ctx.restore(); return H;
+}
+/* ce qu'il manque pour franchir un passage, et où le trouver */
+function lockNeed(e) {
+  if (!e) return null;
+  const don = e.gate && !hasDon(e.gate) ? e.gate : null, tn = e.to === '__carte' ? null : NODE[storyAlias(e.to)];
+  const d2 = don || (tn && tn.don && sealed(tn) ? tn.don : null);
+  if (d2 && DONS[d2]) { const from = Object.keys(DON_FROM).find(k => DON_FROM[k] === d2), R = from && NODE[from] ? REGIONS[NODE[from].r || 0] : null;
+    return { t: 'Il te faut : ' + DONS[d2].n, w: R ? 'On le reçoit dans ' + R.title.replace(/^(Le|La|Les|L’)/, m => m.toLowerCase()) + ' (' + R.ch.toLowerCase() + ').' : '' }; }
+  if (tn && tn.don && sealed(tn)) return { t: 'Scellé : il te faudra ' + tn.need, w: '' };
+  if (tn && tn.kind === 'boss' && SEALS[tn.r] && sealCount(tn.r) < SEALS[tn.r].length) return { t: 'Sceaux des gardiens : ' + sealCount(tn.r) + ' / ' + SEALS[tn.r].length, w: 'Ils se gagnent dans les lieux secrets et les défis du chapitre.' };
+  return null;
+}
 function drawExitName(e) {
   const sx = wx2sx(e.x * C); if (sx < -300 || sx > VW + 300) return;
-  const tn = e.to === '__carte' ? { title: 'Torii du voyage · carte', paint: true } : NODE[storyAlias(e.to)], y = CFG.groundLine - 640;
-  const lock = e.gate && !hasDon(e.gate), title = e.gate ? e.lab + ' → ' + tn.title : tn.title;
-  ctx.save(); ctx.textAlign = 'center'; ctx.font = '600 26px "Shippori Mincho", Georgia, serif';
-  ctx.globalAlpha = wDone() ? .95 : .55; ctx.fillStyle = 'rgba(20,12,16,.6)'; const w = ctx.measureText(title).width + 40; ctx.fillRect(sx - w / 2, y - 30, w, 42);
-  ctx.fillStyle = lock ? '#e08a70' : painted(tn) ? '#ffd27a' : '#8a7a62'; ctx.fillText(title, sx, y);
-  if (lock) { ctx.font = '600 21px "Shippori Mincho", Georgia, serif'; const t2 = '封  il faut : ' + DONS[e.gate].n, w2 = ctx.measureText(t2).width + 34; ctx.fillStyle = 'rgba(20,12,16,.7)'; ctx.fillRect(sx - w2 / 2, y + 18, w2, 34); ctx.fillStyle = '#e08a70'; ctx.fillText(t2, sx, y + 42); }
-  ctx.restore();
+  if ((PORTAL.near || PORTAL.sealedNear) && EXN === e && !TRANS.to) return;   // devant le torii : la plaque d'action prend le relais
+  const tn = e.to === '__carte' ? { title: 'Torii du voyage · carte', paint: true } : NODE[storyAlias(e.to)]; if (!tn) return;
+  const need = lockNeed(e), lines = [{ t: (e.gate ? e.lab + '  →  ' : '') + tn.title, b: 1, s: 25, c: painted(tn) ? '#1b1714' : '#7a6a54' }];
+  if (tn.kind === 'boss') { const r = tn.r || 0, ok = HERO_HP >= ADVICE.hp[r] && (INV.blade || 0) >= ADVICE.blade[r];
+    lines.push({ t: 'conseillé : PV max ' + ADVICE.hp[r] + (ADVICE.blade[r] ? '  ·  lame rang ' + ADVICE.blade[r] : ''), s: 18, c: ok ? '#3d6b2a' : '#8a5a14' }); }
+  if (need) lines.push({ t: need.t, s: 20, c: '#c23b22', b: 1 });
+  plaque(sx, CFG.groundLine - 700, lines, { lock: !!need, seal: need ? '封' : null, a: wDone() ? 1 : .75 });
 }
 function drawPortalPrompt() {
   if (PORTAL.sealedNear && !TRANS.to) {
-    const sx = wx2sx(exitWX()), y = CFG.groundLine - PORTAL_H - 60;
-    ctx.save(); ctx.textAlign = 'center'; ctx.font = '600 24px "Shippori Mincho", Georgia, serif';
-    const label = EXN && EXN.gate && !hasDon(EXN.gate) ? DONS[EXN.gate].n + ' : il te manque ce don pour passer.' : EXN && NODE[EXN.to] && NODE[EXN.to].don && sealed(NODE[EXN.to]) ? 'Scellé : il te faudra ' + NODE[EXN.to].need + '.' : sealLocked(EXN) && wDone() ? 'Le torii du gardien est scellé : trouve les sceaux du chapitre (' + sealCount(NODE[storyAlias(EXN.to)].r) + ' / ' + SEALS[NODE[storyAlias(EXN.to)].r].length + ')' : 'Le portail est scellé : vaincs les yokai (' + enemies.filter(e => !e.dead).length + ' restants)';
-    const W = ctx.measureText(label).width + 40;
-    ctx.fillStyle = 'rgba(20,12,16,.72)'; ctx.fillRect(sx - W / 2, y - 30, W, 46);
-    ctx.fillStyle = '#c9b48a'; ctx.fillText(label, sx, y); ctx.restore();
+    const sx = wx2sx(exitWX()), need = wDone() ? lockNeed(EXN) : null, left = enemies.filter(e => !e.dead).length;
+    const lines = need ? [{ t: need.t, b: 1, s: 25, c: '#c23b22' }].concat(need.w ? [{ t: need.w, s: 19, c: '#3a2f26' }] : [])
+      : [{ t: 'Le torii est scellé', b: 1, s: 25 }, { t: left ? 'Vaincs les yokai : ' + left + (left > 1 ? ' restants' : ' restant') : 'Les yokai approchent…', s: 19, c: '#3a2f26' }];
+    plaque(sx, CFG.groundLine - 700, lines, { lock: true, seal: '封' });
     return;
   }
   if (!PORTAL.near) return;
@@ -6860,7 +6937,7 @@ function drawTransition() {
   else if (TRANS.phase === 1) a = 1;
   else { a = 1 - clamp(TRANS.t / .7, 0, 1); white = Math.max(0, .6 - TRANS.t) ; }
   if (white > 0) { ctx.fillStyle = `rgba(255,240,210,${white * .85})`; ctx.fillRect(0, 0, VW, VH); }
-  if (a > 0) { ctx.fillStyle = `rgba(8,5,12,${a})`; ctx.fillRect(0, 0, VW, VH); }
+  if (a > 0) { ctx.fillStyle = `rgba(239,227,200,${a})`; ctx.fillRect(0, 0, VW, VH); }
 }
 
 /* =========================== COMBAT AVANCÉ =========================== */
@@ -9095,7 +9172,7 @@ function invHurtMul(d) { return talisOn('def') ? Math.max(1, Math.round(d * .8))
 /* ---------- état du monde : butin au sol, lucioles, plantes, aubergistes ---------- */
 const INVRT = { lv: null, pick: [], souls: [], proj: [], booms: [], shops: [], msg: '', msgT: 0, flash: 0, near: null, pop: null };
 const INVIMG = {};
-function invImg(n) { return INVIMG[n] || (INVIMG[n] = (() => { const i = new Image(); i.src = 'assets/' + n; return i; })()); }
+function invImg(n) { return INVIMG[n] || (INVIMG[n] = (() => { const i = new Image(); i.src = 'assets/' + n; if (i.decode) i.decode().catch(() => {}); return i; })()); }
 function invIcon(id, cx, cy, size, alpha) {
   const im = invImg('inv_icones.webp'), k = typeof id === 'number' ? id : IT[id] ? IT[id].i : -1; if (k < 0 || !im.complete || !im.naturalWidth) return;
   if (alpha != null) ctx.globalAlpha = alpha;
@@ -9353,7 +9430,7 @@ function drawLootPrompt() {
 function drawLootRest() {
   for (const q of INVRT.proj) { const X = wx2sx(q.x); ctx.save(); ctx.translate(X, q.y); ctx.rotate(q.t * 9); invIcon('bombe', 0, 0, 56); ctx.restore(); }
 }
-const LOOT_K = 2.3, LOOT_R = 170;
+const LOOT_K = 1.5, LOOT_R = 170;
 function drawLootOne(p, X) {
   {
     const bob = p.land ? Math.sin(t * 4 + p.ph) * 4 : 0, blink = p.t > 40 ? (Math.sin(t * 20) > 0 ? 1 : .3) : 1;
@@ -10212,7 +10289,7 @@ function drawPnj(n) {
   if (n.who === 'hotaru') { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .4 + .2 * Math.sin(n.t * 3); ctx.drawImage(GLOW_GOLD, X - 90, feet - fly - h * .55 - 90 + bob, 180, 180); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   if (n.who === 'yukionna') { const a = .62 + .12 * Math.sin(n.t * 1.3); ctx.save(); ctx.globalCompositeOperation = 'lighter'; onFx('orbe', X + Math.cos(n.t * .9) * 140, feet - h * .55 + Math.sin(n.t * 1.3) * 60, 120, .9); ctx.restore(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .35 * a; ctx.drawImage(GLOW_BLUE, X - 200, feet - h * .75 - 200, 400, 400); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a; }
   ctx.translate(X, feet - fly + bob - (n.who === 'yukionna' ? 30 + Math.sin(n.t * 1.1) * 10 : 0)); ctx.scale(-n.face, br);       // planches tournées vers la gauche
-  if (n.who === 'yukionna') { const g = ghostFrame(im, f); ctx.drawImage(g, -w / 2, -h, w, h); } else ctx.drawImage(im, f[0], f[1], f[2], f[3], -w / 2, -h, w, h); ctx.restore();
+  if (n.who === 'yukionna') { const g = ghostFrame(im, f); ctx.drawImage(g, -w / 2, -h, w, h); } else if (INK.on && n.who !== 'hotaru') { const q = INK.pad * s; ctx.drawImage(inkOf(im, 'p:' + n.who, f), -w / 2 - q, -h - q, w + q * 2, h + q * 2); } else ctx.drawImage(im, f[0], f[1], f[2], f[3], -w / 2, -h, w, h); ctx.restore();
 }
 const GHOSTF = {};
 function ghostFrame(im, f) { const k = f.join(','); if (GHOSTF[k]) return GHOSTF[k]; const c = document.createElement('canvas'); c.width = f[2]; c.height = f[3]; const g = c.getContext('2d');
@@ -10322,7 +10399,7 @@ function updateProg(dt) {
   // sceau du chapitre
   if (SEAL_OF[LVID] && WAVE.done && !(INV.seals && INV.seals[LVID])) {
     INV.seals = INV.seals || {}; INV.seals[LVID] = 1; const r = SEAL_OF[LVID];
-    invMsg('Sceau du gardien obtenu : ' + sealCount(r) + ' / ' + SEALS[r].length + (sealCount(r) >= SEALS[r].length ? '  ·  le torii du gardien est ouvert !' : ''), 4.5); sfx('special'); invSave();
+    invMsg('Sceau du gardien obtenu : ' + sealCount(r) + ' / ' + SEALS[r].length + (sealCount(r) >= SEALS[r].length ? '  ·  le torii du gardien est ouvert !' : '  ·  il en reste ' + (SEALS[r].length - sealCount(r)) + ' dans ce chapitre (voir le carnet)'), 5.5); sfx('special'); invSave();
   }
   if (REVISIT && !PROG.revMsg) { PROG.revMsg = true; invMsg('Les yokai sont revenus, plus forts. Butin augmenté.', 3.5); }
 }
@@ -10993,6 +11070,7 @@ function drawPoem() {
   ctx.restore();
 }
 function drawExitAdvice(e) {
+  return;
   const tn = NODE[storyAlias(e.to)]; if (!tn || tn.kind !== 'boss') return;
   const sx = wx2sx(e.x * C); if (sx < -300 || sx > VW + 300) return;
   const r = tn.r || 0, hpOk = HERO_HP >= ADVICE.hp[r], blOk = (INV.blade || 0) >= ADVICE.blade[r], y = CFG.groundLine - 596;
@@ -11096,29 +11174,71 @@ function questLines(who) {
 function pnjTalkDone(n) { const f = QPEND[n.who]; delete QPEND[n.who]; if (f) { for (const g of f) g(); sfx('special'); invSave(); } }
 
 /* ---------- carnet (onglet de la besace) ---------- */
+/* objectif en cours, déduit de l'avancement */
+function carnetGoal() {
+  const vis = id => WORLD.visited.has(id), R = Math.max(0, ...NODES.filter(n => vis(n.id)).map(n => n.r || 0));
+  if (!DONS_ALL) {
+    for (const g of GATES) if (hasDon(g.don) && !vis(g.to)) return { t: 'Un nouveau chemin est ouvert : ' + g.lab.replace(/^(Le|La|Les|L’)/, m => m.toLowerCase()) + '.', s: DONS[g.don].go, r: R };
+    if (hasDon('perle') && !NODES.some(n => n.r === 2 && vis(n.id))) return { t: 'Le tourbillon du gouffre s’est ouvert.', s: DONS.perle.go, r: R };
+  }
+  const goal = NODES.find(n => (n.r || 0) === R && n.kind === 'boss' && !WORLD.cleared.has(n.id)) || NODES.find(n => (n.r || 0) === R && DON_FROM[n.id] && !hasDon(DON_FROM[n.id]) && DON_FROM[n.id] !== 'eventail');
+  if (goal) {
+    if (goal.kind === 'boss' && SEALS[R] && sealCount(R) < SEALS[R].length) return { t: 'Retrouve les sceaux des gardiens : ' + sealCount(R) + ' / ' + SEALS[R].length + '.', s: 'Ils ouvrent le torii de « ' + goal.title + ' ». Ils se gagnent dans les lieux secrets et les défis du chapitre.', r: R, goal };
+    return { t: (vis(goal.id) ? 'Viens à bout de « ' : 'Trouve le chemin de « ') + goal.title + ' ».', s: goal.desc || '', r: R, goal };
+  }
+  return { t: 'Poursuis ta route.', s: 'Explore les lieux encore inconnus de la carte.', r: R };
+}
+function carnetWrap(txt, x, y, maxW, lh) { const words = String(txt).split(' '); let line = ''; for (const w of words) { const t2 = line ? line + ' ' + w : w; if (ctx.measureText(t2).width > maxW && line) { ctx.fillText(line, x, y); line = w; y += lh; } else line = t2; } if (line) { ctx.fillText(line, x, y); y += lh; } return y; }
 function drawCarnet() {
-  const Q = progQ(), x0 = 250, y0 = 290; ctx.textAlign = 'left';
-  ctx.fillStyle = '#ffd27a'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Sceaux des gardiens', x0, y0);
-  let y = y0 + 44;
-  for (const r in SEALS) { const reg = REGIONS[r], c = sealCount(r), n = SEALS[r].length;
-    ctx.fillStyle = c >= n ? '#bfe0a0' : '#efe3c8'; ctx.font = '600 22px "Shippori Mincho", Georgia, serif'; ctx.fillText(reg.ch + ' · ' + reg.title + '   ' + '◆'.repeat(c) + '◇'.repeat(n - c), x0, y); y += 36; }
-  y += 20; ctx.fillStyle = '#ffd27a'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Quêtes', x0, y); y += 44;
+  const Q = progQ(), G = carnetGoal(), ink = '#1b1714', red = '#c23b22', dim = '#6b5c48', ok = '#3d6b2a', SER = '"Shippori Mincho", Georgia, serif';
+  const X0 = 214, Y0 = 258, W = 1492, H = 712;
+  ctx.save(); ctx.textAlign = 'left';
+  // feuille de papier
+  ctx.fillStyle = 'rgba(10,6,12,.35)'; rrect(X0 + 6, Y0 + 8, W, H, 14); ctx.fill();
+  ctx.fillStyle = '#f1e6cb'; rrect(X0, Y0, W, H, 14); ctx.fill(); ctx.strokeStyle = '#5a3a22'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.fillStyle = 'rgba(120,90,60,.07)'; for (let i = 1; i < 20; i++) ctx.fillRect(X0 + 10, Y0 + i * 36, W - 20, 1);
+  const head = (txt, x, y) => { ctx.fillStyle = red; ctx.fillRect(x, y - 22, 6, 28); ctx.fillStyle = ink; ctx.font = '700 27px ' + SER; ctx.fillText(txt, x + 18, y); };
+  // ---- colonne de gauche : quoi faire maintenant ----
+  const xl = X0 + 44, wl = 800; let y = Y0 + 58;
+  head('Objectif', xl, y); y += 46;
+  ctx.fillStyle = ink; ctx.font = '700 29px ' + SER; y = carnetWrap(G.t, xl, y, wl, 38);
+  if (G.s) { ctx.fillStyle = '#3a2f26'; ctx.font = '500 23px ' + SER; y = carnetWrap(G.s, xl, y + 2, wl, 32); }
+  y += 30; const R = G.r, reg = REGIONS[R];
+  head('Pour avancer  ·  ' + reg.ch + ', ' + reg.title, xl, y); y += 44;
+  if (SEALS[R]) {
+    const c = sealCount(R), n = SEALS[R].length;
+    ctx.fillStyle = c >= n ? ok : ink; ctx.font = '700 24px ' + SER; ctx.fillText('Sceaux des gardiens   ' + c + ' / ' + n + (c >= n ? '   ·   le torii du gardien est ouvert' : ''), xl, y); y += 34;
+    for (const id of SEALS[R]) { const got = INV.seals && INV.seals[id], seen = WORLD.visited.has(id), nd = NODE[id];
+      ctx.font = '600 23px ' + SER; ctx.fillStyle = got ? ok : seen ? ink : dim;
+      ctx.fillText((got ? '◆  ' : '◇  ') + (got || seen ? nd.title : 'Un lieu encore inconnu') + (got ? '' : seen ? '   —   à vaincre' : nd.kind === 'scelle' ? '   —   scellé' : ''), xl + 16, y); y += 35; }
+  } else { ctx.fillStyle = dim; ctx.font = 'italic 500 21px ' + SER; ctx.fillText('Aucun sceau à réunir dans ce chapitre.', xl, y); y += 34; }
+  if (G.goal && G.goal.kind === 'boss') { const hpOk = HERO_HP >= ADVICE.hp[R], blOk = (INV.blade || 0) >= ADVICE.blade[R];
+    ctx.font = '600 23px ' + SER; ctx.fillStyle = hpOk && blOk ? ok : '#8a5a14'; y += 6;
+    ctx.fillText('Avant le gardien, conseillé : PV max ' + ADVICE.hp[R] + (ADVICE.blade[R] ? '  ·  lame rang ' + ADVICE.blade[R] : '') + (hpOk && blOk ? '   (tu es prêt)' : ''), xl, y); y += 34; }
+  // dons : ce qui ouvre les chemins entre les chapitres
+  y = Math.max(y + 22, Y0 + 520); head('Dons  ·  ils ouvrent les chemins', xl, y); y += 20;
+  { const x0 = xl; DON_ORDER.forEach((d, i) => { const on = hasDon(d), x = x0 + i * 104; ctx.fillStyle = on ? 'rgba(194,59,34,.35)' : 'rgba(90,70,50,.18)'; ctx.fillRect(x, y, 84, 84);
+      if (!(on && drawDonIcon(d, x + 42, y + 42, 92))) { ctx.fillStyle = on ? '#1b1714' : '#8a7a62'; ctx.font = '700 50px "Shippori Mincho", serif'; ctx.textAlign = 'center'; ctx.fillText(on ? DONS[d].k : '？', x + 42, y + 62); }
+      ctx.font = '500 14px "Shippori Mincho", Georgia, serif'; ctx.fillStyle = on ? '#1b1714' : '#6a6050'; ctx.fillText(on ? DONS[d].n : '', x + 42, y + 104); }); ctx.textAlign = 'left'; }
+  // ---- colonne de droite : le reste ----
+  const xr = X0 + 920, wr = W - 920 - 44; let yr = Y0 + 58;
+  ctx.fillStyle = 'rgba(90,58,34,.25)'; ctx.fillRect(xr - 34, Y0 + 30, 2, H - 60);
+  head('Quêtes annexes', xr, yr); yr += 42;
   const QS2 = [['hotaru', 'Les lucioles de Hotaru', Q.done.hotaru ? 'accomplie' : Q.luc.length + ' / 7'], ['mujina', 'Le pardon de Mujina', Q.done.mujina ? 'accomplie' : (Q.harvB || 0) + ' / 5 arbres'],
     ['shika', 'Les poèmes de Shika', Q.poe.length + ' / 12'], ['oto', 'Les ayu d’Oto', Q.done.oto ? 'accomplie' : (Q.ayu || 0) + ' / 10'], ['yukiko', 'Les lettres de Yukiko', Q.done.yukiko ? 'accomplie' : Q.letGiven ? Object.keys(Q.let).length + ' / 3' : '—'],
     ['momo', 'Momo : œufs et bains', (onsenQ().eggsDone && onsenQ().bathsDone) ? 'accomplie' : (onsenQ().eggs || 0) + ' / 6 œufs · ' + Object.keys(onsenQ().baths || {}).length + ' / 3 bains'],
     ['yukionna', 'La femme des neiges', (onsenQ().met || 0) >= 3 ? 'accomplie' : (onsenQ().met || 0) + ' / 3 rencontres']];
-  for (const [w, t, p] of QS2) { const met = Q.met[w]; ctx.fillStyle = met ? (p === 'accomplie' ? '#bfe0a0' : '#efe3c8') : '#7a6e5a'; ctx.font = '600 22px "Shippori Mincho", Georgia, serif'; ctx.fillText(met ? t : '???', x0, y); ctx.textAlign = 'right'; ctx.fillText(met ? p : '', x0 + 620, y); ctx.textAlign = 'left'; y += 31; }
-  { y += 26; ctx.textAlign = 'left'; ctx.fillStyle = '#ffd27a'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Dons', x0, y); y += 18;
-    DON_ORDER.forEach((d, i) => { const on = hasDon(d), x = x0 + i * 104; ctx.fillStyle = on ? 'rgba(194,59,34,.35)' : 'rgba(80,70,60,.5)'; ctx.fillRect(x, y, 84, 84);
-      if (!(on && drawDonIcon(d, x + 42, y + 42, 92))) { ctx.fillStyle = on ? '#efe3c8' : '#5a5046'; ctx.font = '700 50px "Shippori Mincho", serif'; ctx.textAlign = 'center'; ctx.fillText(on ? DONS[d].k : '？', x + 42, y + 62); }
-      ctx.font = '500 14px "Shippori Mincho", Georgia, serif'; ctx.fillStyle = on ? '#efe3c8' : '#6a6050'; ctx.fillText(on ? DONS[d].n : '', x + 42, y + 104); });
-    ctx.textAlign = 'left'; }
-  { const r = NODE[LVID] ? NODE[LVID].r : 0, tot = REGIONS.reduce((a, _, i) => a + mouCount(i), 0);
-    ctx.textAlign = 'left'; ctx.fillStyle = '#ffd27a'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Mouches de Kaeru', 1000, 900);
-    ctx.fillStyle = '#efe3c8'; ctx.font = '600 22px "Shippori Mincho", Georgia, serif'; ctx.fillText(REGIONS[r].ch + ' : ' + mouCount(r) + ' / 10   ·   en tout : ' + tot + ' / ' + REGIONS.length * 10, 1000, 938); }
-  const px = 1000; ctx.fillStyle = '#ffd27a'; ctx.font = '700 28px "Shippori Mincho", Georgia, serif'; ctx.fillText('Poèmes retrouvés', px, y0);
-  Q.poe.slice(-6).forEach((id, i) => { const p = POEMES[id]; if (!p) return; ctx.fillStyle = '#e6dac0'; ctx.font = 'italic 500 19px "Shippori Mincho", Georgia, serif'; p.forEach((l, j) => ctx.fillText(l, px, y0 + 44 + i * 92 + j * 24)); });
-  if (!Q.poe.length) { ctx.fillStyle = '#8f846f'; ctx.font = 'italic 500 20px "Shippori Mincho", Georgia, serif'; ctx.fillText('Aucun pour l’instant. Ils aiment les hauteurs.', px, y0 + 44); }
+  let unk = 0;
+  for (const [w, t2, p2] of QS2) { const met = Q.met[w], done = p2 === 'accomplie'; if (!met) { unk++; continue; }
+    ctx.textAlign = 'left'; ctx.font = '600 23px ' + SER; ctx.fillStyle = done ? ok : ink; ctx.fillText(t2, xr, yr);
+    ctx.textAlign = 'right'; ctx.font = '600 23px ' + SER; ctx.fillText(done ? '✓ accomplie' : p2, xr + wr, yr); yr += 35; }
+  if (unk) { ctx.textAlign = 'left'; ctx.fillStyle = dim; ctx.font = 'italic 500 21px ' + SER; ctx.fillText(unk === QS2.length ? 'Aucune pour l’instant : parle aux gens que tu croises.' : 'Encore ' + unk + (unk > 1 ? ' personnes' : ' personne') + ' à rencontrer.', xr, yr); yr += 35; }
+  ctx.textAlign = 'left'; yr += 24; head('Poèmes retrouvés  ·  ' + Q.poe.length + ' / 12', xr, yr); yr += 38;
+  if (!Q.poe.length) { ctx.fillStyle = dim; ctx.font = 'italic 500 20px ' + SER; ctx.fillText('Aucun pour l’instant. Ils aiment les hauteurs.', xr, yr); yr += 30; }
+  else Q.poe.slice(-2).forEach(id => { const pm = POEMES[id]; if (!pm) return; ctx.fillStyle = '#3a2f26'; ctx.font = 'italic 500 19px ' + SER; pm.forEach(l => { ctx.fillText(l, xr + 8, yr); yr += 24; }); yr += 10; });
+  { const r = NODE[LVID] ? NODE[LVID].r || 0 : 0, tot = REGIONS.reduce((a, _, i) => a + mouCount(i), 0); yr = Math.max(yr + 20, Y0 + H - 92);
+    head('Mouches de Kaeru', xr, yr); ctx.fillStyle = ink; ctx.font = '600 23px ' + SER; ctx.fillText(REGIONS[r].ch + ' : ' + mouCount(r) + ' / 10   ·   en tout : ' + tot + ' / ' + REGIONS.length * 10, xr, yr + 36); }
+  ctx.restore();
 }
 
 INV_TABS.push(['quete', 'Carnet']);
