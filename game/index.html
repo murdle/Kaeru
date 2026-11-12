@@ -6378,16 +6378,16 @@ const VERT_COL = { pieux: '#7a5a34', torii: '#b5432c', bambou: '#8c9a3c', pierre
 const VERT_DEF = {
   /* La grève aux galets : tout tient debout ou s'accroche à quelque chose. Trois ensembles, entre les reliefs peints (digue + phare, rochers) :
      - le ponton des pêcheurs : ponton -> toit de cabane -> pieux d'amarrage (lanterne de pierre au sommet), lanterne de papier pendue à la poutre du toit ;
-     - la cloche du rivage : posée au sol ; ses lotus d'esprit montent jusqu'au pilier de pierre dressé derrière les rochers ;
+     - la cloche du rivage : posée au sol ; ses lotus d'esprit montent des rochers jusqu'au pilier de pierre planté à côté ;
      - le grand torii ruiné : ses deux piliers laqués, entre lesquels on rebondit, lanterne de bois fixée en haut. */
   l_greve: {
-    camTop: 1100, grade: [.78, .8, '#8fa6bd', .13],
+    camTop: 1700, grade: [.78, .8, '#8fa6bd', .13],
     plats: [['toit', 1270], ['ponton', 1770]],
-    walls: [['pieux', 1130, 640], ['pierre', 7590, 1000, 330], ['torii', 8700, 1300], ['torii', 9292, 1300]],   // 4e valeur : le pilier sort de derrière un relief à cette hauteur (pas de pied)
-    lans: [['chochin', 1722, 0, 334], ['toro', 1130, 640], ['toro', 7590, 1000], ['bois', 9214, 1080]],          // chochin : 4e valeur = hauteur du point d'attache
-    bell: [6260, 0], time: 14,
-    temps: [['lotus', 6600, 480], ['lotus', 7030, 740]],
-    tips: [[1500, 300, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [8996, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [6260, 520, 'Frappe la cloche : des lotus d’esprit apparaissent, fais vite !']],
+    walls: [['pieux', 1130, 640], ['pierre', 6560, 1000], ['torii', 8700, 1300], ['torii', 9292, 1300]],   // 4e valeur : le pilier sort de derrière un relief à cette hauteur (pas de pied)
+    lans: [['chochin', 1722, 0, 334], ['toro', 1130, 640], ['toro', 6560, 1000], ['bois', 9214, 1080]],          // chochin : 4e valeur = hauteur du point d'attache
+    bell: [6190, 0], time: 14,
+    temps: [['lotus', 6950, 480], ['lotus', 6720, 740]],
+    tips: [[1500, 300, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [8996, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [6190, 520, 'Frappe la cloche : des lotus d’esprit apparaissent, fais vite !']],
   },
   l_hauteurs: {
     camTop: 2700, grade: [.78, .8, '#8fa6bd', .13],   // saturation, clarté, couleur de l'air, force du voile
@@ -6399,13 +6399,25 @@ const VERT_DEF = {
     tips: [[1950, 300, 'Saute de toit en toit'], [2450, 560, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [4020, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [3250, 1960, 'Frappe la cloche : des appuis d’esprit apparaissent, fais vite !']],
   },
 };
+const VERT_NONE = { camTop: 1700, plats: [], walls: [], lans: [], temps: [], tips: [] };
+// corniches des tours peintes (reliefs hauts) : Kaeru s'accroche à leurs bords libres, c'est-à-dire sans mur ni marche juste derrière
+function vertLedges() {
+  const out = []; if (RL.lv !== LVID) return out;
+  for (const r of RL.list) { if (!r.tall) continue;
+    const S = r.M.segs.map(([x0, x1, P]) => ({ x0: r.x + x0 * REL_S, x1: r.x + x1 * REL_S, hL: P[0] * REL_S - REL_SINK, hR: P[P.length - 1] * REL_S - REL_SINK, hM: Math.max(...P) * REL_S - REL_SINK }));
+    for (const a of S) for (const side of [-1, 1]) {
+      const ex = side < 0 ? a.x0 : a.x1, h = side < 0 ? a.hL : a.hR, px = ex + side * 24;
+      if (h < 150 || S.some(b => b !== a && px > b.x0 && px < b.x1 && b.hM > h - 170)) continue;
+      out.push({ x: a.x0, w: a.x1 - a.x0, h, rl: true, only: side }); } }
+  return out;
+}
 function vertPlat(k, x, h, extra) { const m = VA[k] || VA[k + '1']; return Object.assign({ x, w: m.R - m.L, h: h || m.h - m.top - VERT.SINK, V: k, sus: !!h, dip: 0, dipV: 0 }, extra || {}); }
 function vertBuild() {
-  const D = VERT_DEF[LVID];
-  Object.assign(VERT, { lv: D ? LVID : null, camTop: D ? D.camTop : 1700, walls: [], lans: [], temps: [], bell: null, tips: [], ghosts: [], timer: 0, done: false, wasG: true });
+  let D = VERT_DEF[LVID]; const ledges = vertLedges(); if (!D && ledges.length) D = VERT_NONE;
+  Object.assign(VERT, { ledges, lv: D ? LVID : null, camTop: D ? D.camTop : 1700, walls: [], lans: [], temps: [], bell: null, tips: [], ghosts: [], timer: 0, done: false, wasG: true });
   ACT.hang = null; ACT.wall = 0; ACT.wallT = 0; ACT.wjT = 0; ACT.climbT = 0;
   if (!D) return;
-  invImg('vert_atlas.webp');
+  if (D !== VERT_NONE) invImg('vert_atlas.webp');
   for (const [k, x, h] of D.plats) PROG.plats.push(vertPlat(k, x, h));
   VERT.walls = D.walls.map(([k, x, h1, base]) => { const c = VA[k + '_cap']; PROG.plats.push({ x: x - c.cx + c.L, w: c.R - c.L, h: h1, hid: true }); return { k, x, h0: base || 0, base: base || 0, h1, hw: VA[k + '_seg'].hw, cv: null }; });
   const sv = vertSaved();
@@ -6436,13 +6448,13 @@ function vertAfter(dt, xPrev) {
   // --- suspendu à un rebord : les mains restent calées sur le nez du rebord
   if (A.hang) {
     const H = A.hang, p = H.p, ex = H.side < 0 ? p.x : p.x + p.w;   // H.side : -1 = rebord gauche de l'appui
-    if (!PROG.plats.includes(p) || A.hurt > 0 || HERO.dead > 0 || A.dash > 0) { A.hang = null; A.climbT = 0; A.hangCd = .3; return; }
+    if (!(p.rl || PROG.plats.includes(p)) || A.hurt > 0 || HERO.dead > 0 || A.dash > 0) { A.hang = null; A.climbT = 0; A.hangCd = .3; return; }
     const climbing = A.climbT > 0, jumped = !climbing && (A.vy > 400 || A.crouch > 0);
     hero.x = ex + H.side * 36; A.y = p.h - 215; hero.vx = 0; A.vy = 0; A.onGround = false; A.airJumps = 1; A.flip = 0; A.crouch = 0; hero.dir = -H.side; A.glide = false;
     if (A.atk) endAttack();
     if (climbing) {   // rétablissement : 5 poses peintes, puis Kaeru est debout sur l'appui
       A.climbT -= dt;
-      if (A.climbT <= 0) { A.hang = null; A.climbT = 0; hero.x = ex - H.side * 56; A.y = p.h; A.onGround = true; VERT.wasG = true; A.airDash = true; A.land = .08; A.landK = .3; A.hangCd = .25; puff(hero.x, p.h, 3, .6); if (p.sus) p.dipV += 110; }
+      if (A.climbT <= 0) { A.hang = null; A.climbT = 0; hero.x = ex - H.side * 56; A.y = p.h; if (p.rl) { let b = null; for (const q of rlSurf(hero.x)) if (!b || Math.abs(q.h - p.h) < Math.abs(b.h - p.h)) b = q; if (b && Math.abs(b.h - p.h) < 60) A.y = b.h; } A.onGround = true; VERT.wasG = true; A.airDash = true; A.land = .08; A.landK = .3; A.hangCd = .25; puff(hero.x, p.h, 3, .6); if (p.sus) p.dipV += 110; }
       return;
     }
     if (jumped || isDown('ArrowUp', 'KeyW', 'KeyZ', 'PadUp') || inp === -H.side && H.t > .25) { A.climbT = VERT.climb; sfx('step'); vertChips(ex, p.h, 4); }
@@ -6459,15 +6471,16 @@ function vertAfter(dt, xPrev) {
   }
   if (A.wall && !A.onGround) { if (A.vy < -230) A.vy = -230; A.airDash = true; if (A.atk === 'plunge') endAttack();
     if (A.vy < -60) { const fx = hero.x + A.wall * VERT.WD; if (Math.random() < dt * 12) puff(fx - A.wall * 16, A.y + 190, 1, .45); if (Math.random() < dt * 26) inkFx.push({ x: fx - A.wall * 4, y: A.y + rr(40, 250), vx: -A.wall * rr(10, 70), vy: rr(-160, -20), r: rr(2.5, 5), a: .9, col: VERT_COL[A.wallW.k] }); } }
-  // --- accroche : en retombant près d'un rebord, face à lui
-  if (!A.onGround && A.vy <= 160 && A.hangCd <= 0 && !A.atk && A.dash <= 0 && A.hurt <= 0 && HERO.dead <= 0 && !A.wall) {
-    for (const p of PROG.plats) {
-      if (A.y < p.h - 262 || A.y > p.h - 120) continue;
+  // --- accroche : large fenêtre autour du nez du rebord (en montant doucement comme en retombant), il suffit d'aller vers lui
+  if (!A.onGround && A.vy <= 320 && A.hangCd <= 0 && !A.atk && A.dash <= 0 && A.hurt <= 0 && HERO.dead <= 0 && !A.wall) {
+    const toR = hero.vx > 30 || inp > 0 || hero.x > xPrev + .5, toL = hero.vx < -30 || inp < 0 || hero.x < xPrev - .5;
+    for (const p of PROG.plats.concat(VERT.ledges || [])) {
+      if (A.y < p.h - 295 || A.y > p.h - 28) continue;
       const dl = hero.x - p.x, dr = hero.x - (p.x + p.w);
-      const side = dl > -70 && dl < 10 && (hero.vx > 30 || inp > 0) ? -1 : dr < 70 && dr > -10 && (hero.vx < -30 || inp < 0) ? 1 : 0;
+      const side = dl > -84 && dl < 44 && toR && p.only !== 1 ? -1 : dr < 84 && dr > -44 && toL && p.only !== -1 ? 1 : 0;
       if (!side) continue;
       A.hang = { p, side, t: 0 }; A.climbT = 0; A.vy = 0; hero.vx = 0; A.flip = 0; A.glide = false; sfx('step');
-      const ex = side < 0 ? p.x : p.x + p.w; vertChips(ex, p.h, 7); puff(ex, p.h + 6, 2, .4); if (p.sus) p.dipV += 90; shake = Math.max(shake, 2); break;
+      const ex = side < 0 ? p.x : p.x + p.w; vertChips(ex, p.h, 7, p.rl ? '#8d8a7c' : null); puff(ex, p.h + 6, 2, .4); if (p.sus) p.dipV += 90; shake = Math.max(shake, 2); break;
     }
   }
   // --- lanternes, cloche, appuis d'esprit
@@ -12077,10 +12090,11 @@ function update(dt) {
     const fall = !ACT.onGround && ACT.vy < -250;
     if (ACT.onGround) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop);
     else if (fall) cam.ty = clamp(ACT.y - 300 + ACT.vy * .22, 0, VERT.camTop);           // anticipe la chute
-    else if (ACT.y - 300 > (cam.ty || 0) + 380) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop); // grand saut vers le haut
-    const d = (cam.ty || 0) - cam.y, sp = fall ? 7 : 3.2;
+    else if (ACT.hang || ACT.wall || ACT.wjT > 0 || ACT.wallT > 0) cam.ty = clamp(ACT.y - 260, 0, VERT.camTop);   // accroché ou contre un pilier : la caméra le suit
+    else if (ACT.y - 300 > (cam.ty || 0) + 300) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop); // grand saut vers le haut
+    const d = (cam.ty || 0) - cam.y, sp = fall ? 7 : ACT.hang || ACT.wall || ACT.wjT > 0 ? 6 : 3.2;
     cam.y += clamp(d * Math.min(1, dt * sp), -3200 * dt, 1400 * dt);
-    cam.y = clamp(cam.y, Math.max(0, ACT.y - 760), Math.max(0, ACT.y + 60));      // bornes dures : jamais hors écran
+    cam.y = clamp(cam.y, Math.max(0, ACT.y - 440), Math.max(0, ACT.y + 60));      // bornes dures : jamais hors écran
     if (cam.y < .5 && !cam.ty) cam.y = 0; }
   { const tc = talkCam(); if (tc != null && !LV.room) cam.x = lerp(cam.x, tc, Math.min(1, dt * 3)); }
   if (SCENE.on) { cam.x = SCENE.cam - VW / 2; }
