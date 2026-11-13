@@ -1885,9 +1885,9 @@ const K4 = { M: {"A":0.72,"n":4,"f":{"coup32":{"r":[0,0,0,223,590],"sw":310,"sh"
 function k4Load(base, ld) {
   const M = K4.M, jobs = [];
   for (let i = 0; i < M.n; i++) jobs.push(ld(base + 'k4_atlas' + i + '.webp'));
-  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp'));
+  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp')); jobs.push(ld(base + 'k4_langue.webp'));
   return Promise.all(jobs).then(ats => {
-    const KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
+    const KLI = ats.pop(), KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
     for (const n in M.f) {
       const [ai, x, y, w, h] = M.f[n].r, cv = document.createElement('canvas');
       cv.width = w; cv.height = h; cv.getContext('2d').drawImage(ats[ai], x, y, w, h, 0, 0, w, h);
@@ -1897,6 +1897,7 @@ function k4Load(base, ld) {
     if (KRI) { const KR = {"repos0":[0,0,274,398,0,0],"repos1":[277,0,273,403,0,0],"repos2":[553,0,275,410,0,0],"repos3":[831,0,275,413,0,0],"repos4":[1109,0,276,403,0,0],"repos5":[1388,0,276,401,0,0],"garde0":[1667,0,364,372,0,0],"garde1":[2034,0,362,380,0,0],"garde2":[2399,0,360,386,0,0],"garde3":[2762,0,358,389,0,0],"garde4":[3123,0,359,373,0,0],"garde5":[3485,0,359,372,0,0]}, MF = {"repos0":{"sw":381,"sh":553,"foot":[229,545],"c":[190,276],"hx":229,"ay":2,"drop":545,"blade":null,"k":1.001},"repos1":{"sw":379,"sh":560,"foot":[227,552],"c":[190,280],"hx":227,"ay":2,"drop":552,"blade":null,"k":1.001},"repos2":{"sw":382,"sh":569,"foot":[231,562],"c":[191,285],"hx":231,"ay":2,"drop":562,"blade":null,"k":1.001},"repos3":{"sw":382,"sh":574,"foot":[228,566],"c":[191,287],"hx":228,"ay":2,"drop":566,"blade":null,"k":1.001},"repos4":{"sw":383,"sh":560,"foot":[230,552],"c":[192,280],"hx":230,"ay":2,"drop":552,"blade":null,"k":1.001},"repos5":{"sw":383,"sh":557,"foot":[231,549],"c":[192,278],"hx":231,"ay":2,"drop":549,"blade":null,"k":1.001},"garde0":{"sw":506,"sh":517,"foot":[237,508],"c":[253,258],"hx":237,"ay":2,"drop":508,"blade":null,"k":1.001},"garde1":{"sw":503,"sh":528,"foot":[236,519],"c":[251,264],"hx":236,"ay":2,"drop":519,"blade":null,"k":1.001},"garde2":{"sw":500,"sh":536,"foot":[233,526],"c":[250,268],"hx":233,"ay":2,"drop":526,"blade":null,"k":1.001},"garde3":{"sw":497,"sh":540,"foot":[231,531],"c":[249,270],"hx":231,"ay":2,"drop":531,"blade":null,"k":1.001},"garde4":{"sw":499,"sh":518,"foot":[231,509],"c":[249,259],"hx":231,"ay":2,"drop":509,"blade":null,"k":1.001},"garde5":{"sw":499,"sh":517,"foot":[234,508],"c":[249,258],"hx":234,"ay":2,"drop":508,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KRI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
     if (KCI) { const KR = {"cs_0":[0,0,383,336,0,0],"cs_1":[386,0,375,331,0,0],"cs_2":[764,0,380,316,0,0],"cs_3":[1147,0,378,329,0,0],"cs_4":[1528,0,370,344,0,0],"cs_5":[1901,0,359,296,0,0],"cs_6":[2263,0,374,339,0,0],"cs_7":[2640,0,378,329,0,0],"cs_8":[3021,0,375,317,0,0],"cs_9":[3399,0,368,327,0,0],"cs_10":[3770,0,373,341,0,0],"cs_11":[4146,0,362,294,0,0]}, MF = {"cs_0":{"sw":532,"sh":467,"foot":[386,459],"c":[266,233],"hx":386,"ay":0,"drop":459,"blade":null,"k":1.001},"cs_1":{"sw":521,"sh":460,"foot":[386,450],"c":[260,230],"hx":386,"ay":0,"drop":450,"blade":null,"k":1.001},"cs_2":{"sw":528,"sh":439,"foot":[392,429],"c":[264,219],"hx":392,"ay":0,"drop":429,"blade":null,"k":1.001},"cs_3":{"sw":525,"sh":457,"foot":[389,449],"c":[262,228],"hx":389,"ay":0,"drop":449,"blade":null,"k":1.001},"cs_4":{"sw":514,"sh":478,"foot":[379,469],"c":[257,239],"hx":379,"ay":0,"drop":469,"blade":null,"k":1.001},"cs_5":{"sw":499,"sh":411,"foot":[364,480],"c":[249,206],"hx":364,"ay":0,"drop":480,"blade":null,"k":1.001},"cs_6":{"sw":519,"sh":471,"foot":[386,462],"c":[260,235],"hx":386,"ay":0,"drop":462,"blade":null,"k":1.001},"cs_7":{"sw":525,"sh":457,"foot":[391,450],"c":[262,228],"hx":391,"ay":0,"drop":450,"blade":null,"k":1.001},"cs_8":{"sw":521,"sh":440,"foot":[386,431],"c":[260,220],"hx":386,"ay":0,"drop":431,"blade":null,"k":1.001},"cs_9":{"sw":511,"sh":454,"foot":[377,452],"c":[256,227],"hx":377,"ay":0,"drop":452,"blade":null,"k":1.001},"cs_10":{"sw":518,"sh":474,"foot":[382,469],"c":[259,237],"hx":382,"ay":0,"drop":469,"blade":null,"k":1.001},"cs_11":{"sw":503,"sh":408,"foot":[373,483],"c":[251,204],"hx":373,"ay":0,"drop":483,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KCI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
     if (KVI) { const KR = {"accroche0":[0,0,273,439,0,0],"retab0":[276,0,279,387,0,0],"retab1":[558,0,283,370,0,0],"retab2":[844,0,293,417,0,0],"retab3":[1140,0,306,316,0,0],"retab4":[1449,0,305,247,0,0],"mur0":[1757,0,251,360,0,0],"mur1":[2011,0,253,369,0,0]}, MF = {"accroche0":{"sw":379,"sh":610,"foot":[256,402],"c":[256,176],"hx":256,"ay":2,"drop":420,"blade":null,"k":1.001},"retab0":{"sw":388,"sh":538,"foot":[240,402],"c":[240,176],"hx":240,"ay":2,"drop":420,"blade":null,"k":1.001},"retab1":{"sw":393,"sh":514,"foot":[275,463],"c":[275,237],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001},"retab2":{"sw":407,"sh":579,"foot":[146,743],"c":[146,517],"hx":146,"ay":2,"drop":420,"blade":null,"k":1.001},"retab3":{"sw":425,"sh":439,"foot":[49,738],"c":[49,512],"hx":49,"ay":2,"drop":420,"blade":null,"k":1.001},"retab4":{"sw":424,"sh":343,"foot":[45,719],"c":[45,493],"hx":45,"ay":2,"drop":420,"blade":null,"k":1.001},"mur0":{"sw":349,"sh":500,"foot":[161,493],"c":[161,267],"hx":161,"ay":2,"drop":420,"blade":null,"k":1.001},"mur1":{"sw":351,"sh":512,"foot":[164,490],"c":[164,264],"hx":164,"ay":2,"drop":420,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KVI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // accroche, rétablissement, glissade au mur
+    if (KLI) { const KR = {"lg_antic":[0,0,333,408,0,0],"lg_tir":[336,0,347,410,0,0],"lg_tendu":[686,0,391,404,0,0],"lg_decol":[1080,0,324,415,0,0],"lg_vol":[1407,0,494,367,0,0],"lg_arr":[0,418,368,350,0,0],"lg_aim0":[371,418,378,408,0,0],"lg_aim1":[752,418,381,410,0,0],"lg_aim2":[1136,418,396,439,0,0],"lg_air0":[1535,418,326,383,0,0],"lg_air1":[0,860,342,388,0,0],"lg_air2":[345,860,376,453,0,0]}, MF = {"lg_antic":{"sw":462,"sh":567,"foot":[279,560],"c":[279,334],"hx":279,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[401,141]},"lg_tir":{"sw":482,"sh":569,"foot":[289,564],"c":[289,338],"hx":289,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[397,125]},"lg_tendu":{"sw":543,"sh":561,"foot":[320,554],"c":[320,328],"hx":320,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[316,108]},"lg_decol":{"sw":450,"sh":576,"foot":[259,518],"c":[259,292],"hx":259,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[385,120]},"lg_vol":{"sw":686,"sh":510,"foot":[403,478],"c":[403,252],"hx":403,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[602,116]},"lg_arr":{"sw":511,"sh":486,"foot":[283,470],"c":[283,244],"hx":283,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[459,132]},"lg_aim0":{"sw":525,"sh":567,"foot":[310,560],"c":[310,334],"hx":310,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[375,133]},"lg_aim1":{"sw":529,"sh":569,"foot":[312,564],"c":[312,338],"hx":312,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[342,111]},"lg_aim2":{"sw":550,"sh":610,"foot":[321,603],"c":[321,377],"hx":321,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[279,114]},"lg_air0":{"sw":453,"sh":532,"foot":[252,509],"c":[252,283],"hx":252,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[331,122]},"lg_air1":{"sw":475,"sh":539,"foot":[255,509],"c":[255,283],"hx":255,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[383,122]},"lg_air2":{"sw":522,"sh":629,"foot":[275,544],"c":[275,318],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[439,122]}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KLI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // la langue : tir, visée, traction
     K4.ready = true; if (TEN.i || EQ.lame || TENUES[TEN.i].armure) setTimeout(() => tenueApply(TEN.i), 0); return true;
   });
 }
@@ -2042,6 +2043,7 @@ function k3PoseOf() {
   const A = ACT, sw = A.drawn > 0 || !!A.atk;
   if (HERO.dead > 0) return A.onGround ? { n: 'pose_chute2' } : { n: 'pose_chute1', rot: (2.6 - HERO.dead) * 300, lift: 260 };
   if (!K4.ready) return null;
+  if (LG.st || LG.rel > 0) { const lp = lgPose(); if (lp) return lp; }
   if (A.hang) { const c = A.climbT > 0, u = c ? 1 - A.climbT / VERT.climb : 0;
     if (K4.img.accroche0) return c ? { k4: 'retab' + Math.min(4, Math.floor(u * 5)), a: 'foot' } : { k4: 'accroche0', a: 'foot' };
     return c ? { k4: u < .5 ? 'saut1' : 'accroupi2', a: 'foot' } : { k4: 'saut2', a: 'c' }; }
@@ -6395,11 +6397,12 @@ const VERT_DEF = {
     walls: [['pierre', 2560, 640], ['torii', 3700, 1500], ['pieux', 4330, 1700], ['bambou', 1180, 2100]],                                              // [modèle, x, hauteur du sommet]
     lans: [['toro', 2560, 640], ['chochin', 3320, 900], ['bois', 4236, 1540], ['flot', 1180, 2100]],
     bell: [2938, 1500], time: 14,
+    hooks: [['plaque', 930, 0], ['anneau', 5630, 254], ['lotus', 4560, 0], ['bouee', 3225, 1500], ['cloche', 3700, 1500]],   // points d'accroche de la langue : [modèle, x, hauteur du socle]
     temps: [['ofuda', 2180, 1720], ['lotus', 1700, 1900], ['ofuda', 1340, 2010]],
-    tips: [[1950, 300, 'Saute de toit en toit'], [2450, 560, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [4020, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [3250, 1960, 'Frappe la cloche : des appuis d’esprit apparaissent, fais vite !']],
+    tips: [[700, 420, 'Langue : O (manette : clic du stick droit)  ·  tiens une direction pour choisir le point, il s’allume'], [1950, 300, 'Saute de toit en toit'], [2450, 560, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [4020, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [3250, 1960, 'Frappe la cloche : des appuis d’esprit apparaissent, fais vite !']],
   },
 };
-const VERT_NONE = { camTop: 1700, plats: [], walls: [], lans: [], temps: [], tips: [] };
+const VERT_NONE = { camTop: 1700, plats: [], walls: [], lans: [], temps: [], tips: [], hooks: [] };
 // corniches des tours peintes (reliefs hauts) : Kaeru s'accroche à leurs bords libres, c'est-à-dire sans mur ni marche juste derrière
 function vertLedges() {
   const out = []; if (RL.lv !== LVID) return out;
@@ -6425,6 +6428,7 @@ function vertBuild() {
   VERT.done = VERT.lans.length > 0 && VERT.lans.every(l => l.on);
   VERT.bell = D.bell ? { x: D.bell[0], h: D.bell[1], sw: 0, cd: 0, hit: 9 } : null; VERT.time = D.time || 12;
   VERT.temps = D.temps.map(([k, x, h]) => vertPlat(k, x, h, { temp: true, born: 0 })); VERT.tips = D.tips || [];
+  VERT.hooks = (D.hooks || []).map(([k, x, h]) => ({ k, x, h, tx: x + LA[k].tx, ty: h + LA[k].ty - 6 })); if (VERT.hooks.length) invImg('langue_atlas.webp'); LG.st = null; LG.cand = null;
   if (VERT.done) for (const tp of VERT.temps) { tp.keep = true; tp.born = 1; PROG.plats.push(tp); }
 }
 // lanternes rallumées : gardées dans la sauvegarde (sauf zone test)
@@ -6440,6 +6444,7 @@ function vertAfter(dt, xPrev) {
   const A = ACT; if (VERT.lv !== LVID || PROG.lv !== LVID) { A.hang = null; A.wall = 0; return; }
   A.wjT = Math.max(0, (A.wjT || 0) - dt); A.wallT = Math.max(0, (A.wallT || 0) - dt); A.hangCd = Math.max(0, (A.hangCd || 0) - dt);
   const inp = (isDown('ArrowRight', 'KeyD', 'PadRight') || touchDir > 0) - (isDown('ArrowLeft', 'KeyA', 'KeyQ', 'PadLeft') || touchDir < 0);
+  if (lgUpdate(dt)) { A.hang = null; A.wall = 0; VERT.wasG = A.onGround; return; }
   // --- les appuis suspendus s'enfoncent un peu sous le poids, puis reviennent
   if (A.onGround && !VERT.wasG && A.y > 0) { const p = PROG.plats.find(p => p.sus && Math.abs(p.h - A.y) < 3 && hero.x > p.x - 6 && hero.x < p.x + p.w + 6); if (p) p.dipV += 150; }
   VERT.wasG = A.onGround;
@@ -6557,6 +6562,7 @@ function vertDraw() {
   const B = VERT.bell;
   if (B) { const X = wx2sx(B.x); if (X > -300 && X < VW + 300) { const ph = Math.sin(B.hit * 9) * B.sw, f = B.hit < .1 ? 3 : ph > .22 ? 1 : ph < -.22 ? 2 : B.hit < 1.6 && B.sw > .04 && Math.floor(B.hit * 16) % 2 ? 3 : 0, m = VA.cloche0, pl = PROG.plats.find(p => p.sus && !p.temp && Math.abs(p.h - B.h) < 3 && B.x > p.x && B.x < p.x + p.w); vaDraw('cloche' + f, X - m.w / 2, G - B.h - m.base + (pl ? pl.dip : 0)); } }
   for (const l of VERT.lans) { const X = wx2sx(l.x); if (X < -260 || X > VW + 260) continue; vertLantern(l, X, G); }
+  lgDrawHooks();
   for (const g of VERT.ghosts) { const m = VA[g.p.V + '3'], X0 = wx2sx(g.p.x) - m.L; ctx.save(); ctx.globalAlpha = clamp(1 - g.t / .6, 0, 1); vaDraw(g.p.V + '3', X0, G - g.p.h - m.top + g.t * 70); ctx.restore(); }
   if (!VERT.done) for (const [x, h, txt] of VERT.tips) { const X = wx2sx(x); if (Math.abs(hero.x - x) > 620 || Math.abs(ACT.y - h + 300) > 520 || X < 200 || X > VW - 200) continue; plaque(X, G - h - 60, [{ t: txt, s: 21 }], { a: .93 }); }
 }
@@ -6569,6 +6575,109 @@ function vertHud() {
   if (VERT.timer > 0 && !VERT.done) { const k = clamp(VERT.timer / VERT.time, 0, 1), W = 520, bx = VW / 2 - W / 2, by = 150;
     ctx.fillStyle = 'rgba(20,12,16,.65)'; rrect(bx - 8, by - 8, W + 16, 34, 8); ctx.fill(); ctx.fillStyle = k < .25 ? '#e0603a' : '#ffd27a'; ctx.fillRect(bx, by, W * k, 18);
     ctx.textAlign = 'center'; ctx.fillStyle = '#efe3c8'; ctx.font = '700 26px "Shippori Mincho", Georgia, serif'; ctx.fillText('Défi : ' + Math.ceil(VERT.timer) + ' s', VW / 2, by - 18); }
+  ctx.restore();
+}
+/* =========================== LA LANGUE (grappin) ===========================
+   Visée assistée : on tient une direction (8 directions) et la langue choisit le point d'accroche le plus proche dans cet axe ; sans direction, le plus proche devant Kaeru.
+   Le point visé s'allume avant le tir. La langue colle, tire Kaeru jusqu'au point, puis le lâche avec de l'élan. Zone test, puis don « langue ». */
+const TONGUE_KEYS = ['KeyO', 'PadR3', 'TouchTongue'];
+const LG = { st: null, t: 0, tx: 0, ty: 0, L: 0, tgt: null, air: false, cand: null, range: 720, rel: 0, cd: 0, v: 0, pose: null, offT: 9, offX: 0, offY: 0 };
+const LA = {"anneau":{"tx":5,"ty":98,"x":0,"y":219,"w":135,"h":190},"anneau_b":{"x":137,"y":219,"w":142,"h":190},"bouee":{"tx":23,"ty":86,"x":755,"y":0,"w":129,"h":196},"bouee_b":{"x":886,"y":0,"w":127,"h":196},"noeud":{"tx":2,"ty":100,"x":281,"y":219,"w":147,"h":170},"noeud_b":{"x":430,"y":219,"w":146,"h":170},"lotus":{"tx":4,"ty":147,"x":540,"y":0,"w":101,"h":197},"lotus_b":{"x":643,"y":0,"w":110,"h":197},"cloche":{"tx":23,"ty":100,"x":255,"y":0,"w":140,"h":205},"cloche_b":{"x":397,"y":0,"w":141,"h":205},"plaque":{"tx":-2,"ty":122,"x":0,"y":0,"w":118,"h":217},"plaque_b":{"x":120,"y":0,"w":133,"h":217},"t_seg":{"cy":9,"x":114,"y":411,"w":189,"h":18},"t_fly":{"cy":8,"x":0,"y":411,"w":112,"h":40},"t_hit":{"cy":24,"x":578,"y":219,"w":101,"h":66},"t_stuck":{"cy":20,"x":681,"y":219,"w":90,"h":61},"t_off":{"cy":22,"x":773,"y":219,"w":118,"h":58},"t_rest":{"cy":9,"x":893,"y":219,"w":96,"h":43}};   // découpe de langue_atlas.webp : points d'accroche (normal + « _b » à portée) et morceaux de langue
+function lgOk() { return !!(NODE[LVID] && NODE[LVID].test) || hasDon('langue'); }
+function lgImg() { const im = invImg('langue_atlas.webp'); return im.complete && im.naturalWidth ? im : null; }
+function lgMouth() { return [hero.x + hero.dir * 34, ACT.y + 250]; }
+function lgInput() {
+  const ix = (isDown('ArrowRight', 'KeyD', 'PadRight') || touchDir > 0) - (isDown('ArrowLeft', 'KeyA', 'KeyQ', 'PadLeft') || touchDir < 0);
+  const iy = (isDown('ArrowUp', 'KeyW', 'KeyZ', 'PadUp') || touchAim > 0 ? 1 : 0) - (isDown(...DOWN_KEYS) ? 1 : 0);
+  return [ix, iy];
+}
+function lgPick() {
+  const H = VERT.hooks; if (!H || !H.length) return null;
+  const [mx, my] = lgMouth(), [ix, iy] = lgInput(), free = !ix && !iy, want = free ? 0 : Math.atan2(iy, ix);
+  let best = null, bs = 1e9;
+  for (const h of H) {
+    const dx = h.tx - mx, dy = h.ty - my, d = Math.hypot(dx, dy); if (d > LG.range || d < 70) continue;
+    let s;
+    if (free) { if (dy < -220) continue; s = d + (dx * hero.dir < 0 ? 240 : 0); }
+    else { let da = Math.abs(Math.atan2(dy, dx) - want); if (da > Math.PI) da = 6.2832 - da; if (da > .9) continue; s = d + da * 420; }
+    if (s < bs) { bs = s; best = h; }
+  }
+  return best;
+}
+function lgUpdate(dt) {   // vrai tant que la langue tient Kaeru
+  const A = ACT; LG.cand = null; LG.rel = Math.max(0, LG.rel - dt); LG.cd = Math.max(0, LG.cd - dt); LG.offT += dt;
+  if (!lgOk() || HERO.dead > 0 || A.hurt > 0) { LG.st = null; return false; }
+  if (!LG.st) {
+    if (A.hang) return false;
+    LG.cand = lgPick();
+    if (!consume(...TONGUE_KEYS) || LG.cd > 0) return false;
+    const [mx, my] = lgMouth(), h = LG.cand; let tx, ty;
+    if (h) { tx = h.tx; ty = h.ty; }
+    else { let [ix, iy] = lgInput(); if (!ix && !iy) { ix = hero.dir; iy = .8; } const n = Math.hypot(ix, iy); tx = mx + ix / n * LG.range * .7; ty = my + iy / n * LG.range * .7; }
+    if (Math.abs(tx - hero.x) > 20) hero.dir = tx > hero.x ? 1 : -1;
+    if (A.atk) endAttack();
+    Object.assign(LG, { st: 'shoot', t: 0, tx, ty, tgt: h, L: 0, air: !A.onGround, cd: .3, v: 0 }); A.wall = 0; A.flip = 0; A.glide = false; sfx('dash');
+  }
+  LG.t += dt;
+  const [mx, my] = lgMouth(), full = Math.hypot(LG.tx - mx, LG.ty - my);
+  if (LG.st === 'shoot') {
+    hero.vx = 0; if (!A.onGround) A.vy = 0;
+    LG.L += 3400 * dt;
+    if (LG.L >= full) { LG.L = full;
+      if (LG.tgt) { LG.st = 'stick'; LG.t = 0; sfx('block'); shake = Math.max(shake, 3); ring(LG.tx, LG.ty, .5); vertChips(LG.tx, LG.ty, 5, '#e9dfd2'); }
+      else { LG.st = 'back'; LG.t = 0; } }
+    return true;
+  }
+  if (LG.st === 'stick') { hero.vx = 0; if (!A.onGround) A.vy = 0; LG.L = full; if (LG.t > .1) { LG.st = 'pull'; LG.t = 0; LG.v = 520; sfx('dash'); } return true; }
+  if (LG.st === 'pull') {
+    const cx = hero.x, cy = A.y + 150, dx = LG.tx - cx, dy = LG.ty - cy, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    LG.v = Math.min(1800, LG.v + 5600 * dt); LG.L = full;
+    if (d < 85 || LG.t > 1.3) {   // arrivé : la langue lâche, Kaeru garde son élan vers le haut
+      LG.st = null; LG.rel = .22; LG.offT = 0; LG.offX = LG.tx; LG.offY = LG.ty;
+      hero.vx = ux * 520; A.vy = Math.max(720, uy * 980); A.onGround = false; A.airJumps = 1; A.airDash = true; A.hangCd = 0; A.holdT = 0; sfx('step'); return false; }
+    hero.x += ux * LG.v * dt; A.y = Math.max(0, A.y + uy * LG.v * dt); hero.vx = 0; A.vy = 0; A.onGround = false; A.flip = 0; A.crouch = 0;
+    if (Math.random() < dt * 30) puff(hero.x - ux * 40, A.y + 120, 1, .4);
+    return true;
+  }
+  if (LG.st === 'back') { if (A.onGround) hero.vx = 0; LG.L -= 4600 * dt; if (LG.L <= 0) { LG.st = null; LG.L = 0; } return false; }
+  return false;
+}
+function lgPose() {
+  if (!K4.img.lg_vol) return null;
+  if (!LG.st) return LG.rel > 0 && !ACT.onGround ? (LG.pose = { k4: 'lg_arr', a: 'c' }) : null;
+  const [mx, my] = lgMouth(), el = Math.atan2(LG.ty - my, Math.abs(LG.tx - mx)) / D2R;
+  let p;
+  if (LG.st === 'pull') { const k = LG.air ? 'lg_air2' : LG.t < .07 ? 'lg_decol' : 'lg_vol', nat = k === 'lg_vol' ? 20 : 42; p = { k4: k, a: 'c', rot: clamp(-(el - nat), -60, 60) }; }
+  else if (LG.air) p = { k4: LG.st === 'shoot' && LG.t < .05 ? 'lg_air0' : 'lg_air1', a: 'c' };
+  else p = { k4: LG.st === 'shoot' && LG.t < .05 ? 'lg_antic' : LG.st === 'stick' ? 'lg_tendu' : el < 22 ? 'lg_aim0' : el < 62 ? 'lg_aim1' : 'lg_aim2', a: 'foot' };
+  return (LG.pose = p);
+}
+// la bouche, à l'écran, d'après la pose affichée
+function lgMouthScreen() {
+  const p = LG.pose, f = p && K4.M.f[p.k4], X = wx2sx(hero.x), Y = CFG.groundLine - ACT.y;
+  if (!f || !f.mouth) return [X + hero.dir * 34, Y - 250];
+  const S = K4.S * (f.k || 1), an = p.a === 'c' ? f.c : f.foot, oy = p.a === 'c' ? -K4_AIR * S : 0, fl = hero.dir;
+  let dx = (f.mouth[0] - an[0]) * S * fl, dy = (f.mouth[1] - an[1]) * S;
+  if (p.rot) { const r = p.rot * fl * D2R, nx = dx * Math.cos(r) - dy * Math.sin(r); dy = dx * Math.sin(r) + dy * Math.cos(r); dx = nx; }
+  return [X + dx, Y + oy + dy];
+}
+function lgPiece(n, x, y) { const m = LA[n], im = lgImg(); if (m && im) ctx.drawImage(im, m.x, m.y, m.w, m.h, Math.round(x), Math.round(y), m.w, m.h); }
+function lgDrawHooks() {
+  const H = VERT.hooks; if (!H || !H.length || VERT.lv !== LVID) return; const G = CFG.groundLine, ok = lgOk();
+  for (const h of H) { const X = wx2sx(h.x); if (X < -200 || X > VW + 200) continue; const hot = ok && (LG.cand === h || LG.tgt === h && LG.st), n = h.k + (hot ? '_b' : ''), m = LA[n];
+    lgPiece(n, X - m.w / 2, G - h.h - m.h + 6); }
+}
+function lgDraw() {
+  const im = lgImg(); if (!im) return;
+  const G = CFG.groundLine;
+  if (!LG.st) { if (LG.offT < .18) { const m = LA.t_off, X = wx2sx(LG.offX), Y = G - LG.offY; ctx.save(); ctx.globalAlpha = 1 - LG.offT / .18; ctx.translate(X, Y); ctx.rotate(Math.PI / 2); ctx.drawImage(im, m.x, m.y, m.w, m.h, -m.w, -m.cy, m.w, m.h); ctx.restore(); } return; }
+  const [x0, y0] = lgMouthScreen(), x1 = wx2sx(LG.tx), y1 = G - LG.ty, full = Math.hypot(x1 - x0, y1 - y0) || 1, [mx, my] = lgMouth(), fw = Math.hypot(LG.tx - mx, LG.ty - my) || 1;
+  const L = LG.st === 'shoot' || LG.st === 'back' ? full * clamp(LG.L / fw, 0, 1) : full, ang = Math.atan2(y1 - y0, x1 - x0);
+  const tipN = LG.st === 'shoot' ? 't_fly' : LG.st === 'back' ? 't_rest' : LG.st === 'stick' && LG.t < .06 ? 't_hit' : 't_stuck', tip = LA[tipN], seg = LA.t_seg;
+  ctx.save(); ctx.translate(x0, y0); ctx.rotate(ang); if (Math.cos(ang) < 0) ctx.scale(1, -1);
+  const end = Math.max(0, L - tip.w + 14);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, -40, end, 80); ctx.clip(); for (let x = 0; x < end; x += seg.w - 2) ctx.drawImage(im, seg.x, seg.y, seg.w, seg.h, x, -seg.cy, seg.w, seg.h); ctx.restore();
+  ctx.drawImage(im, tip.x, tip.y, tip.w, tip.h, L - tip.w, -tip.cy, tip.w, tip.h);
   ctx.restore();
 }
 /* ---------- anti-saccades : tout ce que le niveau va afficher est décodé pendant l'écran de chargement ---------- */
@@ -7936,7 +8045,7 @@ function toTitle() { inGame = false; STATE = 'title'; MENU.sel = 0; enemies.leng
 const BIND_ACTIONS = [
   ['gauche', 'Aller à gauche', 'ArrowLeft', 'PadLeft', null], ['droite', 'Aller à droite', 'ArrowRight', 'PadRight', null],
   ['haut', 'Haut / viser en haut', 'ArrowUp', 'PadUp', null], ['bas', 'Bas / s’accroupir', 'ArrowDown', 'PadDown', null],
-  ['saut', 'Sauter', 'Space', 'PadA', 0], ['sabre', 'Sabre', 'KeyJ', 'PadX', 2], ['dash', 'Dash', 'KeyL', 'PadB', 1],
+  ['saut', 'Sauter', 'Space', 'PadA', 0], ['sabre', 'Sabre', 'KeyJ', 'PadX', 2], ['dash', 'Dash', 'KeyL', 'PadB', 1], ['langue', 'Langue (grappin)', 'KeyO', 'PadR3', 11],
   ['garde', 'Garde / parade', 'KeyK', 'PadLB', 4], ['hinoko', 'Hinoko (feu)', 'KeyI', 'PadRT', 7], ['courir', 'Courir', 'ShiftLeft', 'PadRB', 5],
   ['utiliser', 'Torii / porte / parler', 'KeyE', 'PadY', 3], ['carte', 'Carte', 'Tab', 'PadBack', 8], ['besace', 'Besace (inventaire)', 'KeyB', 'PadL3', 10], ['obj1', 'Objet rapide 1', 'Digit1', 'PadQ1', 12], ['obj2', 'Objet rapide 2', 'Digit2', 'PadQ2', 15], ['obj3', 'Objet rapide 3', 'Digit3', 'PadQ3', 13], ['obj4', 'Objet rapide 4', 'Digit4', 'PadQ4', 14], ['objets', 'Objets rapides (maintenir + direction)', null, 'PadLT', 6], ['pause', 'Pause', 'Escape', 'PadStart', 9], ['techniques', 'Liste des techniques', 'KeyC', null, null],
 ];
@@ -12090,7 +12199,7 @@ function update(dt) {
     const fall = !ACT.onGround && ACT.vy < -250;
     if (ACT.onGround) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop);
     else if (fall) cam.ty = clamp(ACT.y - 300 + ACT.vy * .22, 0, VERT.camTop);           // anticipe la chute
-    else if (ACT.hang || ACT.wall || ACT.wjT > 0 || ACT.wallT > 0) cam.ty = clamp(ACT.y - 260, 0, VERT.camTop);   // accroché ou contre un pilier : la caméra le suit
+    else if (ACT.hang || ACT.wall || ACT.wjT > 0 || ACT.wallT > 0 || LG.st === 'pull') cam.ty = clamp(ACT.y - 260, 0, VERT.camTop);   // accroché ou contre un pilier : la caméra le suit
     else if (ACT.y - 300 > (cam.ty || 0) + 300) cam.ty = clamp(ACT.y - 300, 0, VERT.camTop); // grand saut vers le haut
     const d = (cam.ty || 0) - cam.y, sp = fall ? 7 : ACT.hang || ACT.wall || ACT.wjT > 0 ? 6 : 3.2;
     cam.y += clamp(d * Math.min(1, dt * sp), -3200 * dt, 1400 * dt);
@@ -12162,6 +12271,7 @@ function render() {
   if (!__skip.has('drawFxBack();')) drawFxBack();
   if (!__skip.has('drawFlies();')) drawFlies();
   if (STATE === 'title' || STATE === 'intro' || STATE === 'cine' || (SCENE.on && SCENE.hide)) {} else try { drawHero(); } catch (e) { if (renderFails++ < 3) __showErr('Kaeru : ' + (e && e.message)); try { drawHeroSilhouette(); } catch (_) {} }
+  try { lgDraw(); } catch (e) {}
   if (!(SCENE.on && SCENE.hide)) drawHinoko(); drawInvFront();
   drawFxFront();
   if (STATE === 'play') { if (!TALK.on) { drawPortalPrompt(); drawDoorPrompt(); } drawNPCTalk(); }
@@ -12243,7 +12353,7 @@ addEventListener('keydown', e => {
 });
 addEventListener('keyup', e => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
-let touchDir = 0, touchRun = false, touchUsed = false;
+let touchDir = 0, touchRun = false, touchUsed = false, touchAim = 0;
 const touches = new Map();
 const TOUCH_BTNS = [
   { code: 'TouchAtk', label: 'Sabre', x: .815, y: .835, r: 112, col: '194,59,34' },
@@ -12252,15 +12362,16 @@ const TOUCH_BTNS = [
   { code: 'TouchGuard', label: 'Garde', x: .69, y: .9, r: 80 },
   { code: 'TouchFire', label: 'Feu', x: .73, y: .66, r: 80, col: '230,140,40', fire: true },
   { code: 'TouchUse', label: '◯', x: .955, y: .36, r: 70, use: true },
+  { code: 'TouchTongue', label: 'Langue', x: .79, y: .43, r: 74, col: '190,70,90', tongue: true },
 ];
 const STICK = { id: null, ox: 0, oy: 0, x: 0, y: 0, down: false };
-function touchBtnAt(fx, fy) { if (!touchUsed || fx < .5) return null; let best = null, bd = 1e9; for (const b of TOUCH_BTNS) { const d = Math.hypot((fx - b.x) * VW, (fy - b.y) * VH); if (d < b.r * 1.3 && d < bd) { bd = d; best = b; } } return best; }
+function touchBtnAt(fx, fy) { if (!touchUsed || fx < .5) return null; let best = null, bd = 1e9; for (const b of TOUCH_BTNS) { if (b.tongue && !lgOk()) continue; const d = Math.hypot((fx - b.x) * VW, (fy - b.y) * VH); if (d < b.r * 1.3 && d < bd) { bd = d; best = b; } } return best; }
 function touchUpdate() {
   const p = STICK.id != null ? touches.get(STICK.id) : null;
-  if (!p) { touchDir = 0; touchRun = false; STICK.id = null; if (STICK.down) { STICK.down = false; keys.delete('ArrowDown'); } return; }
+  if (!p) { touchDir = 0; touchRun = false; touchAim = 0; STICK.id = null; if (STICK.down) { STICK.down = false; keys.delete('ArrowDown'); } return; }
   const dx = (p.x - STICK.ox) * VW, dy = (p.y - STICK.oy) * VH;
   touchDir = Math.abs(dx) > 28 ? Math.sign(dx) : 0;
-  touchRun = Math.abs(dx) > 150;
+  touchRun = Math.abs(dx) > 150; touchAim = dy < -70 ? 1 : 0;
   const dn = dy > 90 && dy > Math.abs(dx) * .8;
   if (dn && !STICK.down) { STICK.down = true; keys.add('ArrowDown'); press('ArrowDown'); if (typeof pushInput === 'function') pushInput('D', t); }
   else if (!dn && STICK.down) { STICK.down = false; keys.delete('ArrowDown'); }
@@ -12306,6 +12417,7 @@ function drawTouchButtons() {
   ctx.globalAlpha = 1; ctx.textAlign = 'center';
   const useHot = PORTAL.near || DOOR.near || INVRT.plantNear || NPCS.some(n => n.near) || (INVRT.lootNear && INVRT.lootNear.length) || (INVRT.shops || []).some(sh => sh.near);
   for (const b of TOUCH_BTNS) {
+    if (b.tongue && !lgOk()) continue;
     const x = b.x * VW, y = b.y * VH, on = keys.has(b.code), col = b.col || '20,14,24';
     const ready = b.fire ? HK.ki >= 100 : b.use ? useHot : true;
     ctx.globalAlpha = b.use && !useHot ? .5 : 1;
@@ -12375,7 +12487,7 @@ window.__hero = (x) => { if (x != null) { hero.x = x; cam.x = camPrev = x - VW /
 window.__clear = () => { for (const en of enemies) en.dead = .01; WAVE.i = WAVES.length - 1; WAVE.delay = 0; WAVE.calm = 0; };
 window.__exits = () => LV.exits; window.__mou = () => MOU; window.__mouGo = () => { const f = MOU.list.find(f => !f.got); if (!f) return null; window.__hero(f.x - 120); return f.id; }; window.__mouEat = () => { const f = MOU.list.find(f => !f.got); hero.dir = 1; MOU.anim = { f, t: 0, fr: 0 }; f.got = true; }; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
 window.__goto = (frac) => { hero.x = frac * C; cam.x = camPrev = hero.x - VW / 2; };
-window.__dbg = () => ({ hero, cam, PROG, ACT, VERT, K4, VA, RL, LV, LVID, INV, C: typeof C !== 'undefined' ? C : 0, T: typeof T !== 'undefined' ? T : 0, vaImg }); window.__warm = () => WARM; window.__vert = () => VERT; window.__act = () => ACT; window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
+window.__dbg = () => ({ drawHero, LG, hero, cam, PROG, ACT, VERT, K4, VA, RL, LV, LVID, INV, C: typeof C !== 'undefined' ? C : 0, T: typeof T !== 'undefined' ? T : 0, vaImg }); window.__warm = () => WARM; window.__vert = () => VERT; window.__act = () => ACT; window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
 window.__advance = (sec) => { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); };
 window.__key = (code, down) => { if (down) { press(code); keys.add(code); } else keys.delete(code); };
 boot().catch(e => __showErr('Chargement : ' + (e && (e.stack || e.message))));
