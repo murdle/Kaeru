@@ -1885,9 +1885,9 @@ const K4 = { M: {"A":0.72,"n":4,"f":{"coup32":{"r":[0,0,0,223,590],"sw":310,"sh"
 function k4Load(base, ld) {
   const M = K4.M, jobs = [];
   for (let i = 0; i < M.n; i++) jobs.push(ld(base + 'k4_atlas' + i + '.webp'));
-  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp')); jobs.push(ld(base + 'k4_langue.webp'));
+  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp')); jobs.push(ld(base + 'k4_langue.webp')); jobs.push(ld(base + 'k4_vise.webp'));
   return Promise.all(jobs).then(ats => {
-    const KLI = ats.pop(), KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
+    const KAI = ats.pop(), KLI = ats.pop(), KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
     for (const n in M.f) {
       const [ai, x, y, w, h] = M.f[n].r, cv = document.createElement('canvas');
       cv.width = w; cv.height = h; cv.getContext('2d').drawImage(ats[ai], x, y, w, h, 0, 0, w, h);
@@ -1895,8 +1895,9 @@ function k4Load(base, ld) {
     }
     if (KWI) { const KW = {"marche_a3":[0,0,284,411,0,9],"marche_a2":[287,0,277,407,1,10],"marche_b2":[567,0,297,400,8,13],"marche_b3":[867,0,293,398,0,11],"marche_b0":[1163,0,282,394,1,0],"marche_a0":[1448,0,282,389,0,0],"marche_a1":[1733,0,285,387,0,0],"marche_b1":[2021,0,283,387,0,0],"course_b3":[2307,0,293,380,6,24],"course_b0":[2603,0,312,375,16,16],"course_d2":[2918,0,336,360,0,30],"course_d0":[3257,0,304,359,8,0],"course_b2":[3564,0,336,356,0,26],"course_b1":[0,414,296,354,14,20],"course_a3":[299,414,283,353,14,26],"course_a1":[585,414,297,350,0,25],"course_a0":[885,414,309,347,10,22],"course_d1":[1197,414,291,341,9,7],"course_c1":[1491,414,302,340,5,15],"course_a2":[1796,414,333,337,3,12],"course_c0":[2132,414,312,329,13,4],"course_c2":[2447,414,330,314,0,20]}; for (const q of [0, 1, 2]) { if (KW['course_c' + q]) M.f['course_c' + q] = M.f['course_a' + q]; if (KW['course_d' + q]) M.f['course_d' + q] = M.f['course_b' + q]; } for (const n in KW) { const [x, y, w, h, px, py] = KW[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KWI, x, y, w, h, 0, 0, w, h); c._px = px; c._py = py; c._kw = 1; K4.img[n] = c; } }
     if (KRI) { const KR = {"repos0":[0,0,274,398,0,0],"repos1":[277,0,273,403,0,0],"repos2":[553,0,275,410,0,0],"repos3":[831,0,275,413,0,0],"repos4":[1109,0,276,403,0,0],"repos5":[1388,0,276,401,0,0],"garde0":[1667,0,364,372,0,0],"garde1":[2034,0,362,380,0,0],"garde2":[2399,0,360,386,0,0],"garde3":[2762,0,358,389,0,0],"garde4":[3123,0,359,373,0,0],"garde5":[3485,0,359,372,0,0]}, MF = {"repos0":{"sw":381,"sh":553,"foot":[229,545],"c":[190,276],"hx":229,"ay":2,"drop":545,"blade":null,"k":1.001},"repos1":{"sw":379,"sh":560,"foot":[227,552],"c":[190,280],"hx":227,"ay":2,"drop":552,"blade":null,"k":1.001},"repos2":{"sw":382,"sh":569,"foot":[231,562],"c":[191,285],"hx":231,"ay":2,"drop":562,"blade":null,"k":1.001},"repos3":{"sw":382,"sh":574,"foot":[228,566],"c":[191,287],"hx":228,"ay":2,"drop":566,"blade":null,"k":1.001},"repos4":{"sw":383,"sh":560,"foot":[230,552],"c":[192,280],"hx":230,"ay":2,"drop":552,"blade":null,"k":1.001},"repos5":{"sw":383,"sh":557,"foot":[231,549],"c":[192,278],"hx":231,"ay":2,"drop":549,"blade":null,"k":1.001},"garde0":{"sw":506,"sh":517,"foot":[237,508],"c":[253,258],"hx":237,"ay":2,"drop":508,"blade":null,"k":1.001},"garde1":{"sw":503,"sh":528,"foot":[236,519],"c":[251,264],"hx":236,"ay":2,"drop":519,"blade":null,"k":1.001},"garde2":{"sw":500,"sh":536,"foot":[233,526],"c":[250,268],"hx":233,"ay":2,"drop":526,"blade":null,"k":1.001},"garde3":{"sw":497,"sh":540,"foot":[231,531],"c":[249,270],"hx":231,"ay":2,"drop":531,"blade":null,"k":1.001},"garde4":{"sw":499,"sh":518,"foot":[231,509],"c":[249,259],"hx":231,"ay":2,"drop":509,"blade":null,"k":1.001},"garde5":{"sw":499,"sh":517,"foot":[234,508],"c":[249,258],"hx":234,"ay":2,"drop":508,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KRI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
-    if (KCI) { const KR = {"cs_0":[0,0,383,336,0,0],"cs_1":[386,0,375,331,0,0],"cs_2":[764,0,380,316,0,0],"cs_3":[1147,0,378,329,0,0],"cs_4":[1528,0,370,344,0,0],"cs_5":[1901,0,359,296,0,0],"cs_6":[2263,0,374,339,0,0],"cs_7":[2640,0,378,329,0,0],"cs_8":[3021,0,375,317,0,0],"cs_9":[3399,0,368,327,0,0],"cs_10":[3770,0,373,341,0,0],"cs_11":[4146,0,362,294,0,0]}, MF = {"cs_0":{"sw":532,"sh":467,"foot":[386,459],"c":[266,233],"hx":386,"ay":0,"drop":459,"blade":null,"k":1.001},"cs_1":{"sw":521,"sh":460,"foot":[386,450],"c":[260,230],"hx":386,"ay":0,"drop":450,"blade":null,"k":1.001},"cs_2":{"sw":528,"sh":439,"foot":[392,429],"c":[264,219],"hx":392,"ay":0,"drop":429,"blade":null,"k":1.001},"cs_3":{"sw":525,"sh":457,"foot":[389,449],"c":[262,228],"hx":389,"ay":0,"drop":449,"blade":null,"k":1.001},"cs_4":{"sw":514,"sh":478,"foot":[379,469],"c":[257,239],"hx":379,"ay":0,"drop":469,"blade":null,"k":1.001},"cs_5":{"sw":499,"sh":411,"foot":[364,480],"c":[249,206],"hx":364,"ay":0,"drop":480,"blade":null,"k":1.001},"cs_6":{"sw":519,"sh":471,"foot":[386,462],"c":[260,235],"hx":386,"ay":0,"drop":462,"blade":null,"k":1.001},"cs_7":{"sw":525,"sh":457,"foot":[391,450],"c":[262,228],"hx":391,"ay":0,"drop":450,"blade":null,"k":1.001},"cs_8":{"sw":521,"sh":440,"foot":[386,431],"c":[260,220],"hx":386,"ay":0,"drop":431,"blade":null,"k":1.001},"cs_9":{"sw":511,"sh":454,"foot":[377,452],"c":[256,227],"hx":377,"ay":0,"drop":452,"blade":null,"k":1.001},"cs_10":{"sw":518,"sh":474,"foot":[382,469],"c":[259,237],"hx":382,"ay":0,"drop":469,"blade":null,"k":1.001},"cs_11":{"sw":503,"sh":408,"foot":[373,483],"c":[251,204],"hx":373,"ay":0,"drop":483,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KCI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
+    if (KCI) { const KR = {"cs_0":[0,0,383,336,0,0],"cs_1":[386,0,375,331,0,0],"cs_2":[764,0,380,316,0,0],"cs_3":[1147,0,378,329,0,0],"cs_4":[1528,0,370,344,0,0],"cs_5":[1901,0,359,296,0,0],"cs_6":[2263,0,374,339,0,0],"cs_7":[2640,0,378,329,0,0],"cs_8":[3021,0,375,317,0,0],"cs_9":[3399,0,368,327,0,0],"cs_10":[3770,0,373,341,0,0],"cs_11":[4146,0,362,294,0,0]}, MF = {"cs_0":{"sw":532,"sh":467,"foot":[386,459],"c":[266,233],"hx":386,"ay":0,"drop":459,"blade":null,"k":1.1},"cs_1":{"sw":521,"sh":460,"foot":[386,450],"c":[260,230],"hx":386,"ay":0,"drop":450,"blade":null,"k":1.1},"cs_2":{"sw":528,"sh":439,"foot":[392,429],"c":[264,219],"hx":392,"ay":0,"drop":429,"blade":null,"k":1.1},"cs_3":{"sw":525,"sh":457,"foot":[389,449],"c":[262,228],"hx":389,"ay":0,"drop":449,"blade":null,"k":1.1},"cs_4":{"sw":514,"sh":478,"foot":[379,469],"c":[257,239],"hx":379,"ay":0,"drop":469,"blade":null,"k":1.1},"cs_5":{"sw":499,"sh":411,"foot":[364,480],"c":[249,206],"hx":364,"ay":0,"drop":480,"blade":null,"k":1.1},"cs_6":{"sw":519,"sh":471,"foot":[386,462],"c":[260,235],"hx":386,"ay":0,"drop":462,"blade":null,"k":1.1},"cs_7":{"sw":525,"sh":457,"foot":[391,450],"c":[262,228],"hx":391,"ay":0,"drop":450,"blade":null,"k":1.1},"cs_8":{"sw":521,"sh":440,"foot":[386,431],"c":[260,220],"hx":386,"ay":0,"drop":431,"blade":null,"k":1.1},"cs_9":{"sw":511,"sh":454,"foot":[377,452],"c":[256,227],"hx":377,"ay":0,"drop":452,"blade":null,"k":1.1},"cs_10":{"sw":518,"sh":474,"foot":[382,469],"c":[259,237],"hx":382,"ay":0,"drop":469,"blade":null,"k":1.1},"cs_11":{"sw":503,"sh":408,"foot":[373,483],"c":[251,204],"hx":373,"ay":0,"drop":483,"blade":null,"k":1.1}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KCI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
     if (KVI) { const KR = {"accroche0":[0,0,273,439,0,0],"retab0":[276,0,279,387,0,0],"retab1":[558,0,283,370,0,0],"retab2":[844,0,293,417,0,0],"retab3":[1140,0,306,316,0,0],"retab4":[1449,0,305,247,0,0],"mur0":[1757,0,251,360,0,0],"mur1":[2011,0,253,369,0,0]}, MF = {"accroche0":{"sw":379,"sh":610,"foot":[256,402],"c":[256,176],"hx":256,"ay":2,"drop":420,"blade":null,"k":1.001},"retab0":{"sw":388,"sh":538,"foot":[240,402],"c":[240,176],"hx":240,"ay":2,"drop":420,"blade":null,"k":1.001},"retab1":{"sw":393,"sh":514,"foot":[275,463],"c":[275,237],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001},"retab2":{"sw":407,"sh":579,"foot":[146,743],"c":[146,517],"hx":146,"ay":2,"drop":420,"blade":null,"k":1.001},"retab3":{"sw":425,"sh":439,"foot":[49,738],"c":[49,512],"hx":49,"ay":2,"drop":420,"blade":null,"k":1.001},"retab4":{"sw":424,"sh":343,"foot":[45,719],"c":[45,493],"hx":45,"ay":2,"drop":420,"blade":null,"k":1.001},"mur0":{"sw":349,"sh":500,"foot":[161,493],"c":[161,267],"hx":161,"ay":2,"drop":420,"blade":null,"k":1.001},"mur1":{"sw":351,"sh":512,"foot":[164,490],"c":[164,264],"hx":164,"ay":2,"drop":420,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KVI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // accroche, rétablissement, glissade au mur
+    if (KAI) { const KR = {"lg_v0":[0,0,266,394,0,0],"lg_v1":[269,0,245,397,0,0],"lg_v2":[517,0,247,403,0,0],"lg_v3":[767,0,248,405,0,0],"lg_v4":[1018,0,250,411,0,0],"lg_v5":[1271,0,250,416,0,0],"lg_v6":[1524,0,250,415,0,0],"lg_v7":[1777,0,250,413,0,0]}, MF = {"lg_v0":{"sw":369,"sh":547,"foot":[225,542],"c":[225,316],"hx":225,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[272,153]},"lg_v1":{"sw":340,"sh":551,"foot":[222,546],"c":[222,320],"hx":222,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[265,143]},"lg_v2":{"sw":343,"sh":560,"foot":[225,554],"c":[225,328],"hx":225,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[258,125]},"lg_v3":{"sw":344,"sh":562,"foot":[226,557],"c":[226,331],"hx":226,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[250,118]},"lg_v4":{"sw":347,"sh":571,"foot":[227,565],"c":[227,339],"hx":227,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[225,65]},"lg_v5":{"sw":347,"sh":578,"foot":[228,572],"c":[228,346],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[211,69]},"lg_v6":{"sw":347,"sh":576,"foot":[228,571],"c":[228,345],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[206,76]},"lg_v7":{"sw":347,"sh":574,"foot":[228,568],"c":[228,342],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[197,74]}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KAI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // langue : 8 visées, la tête suit l'angle
     if (KLI) { const KR = {"lg_antic":[0,0,333,408,0,0],"lg_tir":[336,0,347,410,0,0],"lg_tendu":[686,0,391,404,0,0],"lg_decol":[1080,0,324,415,0,0],"lg_vol":[1407,0,494,367,0,0],"lg_arr":[0,418,368,350,0,0],"lg_aim0":[371,418,378,408,0,0],"lg_aim1":[752,418,381,410,0,0],"lg_aim2":[1136,418,396,439,0,0],"lg_air0":[1535,418,326,383,0,0],"lg_air1":[0,860,342,388,0,0],"lg_air2":[345,860,376,453,0,0]}, MF = {"lg_antic":{"sw":462,"sh":567,"foot":[279,560],"c":[279,334],"hx":279,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[401,141]},"lg_tir":{"sw":482,"sh":569,"foot":[289,564],"c":[289,338],"hx":289,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[397,125]},"lg_tendu":{"sw":543,"sh":561,"foot":[320,554],"c":[320,328],"hx":320,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[316,108]},"lg_decol":{"sw":450,"sh":576,"foot":[259,518],"c":[259,292],"hx":259,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[385,120]},"lg_vol":{"sw":686,"sh":510,"foot":[403,478],"c":[403,252],"hx":403,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[602,116]},"lg_arr":{"sw":511,"sh":486,"foot":[283,470],"c":[283,244],"hx":283,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[459,132]},"lg_aim0":{"sw":525,"sh":567,"foot":[310,560],"c":[310,334],"hx":310,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[375,133]},"lg_aim1":{"sw":529,"sh":569,"foot":[312,564],"c":[312,338],"hx":312,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[342,111]},"lg_aim2":{"sw":550,"sh":610,"foot":[321,603],"c":[321,377],"hx":321,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[279,114]},"lg_air0":{"sw":453,"sh":532,"foot":[252,509],"c":[252,283],"hx":252,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[331,122]},"lg_air1":{"sw":475,"sh":539,"foot":[255,509],"c":[255,283],"hx":255,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[383,122]},"lg_air2":{"sw":522,"sh":629,"foot":[275,544],"c":[275,318],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[439,122]}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KLI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // la langue : tir, visée, traction
     K4.ready = true; if (TEN.i || EQ.lame || TENUES[TEN.i].armure) setTimeout(() => tenueApply(TEN.i), 0); return true;
   });
@@ -6380,7 +6381,7 @@ const VERT_COL = { pieux: '#7a5a34', torii: '#b5432c', bambou: '#8c9a3c', pierre
 const VERT_DEF = {
   /* La grève aux galets, trois étages : le sol (combats) · le milieu (digue, branches basses, pont de l'épave : sauts et accroches) · le haut (cimes, vergue : la langue).
      - le grand pin (entrée) : branche basse accessible ; la cime, cachée sous le feuillage, ne s'atteint qu'à la langue, par le nœud de corde du tronc ;
-     - le pin de la digue : on monte de branche en branche, ou on saute depuis le phare ; sa cime cache un coffre (sans la langue) ;
+     - le pin du rivage, planté au pied de la digue : on monte de branche en branche ; sa cime cache un coffre (sans la langue) ;
      - le phare : corniches jusqu'au sommet (lanterne) ;
      - l'épave : on monte sur le pont ; la vergue et son coffre sont trop hauts : la langue sur le nœud de la vergue (ou le nœud du mât, depuis le sol) ;
      - le torii ruiné : on rebondit entre ses piliers (lanterne).
@@ -6388,11 +6389,11 @@ const VERT_DEF = {
   l_greve: {
     ver: 2, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13],
     relAt: [3158],                                                   // le groupe digue + phare reste où il était
-    big: [['gpin', 1250, 0], ['pina', 2700, 265], ['epave', 5664, 0]],   // grands ensembles peints : [modèle, x de l'ancre, hauteur du sol]
+    big: [['gpin', 1250, 0], ['pina', 2150, 0], ['epave', 5664, 0]],   // grands ensembles peints : [modèle, x de l'ancre, hauteur du sol]
     plats: [],
     walls: [['torii', 9160, 1300], ['torii', 9700, 1300]],
     lans: [['chochin', 800, 0, 352, 505], ['toro', 3830, 1521], ['chochin', 7592, 438, 772, 1200], ['bois', 9622, 1080]],   // chochin : [x, hauteur où on la prend, haut de la lanterne, haut de la corde]
-    chests: [[2716, 964, 'koban'], [7320, 1267, 'pv'], [1020, 1488, 'ofuda']],
+    chests: [[2166, 699, 'koban'], [7320, 1267, 'pv'], [1020, 1488, 'ofuda']],
     camUp: [[5840, 7808, 400, 112]],                                 // sur le pont de l'épave : la caméra monte, on voit la vergue et son coffre
     temps: [],
     tips: [[1000, 300, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [700, 1010, 'Langue : O (manette R3)  ·  tiens une direction, le point visé s’entoure d’un cercle'], [9430, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre']],
@@ -6422,6 +6423,302 @@ const VERT_DEF = {
     chests: [[2670, 1922, 'ofuda_b'], [6280, 641, 'koban']],
     camUp: [], temps: [], tips: [],
   },
+  /* Kits peints par chapitre (placés automatiquement entre les reliefs, rel1 : ils remplacent le second relief). Chaque lieu : un étage du milieu au saut, un point à la langue, une cache (façade ou feuillage) avec son coffre. */
+  m_nenuphars: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
+    big: [['lotus1',  1110,  0],  ['lotus2',  5086,  0],  ['lotus3',  5971,  0],  ['lotus4',  6915,  0],  ['lotus5',  8029,  0],  ['arbre',  9127,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  m_ponton: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
+    big: [['ponton',  5516,  0],  ['arbre',  7200,  0,  'pv'],  ['grenierp',  8810,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  m_passerelle: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
+    big: [['ponton',  5258,  0],  ['shadouf',  6610,  0],  ['nid',  7552,  0,  'koban'],  ['lotus3',  8348,  0],  ['lotus4',  9238,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  m_rizieres: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [3158],
+    big: [['grenierp',  6360,  0],  ['grenier',  7642,  0,  'koban'],  ['epouv',  9116,  0,  'ofuda']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  l_barques: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.85) sepia(.12)', rel1: true, relAt: [8250],
+    big: [['coques',  1642,  0],  ['matb',  3896,  0,  'koban'],  ['coque',  6398,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  l_pilotis: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [2015],
+    big: [['village',  4120,  0,  'koban'],  ['tour_a',  5346,  0,  'ofuda_b'],  ['passe',  6183,  0],  ['cabane',  9030,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  l_digue: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.78) saturate(.82)', rel1: true, relAt: [3158],
+    big: [['brisel',  5664,  0],  ['balise',  7485,  0,  'koban'],  ['abri',  8921,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  l_phare: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
+    big: [['mat',  1388,  0],  ['sechoir',  6055,  0],  ['grotte',  8343,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_pousses: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [3158],
+    big: [['tiges',  6079,  0],  ['souchec',  8261,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_lisiere: {
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
+    big: [['tiges',  9355,  0],  ['cime',  10804,  0,  'koban'],  ['fagot',  11987,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_coupeurs: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [2368],
+    big: [['radeau',  5041,  0],  ['poulie',  6712,  0,  'koban'],  ['cabb',  8470,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_hameau: {
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6017],
+    big: [['fagot',  9111,  0],  ['cime',  10362,  0,  'pv'],  ['cabb',  13670,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_pont: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [2369],
+    big: [['tiges',  5190,  0],  ['fagot',  7034,  0],  ['panda',  8623,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_sentier: {
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
+    big: [['jizo2',  4028,  0],  ['jizo1',  8878,  0],  ['jizo3',  9846,  0],  ['jizog',  10967,  0,  'koban'],  ['cime',  12091,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_pluie: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.78) saturate(.82)', rel1: true, relAt: [3158],
+    big: [['tiges',  5688,  0],  ['poulie',  7206,  0,  'pv'],  ['souchec',  8716,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_tombes: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [3158],
+    big: [['jizo1',  5104,  0],  ['steles',  6365,  0],  ['jizo3',  7614,  0],  ['cime',  8859,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_lucioles: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
+    big: [['souche1',  4900,  0],  ['souche2',  5806,  0],  ['souche3',  6874,  0],  ['cime',  7902,  0],  ['souchec',  9075,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_tour: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
+    big: [['fagot',  6266,  0],  ['poulie',  7360,  0,  'koban'],  ['cabb',  8793,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  b_avant: {
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
+    big: [['fagot',  2830,  0],  ['radeau',  10360,  0],  ['cabb',  13136,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_bourg: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [2369],
+    big: [['bout1',  4373,  0],  ['enseigne',  5334,  0],  ['boutq',  6623,  0,  'koban'],  ['bout2',  8070,  0],  ['kura',  9218,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_douves: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [3158],
+    big: [['caisses',  5406,  0],  ['treuil',  7055,  0,  'koban'],  ['tonneaux',  8704,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_remparts: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [6317],
+    big: [['gradins',  9249,  0],  ['machi',  10660,  0,  'koban'],  ['sacs',  11955,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_porte: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [4738],
+    big: [['treuil',  9656,  0,  'koban'],  ['garde',  11703,  0,  'pv'],  ['gradins',  13864,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_greniers: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [2368],
+    big: [['sacs',  4722,  0],  ['kura',  6156,  0,  'koban'],  ['tonneaux',  7582,  0],  ['banniere',  8903,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_arsenal: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [3158],
+    big: [['caisses',  5575,  0],  ['ratelier',  7295,  0],  ['banniere',  8775,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_casernes: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [8316],
+    big: [['tente',  2436,  0,  'koban'],  ['caisses',  12667,  0],  ['banniere',  14194,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_tour: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [2368],
+    big: [['gradins',  4977,  0],  ['machi',  6832,  0,  'koban'],  ['caisses',  8559,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_ronde: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [6316],
+    big: [['gradins',  9885,  0],  ['machi',  11930,  0,  'pv'],  ['sacs',  13861,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  f_toits: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [2368],
+    big: [['caisses',  4770,  0],  ['donjon',  6576,  0],  ['shachi',  6576,  760,  'pv'],  ['garde',  8559,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_escalier: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], rel1: true, relAt: [3158],
+    big: [['marches',  6215,  0],  ['lanterneg',  8397,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_cloche: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
+    big: [['marches',  6031,  0],  ['lanterneg',  8305,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_jardin: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], rel1: true, relAt: [3158],
+    big: [['roc1',  5182,  0],  ['roc2',  6279,  0],  ['roc3',  7406,  0],  ['pavillon',  8783,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_cascades: {
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.59) saturate(0.78)', rel1: true, relAt: [3962],
+    big: [['roc2',  2168,  0],  ['pavillon',  3819,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_pont: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.90) saturate(0.88)',
+    big: [['pontarq',  2744,  0],  ['erable',  5420,  0,  'koban'],  ['pavillon',  8027,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_pagode: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.80) saturate(0.88)', rel1: true, relAt: [3158],
+    big: [['erable',  6051,  0,  'koban'],  ['roc3',  8308,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_cedres: {
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3955],
+    big: [['roc1',  2127,  0],  ['cedrec',  3816,  0,  'koban'],  ['roc3',  4662,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_cimetiere: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [7124],
+    big: [['tombes',  1628,  0],  ['lpierre',  3136,  0,  'koban'],  ['cedre',  4164,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_gue: {
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
+    big: [['mausolee',  1136,  0,  'pv'],  ['roc1',  4886,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  t_ermitage: {
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)',
+    big: [['roc2',  2666,  0],  ['pavillon',  5095,  0,  'pv'],  ['cedrec',  7684,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_berge: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3159],
+    big: [['pontonb',  6122,  0,  'koban'],  ['pontonl',  8263,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_marche: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
+    big: [['echoppes',  5531,  0],  ['guirl',  7296,  0],  ['echoppe',  8866,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_tambour: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
+    big: [['yagura',  5883,  0,  'koban'],  ['echoppes',  8215,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_brise: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
+    big: [['brise1',  5490,  0],  ['brise2',  7049,  0],  ['brise3',  8638,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_bateau: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
+    big: [['bateau',  5908,  0,  'koban'],  ['pontonl',  8177,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  p_offrandes: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.62) saturate(0.78)', rel1: true, relAt: [3159],
+    big: [['pontonl',  5593,  0],  ['brise2',  7206,  0],  ['jizog',  8739,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_pelerins: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], rel1: true, relAt: [3158],
+    big: [['corniche',  6063,  0],  ['pinn',  8373,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_torii: {
+    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.73) saturate(0.78)', rel1: true, relAt: [3757],
+    big: [['sources',  1840,  0],  ['meule1',  3654,  0],  ['grotteg',  4633,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_pins: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1],
+    big: [['pinn',  2328,  0,  'koban'],  ['corniche',  5259,  0],  ['pinn',  7970,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_charbon: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.88) saturate(0.88)', rel1: true, relAt: [3158],
+    big: [['meule1',  5147,  0],  ['meule2',  6375,  0],  ['hutte',  7739,  0,  'koban'],  ['potence',  8883,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_pont: {
+    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.64) saturate(0.78)', rel1: true, relAt: [2188],
+    big: [['hutte',  3950,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_sources: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.77) saturate(0.88)',
+    big: [['sources',  2027,  0],  ['singe',  3812,  0,  'koban'],  ['grotteg',  5658,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_blizzard: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], rel1: true, relAt: [3159],
+    big: [['corniche',  6122,  0],  ['hutte',  8511,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  c_corniche: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.75) saturate(0.78)', rel1: true, relAt: [3159],
+    big: [['corniche',  5648,  0],  ['arche',  7742,  0,  'koban'],  ['grotteg',  8934,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_escalier: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
+    big: [['tourp',  3375,  0,  'koban'],  ['cloitre',  6896,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_porte: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
+    big: [['tourp',  3476,  0],  ['salle',  6964,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_printemps: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
+    big: [['cerisier',  3513,  0,  'koban'],  ['pergola',  7032,  0]],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_ete: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
+    big: [['pergola',  3661,  0],  ['carillon',  7061,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_automne: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
+    big: [['pontarq',  3494,  0],  ['erable',  6920,  0,  'koban']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
+  s_hiver: {
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07], flt: 'brightness(0.80) saturate(0.88)',
+    big: [['cloitre',  2809,  0],  ['cellule',  5458,  0,  'koban'],  ['pinn',  7778,  0,  'pv']],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+  },
   l_hauteurs: {
     camTop: 2700, grade: [.78, .8, '#8fa6bd', .13],   // saturation, clarté, couleur de l'air, force du voile
     plats: [['barque', 430], ['ponton', 1450], ['toit', 1900], ['plateau', 2800, 900], ['plateau', 2730, 1500], ['plateau', 3150, 1500], ['pontonL', 4750], ['rocher', 5400]],   // [modèle, x, hauteur (absente = posé au sol)]
@@ -6447,6 +6744,8 @@ function vertLedges() {
 }
 function vertPlat(k, x, h, extra) { const m = VA[k] || VA[k + '1']; return Object.assign({ x, w: m.R - m.L, h: h || m.h - m.top - VERT.SINK, V: k, sus: !!h, dip: 0, dipV: 0 }, extra || {}); }
 const GV = {"gpin":{"w":1268,"h":1588,"a":[670,1538],"plats":[[25,1245,50,0],[75,540,980,-1]],"hooks":[[732,250]],"fol":{"img":"gpin_f","at":[632,50]}},"gpin_f":{"w":1348,"h":340,"a":[672,195],"plats":[],"hooks":[]},"pina":{"w":698,"h":755,"a":[405,723],"plats":[[133,685,24,0],[405,683,238,1],[11,306,382,-1]],"hooks":[],"fol":{"img":"pina_f","at":[408,24]}},"pina_f":{"w":733,"h":184,"a":[366,134],"plats":[],"hooks":[]},"epave":{"w":2312,"h":1432,"a":[6,1384],"plats":[[300,2144,946,0],[254,2045,117,0]],"hooks":[[344,136],[1160,528]]},"coffre":{"w":152,"h":150,"step":154,"base":147},"torii":{"w":1404,"h":1190,"a":[702,1122],"plats":[[31,1378,55,0],[107,1295,390,0]],"hooks":[],"pw":[[343,72],[1061,72]],"pwTop":212},"rocher":{"w":870,"h":2268,"a":[228,2147],"plats":[[166,718,225,0]],"hooks":[[228,395]]},"passe":{"w":2142,"h":1130,"a":[205,1022],"plats":[[234,1815,528,0],[130,281,118,0],[1760,1906,118,0]],"hooks":[[205,53],[1837,53]]},"cabane":{"w":1062,"h":1018,"a":[532,970],"plats":[[64,1000,723,0],[181,875,329,0],[165,911,17,0]],"hooks":[],"fol":{"img":"cabane_f","at":[162,34],"wall":1}},"cabane_f":{"w":1061,"h":807,"a":[161,34],"plats":[],"hooks":[]},"sechoir":{"w":1762,"h":1139,"a":[5,1105],"plats":[[55,676,724,0],[540,1173,472,0],[1020,1742,228,0]],"hooks":[]},"mat":{"w":337,"h":1525,"a":[166,1485],"plats":[[22,316,151,0]],"hooks":[[166,228],[169,730]]},"grotte":{"w":1074,"h":996,"a":[5,991],"plats":[[94,997,790,0]],"hooks":[],"fol":{"img":"grotte_f","at":[5,5],"wall":1,"minY":100}},"grotte_f":{"w":1075,"h":996,"a":[5,5],"plats":[],"hooks":[]},"corm":{"w":875,"h":170,"a":[0,0],"plats":[],"hooks":[],"fr":[[0,0,106,136,52,134],[108,0,157,135,77,133],[267,0,93,137,45,134],[362,0,104,143,51,140],[468,0,173,170,85,167],[643,0,230,74,114,72]]}};   // grands ensembles peints (gv_*.webp) : a = ancre (pied), plats = [x0, x1, y du dessus, côté accrochable seulement], hooks = nœuds où colle la langue, fol = feuillage posé devant Kaeru
+Object.assign(GV, {"coques":{"w":2218,"h":706,"a":[1107,682],"plats":[[381,1162,48,0],[645,1635,231,0],[931,1943,407,0]],"hooks":[]},"matb":{"w":1069,"h":1214,"a":[240,1181],"plats":[[515,779,161,0]],"hooks":[[647,174],[537,444]],"ch":[[730,174]]},"coque_f":{"w":1404,"h":427,"a":[0,0],"plats":[],"hooks":[]},"coque":{"w":1401,"h":432,"a":[700,414],"plats":[[193,1216,346,0],[259,1084,-84,0]],"hooks":[],"ch":[[878,346]],"fol":{"img":"coque_f","at":[-7,0],"wall":1,"minY":30}},"village_f":{"w":1128,"h":764,"a":[0,0],"plats":[],"hooks":[]},"village":{"w":1144,"h":764,"a":[552,756],"plats":[[12,1062,620,0],[412,1002,382,0],[102,382,150,0],[642,992,30,0]],"hooks":[],"ch":[[812,382]],"fol":{"img":"village_f","at":[8,0],"wall":1,"minY":350}},"tour_a":{"w":510,"h":1476,"a":[256,1468],"plats":[[36,476,468,0]],"hooks":[[246,578]],"ch":[[396,468]]},"brisel":{"w":2124,"h":808,"a":[1046,796],"plats":[[96,596,506,0],[596,1086,382,0],[1036,1536,210,0],[1486,2026,50,0]],"hooks":[]},"balise":{"w":816,"h":1391,"a":[395,1271],"plats":[[161,577,335,0]],"hooks":[[395,491]],"ch":[[330,335]]},"abri_f":{"w":1348,"h":383,"a":[0,0],"plats":[],"hooks":[]},"abri":{"w":1336,"h":416,"a":[667,406],"plats":[[59,1227,346,0],[11,1307,34,0]],"hooks":[],"ch":[[1027,346]],"fol":{"img":"abri_f","at":[-6,26],"wall":1,"minY":15}},"lotus1":{"w":554,"h":387,"a":[270,317],"plats":[[26,528,75,0]],"hooks":[]},"lotus2":{"w":619,"h":574,"a":[328,504],"plats":[[26,594,114,0]],"hooks":[]},"lotus3":{"w":643,"h":725,"a":[269,654],"plats":[[26,618,77,0]],"hooks":[]},"lotus4":{"w":675,"h":918,"a":[246,848],"plats":[[26,650,120,0]],"hooks":[]},"lotus5":{"w":746,"h":1045,"a":[360,971],"plats":[[26,720,78,0]],"hooks":[]},"arbre":{"w":873,"h":1893,"a":[387,1728],"plats":[[432,830,468,0],[380,860,873,0],[357,552,1480,0]],"hooks":[[342,836]],"ch":[[702,468]],"fol":{"img":"arbre_f","at":[12,-42]}},"arbre_f":{"w":866,"h":1306,"a":[0,0],"plats":[],"hooks":[]},"ponton":{"w":1098,"h":1036,"a":[552,980],"plats":[[20,1084,723,0],[110,927,345,0]],"hooks":[]},"shadouf":{"w":950,"h":705,"a":[536,696],"plats":[],"hooks":[]},"grenierp":{"w":749,"h":972,"a":[372,960],"plats":[[29,659,470,0],[169,533,22,0]],"hooks":[]},"grenier_f":{"w":892,"h":588,"a":[0,0],"plats":[],"hooks":[]},"grenier":{"w":883,"h":1118,"a":[442,1093],"plats":[[117,780,528,0],[202,696,12,0]],"hooks":[],"ch":[[504,528]],"fol":{"img":"grenier_f","at":[-5,0],"wall":1,"minY":300}},"epouv":{"w":1167,"h":1275,"a":[569,1258],"plats":[[17,1148,329,0],[485,634,13,0]],"hooks":[[966,459]],"ch":[[1057,320]]},"nid":{"w":514,"h":1277,"a":[257,1268],"plats":[[43,485,27,0]],"hooks":[[277,624],[257,98]],"ch":[[257,39]]},"tiges":{"w":1025,"h":914,"a":[510,881],"plats":[[55,216,622,0],[209,370,486,0],[363,517,360,0],[510,671,343,0],[664,818,203,0]],"hooks":[]},"radeau":{"w":951,"h":701,"a":[473,678],"plats":[[277,557,195,0]],"hooks":[]},"fagot":{"w":396,"h":1077,"a":[172,1056],"plats":[[88,172,27,0],[39,123,267,0],[155,235,169,0]],"hooks":[[172,622]]},"cime":{"w":566,"h":1281,"a":[245,1255],"plats":[[75,435,135,0]],"hooks":[[50,675],[240,210]],"ch":[[135,135]],"fol":{"img":"cime_f","at":[-15,-35]}},"cime_f":{"w":579,"h":417,"a":[0,0],"plats":[],"hooks":[]},"pontc":{"w":1311,"h":400,"a":[646,381],"plats":[[122,1156,219,0],[62,136,56,0],[1149,1224,28,0]],"hooks":[]},"poulie":{"w":598,"h":1044,"a":[300,1030],"plats":[[12,488,76,0]],"hooks":[[319,680],[319,230]],"ch":[[81,74]]},"panda":{"w":367,"h":1039,"a":[209,1027],"plats":[[40,359,202,0]],"hooks":[[209,286],[209,670]]},"cabb_f":{"w":1152,"h":934,"a":[0,0],"plats":[],"hooks":[]},"cabb":{"w":1141,"h":1019,"a":[566,970],"plats":[[84,1020,866,0],[124,982,376,0],[176,956,17,0]],"hooks":[],"ch":[[771,376]],"fol":{"img":"cabb_f","at":[-5,0],"wall":1,"minY":40}},"souche1":{"w":496,"h":253,"a":[244,225],"plats":[[90,433,66,0]],"hooks":[]},"souche2":{"w":645,"h":402,"a":[312,378],"plats":[[74,536,90,0]],"hooks":[]},"souche3":{"w":832,"h":571,"a":[392,545],"plats":[[98,686,83,0]],"hooks":[]},"souchec_f":{"w":1033,"h":696,"a":[0,0],"plats":[],"hooks":[]},"souchec":{"w":1030,"h":694,"a":[510,665],"plats":[[146,860,25,0],[244,790,539,0]],"hooks":[],"ch":[[720,539]],"fol":{"img":"souchec_f","at":[0,0],"wall":1,"minY":30}},"jizo1":{"w":480,"h":408,"a":[234,396],"plats":[[13,455,280,0]],"hooks":[]},"jizo2":{"w":455,"h":534,"a":[226,523],"plats":[[18,421,289,0]],"hooks":[]},"jizo3":{"w":477,"h":685,"a":[235,672],"plats":[[27,443,399,0],[66,417,295,0]],"hooks":[]},"jizog":{"w":783,"h":889,"a":[391,878],"plats":[[21,755,696,0],[47,216,474,0],[567,736,474,0],[294,489,20,0]],"hooks":[[391,306]],"ch":[[391,6]]},"steles":{"w":514,"h":663,"a":[257,647],"plats":[[36,478,491,0]],"hooks":[]},"bout1":{"w":856,"h":693,"a":[426,659],"plats":[[58,314,205,0],[490,794,27,0]],"hooks":[]},"bout2":{"w":853,"h":694,"a":[427,661],"plats":[[35,387,205,0],[483,819,29,0]],"hooks":[]},"enseigne":{"w":325,"h":776,"a":[51,755],"plats":[[11,315,123,0]],"hooks":[[54,35]]},"kura_f":{"w":478,"h":787,"a":[0,0],"plats":[],"hooks":[]},"kura":{"w":483,"h":787,"a":[242,774],"plats":[[42,442,454,0]],"hooks":[],"ch":[[242,454]],"fol":{"img":"kura_f","at":[0,0],"wall":1,"minY":190}},"boutq_f":{"w":1078,"h":494,"a":[0,0],"plats":[],"hooks":[]},"boutq":{"w":1077,"h":484,"a":[536,472],"plats":[[33,1023,454,0],[206,948,180,0]],"hooks":[],"ch":[[765,446]],"fol":{"img":"boutq_f","at":[0,-6],"wall":1,"minY":10}},"garde_f":{"w":1086,"h":483,"a":[0,0],"plats":[],"hooks":[]},"garde":{"w":1095,"h":482,"a":[549,466],"plats":[[32,1052,429,0],[212,946,156,0],[16,1082,21,0]],"hooks":[],"ch":[[796,422]],"fol":{"img":"garde_f","at":[6,0],"wall":1,"minY":15}},"tente_f":{"w":1090,"h":492,"a":[0,0],"plats":[],"hooks":[]},"tente":{"w":1095,"h":489,"a":[549,477],"plats":[[32,1052,402,0],[256,812,154,0]],"hooks":[],"ch":[[609,394]],"fol":{"img":"tente_f","at":[0,0],"wall":1,"minY":15}},"gradins":{"w":1035,"h":814,"a":[536,790],"plats":[[68,212,43,0],[140,446,115,0],[248,662,232,0],[383,995,376,0]],"hooks":[]},"machi_f":{"w":702,"h":773,"a":[0,0],"plats":[],"hooks":[]},"machi":{"w":704,"h":773,"a":[354,749],"plats":[[58,594,477,0]],"hooks":[],"ch":[[274,477]],"fol":{"img":"machi_f","at":[0,0],"wall":1,"minY":400}},"donjon":{"w":1197,"h":851,"a":[595,842],"plats":[[59,1147,522,0],[163,1027,362,0],[267,923,218,0]],"hooks":[]},"shachi":{"w":510,"h":500,"a":[233,484],"plats":[[53,423,299,0]],"hooks":[[208,289]],"ch":[[353,289]]},"treuil":{"w":840,"h":1106,"a":[421,1091],"plats":[[47,773,119,0],[20,196,789,0],[636,817,789,0]],"hooks":[[403,30]],"ch":[[163,101]]},"banniere":{"w":364,"h":1210,"a":[133,1193],"plats":[[13,241,419,0]],"hooks":[[133,785],[139,29]],"ch":[[193,407]]},"sacs":{"w":776,"h":610,"a":[388,584],"plats":[[16,266,356,0],[255,494,192,0],[494,754,21,0]],"hooks":[]},"caisses":{"w":754,"h":729,"a":[376,714],"plats":[[9,249,411,0],[242,489,213,0],[489,744,22,0]],"hooks":[]},"ratelier":{"w":825,"h":969,"a":[410,948],"plats":[[12,814,21,0]],"hooks":[]},"tonneaux":{"w":765,"h":754,"a":[381,738],"plats":[[14,276,412,0],[231,516,214,0],[471,756,21,0]],"hooks":[]},"marches":{"w":1294,"h":698,"a":[648,682],"plats":[[213,1113,98,0],[340,986,322,0],[476,843,518,0]],"hooks":[]},"lanterneg":{"w":746,"h":1098,"a":[371,1077],"plats":[[51,707,197,0]],"hooks":[[371,605],[371,37]],"ch":[[547,197]]},"torii2":{"w":1235,"h":1053,"a":[525,1005],"plats":[[29,957,288,0],[141,869,477,0],[221,1229,32,0]],"hooks":[[733,141]]}});   // kits de modules peints : marais, lac, bambouseraie, forteresse, temple (ch = coffres cachés)
+Object.assign(GV, {"erable":{"w":1214,"h":1219,"a":[518,1190],"plats":[[406,924,259,0],[98,532,409,0],[602,1078,574,0]],"hooks":[],"ch":[[770,255]],"fol":{"img":"erable_f","at":[6,-70]}},"erable_f":{"w":1229,"h":592,"a":[0,0],"plats":[],"hooks":[]},"roc1":{"w":270,"h":274,"a":[135,246],"plats":[[82,240,24,0]],"hooks":[]},"roc2":{"w":306,"h":458,"a":[147,430],"plats":[[42,252,27,0]],"hooks":[]},"roc3":{"w":374,"h":638,"a":[152,604],"plats":[[16,302,32,0]],"hooks":[]},"pontarq":{"w":1168,"h":349,"a":[582,323],"plats":[[358,806,83,0],[150,358,131,0],[806,1014,131,0]],"hooks":[]},"suspendu":{"w":762,"h":636,"a":[370,609],"plats":[[125,650,245,0]],"hooks":[[155,77],[594,77]]},"pavillon_f":{"w":679,"h":630,"a":[0,0],"plats":[],"hooks":[]},"pavillon":{"w":679,"h":630,"a":[340,609],"plats":[[67,613,511,0],[305,536,326,0]],"hooks":[],"ch":[[459,508]],"fol":{"img":"pavillon_f","at":[0,0],"wall":1,"minY":20}},"cedre":{"w":606,"h":1058,"a":[276,1044],"plats":[[314,531,92,0],[268,508,274,0],[314,591,474,0]],"hooks":[[254,609]],"ch":[[441,92]],"fol":{"img":"cedre_f","at":[-39,-238]}},"cedre_f":{"w":615,"h":428,"a":[0,0],"plats":[],"hooks":[]},"cedrec_f":{"w":644,"h":1064,"a":[0,0],"plats":[],"hooks":[]},"cedrec":{"w":645,"h":1064,"a":[321,1046],"plats":[[201,471,855,0]],"hooks":[],"ch":[[344,855]],"fol":{"img":"cedrec_f","at":[0,0],"wall":1,"minY":60}},"tombes":{"w":1544,"h":611,"a":[768,569],"plats":[[209,365,387,0],[417,632,287,0],[684,944,199,0],[996,1334,82,0]],"hooks":[]},"mausolee_f":{"w":547,"h":694,"a":[0,0],"plats":[],"hooks":[]},"mausolee":{"w":552,"h":696,"a":[276,671],"plats":[[115,437,505,0]],"hooks":[],"ch":[[255,505]],"fol":{"img":"mausolee_f","at":[0,1],"wall":1,"minY":20}},"lpierre":{"w":462,"h":1358,"a":[221,1333],"plats":[[123,319,150,0]],"hooks":[[179,472]],"ch":[[221,136]]},"pontonl":{"w":965,"h":965,"a":[475,876],"plats":[[27,937,617,0],[503,902,400,0]],"hooks":[]},"pontonb_f":{"w":963,"h":934,"a":[0,0],"plats":[],"hooks":[]},"pontonb":{"w":962,"h":965,"a":[482,876],"plats":[[22,932,617,0],[498,897,400,0],[174,762,820,0]],"hooks":[],"ch":[[643,820]],"fol":{"img":"pontonb_f","at":[0,0],"wall":1,"minY":-100}},"echoppes":{"w":1252,"h":634,"a":[616,602],"plats":[[24,339,186,0],[362,729,106,0],[722,1202,33,0]],"hooks":[]},"guirl":{"w":996,"h":759,"a":[495,724],"plats":[],"hooks":[[30,27],[885,27]]},"echoppe_f":{"w":872,"h":602,"a":[0,0],"plats":[],"hooks":[]},"echoppe":{"w":872,"h":603,"a":[434,562],"plats":[[88,764,465,0],[28,838,36,0]],"hooks":[],"ch":[[628,462]],"fol":{"img":"echoppe_f","at":[0,2],"wall":1,"minY":20}},"yagura":{"w":1253,"h":1194,"a":[623,1161],"plats":[[133,1113,822,0],[371,889,505,0]],"hooks":[[609,24]],"ch":[[812,1154]],"fol":{"img":"yagura_f","at":[187,571]}},"yagura_f":{"w":692,"h":243,"a":[0,0],"plats":[],"hooks":[]},"brise1":{"w":624,"h":365,"a":[312,258],"plats":[[24,568,90,0]],"hooks":[]},"brise2":{"w":650,"h":523,"a":[315,418],"plats":[[19,587,86,0]],"hooks":[]},"brise3":{"w":690,"h":717,"a":[322,608],"plats":[[-14,610,94,0]],"hooks":[]},"bateau":{"w":1043,"h":790,"a":[519,643],"plats":[[71,925,465,0],[239,589,315,0]],"hooks":[[666,31]],"ch":[[533,640]],"fol":{"img":"bateau_f","at":[3,454],"wall":1,"minY":-100}},"bateau_f":{"w":1042,"h":336,"a":[0,0],"plats":[],"hooks":[]},"corniche":{"w":1936,"h":1221,"a":[963,1191],"plats":[[79,378,946,0],[333,957,706,0],[690,1438,398,0],[1035,1880,168,0]],"hooks":[]},"pinn":{"w":1087,"h":1096,"a":[429,1072],"plats":[[13,247,598,0],[650,904,664,0],[520,858,170,0]],"hooks":[[592,162]],"ch":[[442,1034]],"fol":{"img":"pinn_f","at":[-6,-266]}},"pinn_f":{"w":1092,"h":488,"a":[0,0],"plats":[],"hooks":[]},"meule1":{"w":511,"h":421,"a":[254,393],"plats":[[150,338,176,0]],"hooks":[]},"meule2":{"w":900,"h":537,"a":[446,508],"plats":[[199,667,179,0]],"hooks":[]},"hutte_f":{"w":774,"h":566,"a":[0,0],"plats":[],"hooks":[]},"hutte":{"w":780,"h":566,"a":[385,543],"plats":[[77,693,494,0],[161,567,281,0]],"hooks":[],"ch":[[504,494]],"fol":{"img":"hutte_f","at":[0,-3],"wall":1,"minY":20}},"potence":{"w":754,"h":1087,"a":[224,1065],"plats":[[172,445,766,0],[341,395,107,0]],"hooks":[[708,391]],"ch":[[368,107]]},"sources":{"w":788,"h":411,"a":[388,376],"plats":[[28,254,189,0],[268,418,106,0],[434,748,58,0]],"hooks":[]},"singe":{"w":685,"h":1066,"a":[335,1015],"plats":[[88,564,121,0]],"hooks":[[369,289]],"ch":[[216,148]]},"arche":{"w":746,"h":942,"a":[561,912],"plats":[[-9,666,78,0]],"hooks":[[224,634]],"ch":[[336,94]]},"grotteg_f":{"w":892,"h":532,"a":[0,0],"plats":[],"hooks":[]},"grotteg":{"w":890,"h":531,"a":[447,511],"plats":[[153,741,357,0],[83,797,32,0]],"hooks":[],"ch":[[489,354]],"fol":{"img":"grotteg_f","at":[0,-1],"wall":1,"minY":20}},"tourp":{"w":1008,"h":1504,"a":[495,1456],"plats":[[112,878,699,0],[68,922,268,0],[15,142,768,0],[848,968,729,0]],"hooks":[[495,204]],"ch":[[728,294]]},"salle":{"w":1167,"h":489,"a":[584,466],"plats":[[92,1036,432,0],[46,1112,24,0]],"hooks":[],"ch":[[542,422]],"fol":{"img":"salle_f","at":[0,0],"wall":1,"minY":20}},"salle_f":{"w":1167,"h":490,"a":[0,0],"plats":[],"hooks":[]},"cerisier":{"w":1231,"h":1180,"a":[613,1144],"plats":[[396,865,199,0],[655,1145,391,0],[102,564,557,0]],"hooks":[],"ch":[[634,1134]],"fol":{"img":"cerisier_f","at":[-3,-235]}},"cerisier_f":{"w":1249,"h":825,"a":[0,0],"plats":[],"hooks":[]},"pergola":{"w":1188,"h":922,"a":[592,883],"plats":[[370,812,707,0],[292,890,367,0],[150,1034,57,0]],"hooks":[]},"carillon":{"w":723,"h":1299,"a":[325,1261],"plats":[[72,592,176,0],[-6,202,1112,0],[462,670,1112,0]],"hooks":[[325,422],[325,46]],"ch":[[500,188]]},"cloitre":{"w":1469,"h":904,"a":[717,885],"plats":[[31,1445,717,0],[17,1025,311,0],[829,1459,31,0]],"hooks":[]},"cellule_f":{"w":778,"h":811,"a":[0,0],"plats":[],"hooks":[]},"cellule":{"w":784,"h":808,"a":[395,783],"plats":[[87,689,685,0],[17,773,36,0]],"hooks":[],"ch":[[549,685]],"fol":{"img":"cellule_f","at":[0,-1],"wall":1,"minY":20}}});   // kits peints : temple (suite), fleuve, col, sanctuaire
 const GV_REW = {
   koban: () => { invAdd('koban', 2); return 'Deux koban d’or'; },
   pv: () => { INV.hpBonus = (INV.hpBonus || 0) + 10; invApply(); HERO.hp = HERO_HP; return 'Kaeru se sent plus solide : PV max +10'; },
@@ -6462,14 +6761,15 @@ function vertBuild() {
   if (D !== VERT_NONE) invImg('vert_atlas.webp');
   for (const [k, x, h] of D.plats) PROG.plats.push(vertPlat(k, x, h));
   const painted = [];
-  VERT.big = (D.big || []).map(([k, x, h]) => { const M = GV[k], a = M.a; invImg('gv_' + k + '.webp'); if (M.fol) invImg('gv_' + M.fol.img + '.webp');
+  VERT.big = (D.big || []).map(([k, x, h, rew]) => { const M = GV[k], a = M.a; invImg('gv_' + k + '.webp'); if (M.fol) invImg('gv_' + M.fol.img + '.webp');
     for (const [x0, x1, y, only] of M.plats) PROG.plats.push({ x: x + x0 - a[0], w: x1 - x0, h: h + a[1] - y, big: k, only: only || undefined });
     for (const [px, hw] of M.pw || []) VERT.walls.push({ k: 'torii', painted: true, x: x + px - a[0], h0: 0, base: 0, h1: h + a[1] - M.pwTop, hw, cv: null });
     for (const [hx, hy] of M.hooks) painted.push({ k: null, painted: true, x: x + hx - a[0], h: h + a[1] - hy, tx: x + hx - a[0], ty: h + a[1] - hy });
-    return { k, x, h, M, fa: 1 }; });
-  const csv = vertSaved(false, 'coffre'); if ((D.chests || []).length) invImg('gv_coffre.webp');
-  VERT.chests = (D.chests || []).map(([x, h, rew], i) => ({ x, h, rew, i, open: !!(csv && csv[i]), t: 9 }));
-  VERT.camUp = D.camUp || [];
+    return { k, x, h, M, fa: 1, rew }; });
+  const csv = vertSaved(false, 'coffre'); invImg('gv_coffre.webp');
+  const autoCh = []; for (const b of VERT.big) if (b.rew && b.M.ch) for (const [cx, cy] of b.M.ch) autoCh.push([b.x + cx - b.M.a[0], b.h + b.M.a[1] - cy, b.rew]);   // coffres peints dans les ensembles (cachés, à la langue)
+  VERT.chests = (D.chests || []).concat(autoCh).map(([x, h, rew], i) => ({ x, h, rew, i, open: !!(csv && csv[i]), t: 9 }));
+  VERT.camUp = D.camUp || []; VERT.flt = D.flt || null;
   VERT.birds = (D.birds || []).map(([x, h]) => ({ x, h, st: 0, t: Math.random() * 5, fx: x, fy: h, vx: 0, vy: 0, gone: false })); if (VERT.birds.length) invImg('gv_corm.webp');
   const pwall = VERT.walls; VERT.walls = D.walls.map(([k, x, h1, base]) => { const c = VA[k + '_cap']; PROG.plats.push({ x: x - c.cx + c.L, w: c.R - c.L, h: h1, hid: true }); return { k, x, h0: base || 0, base: base || 0, h1, hw: VA[k + '_seg'].hw, cv: null }; }).concat(pwall);
   const sv = vertSaved();
@@ -6622,7 +6922,7 @@ function vertDrawPlat(p) {
   ctx.restore();
 }
 function vertDrawBig() {
-  const G = CFG.groundLine;
+  const G = CFG.groundLine; ctx.save(); if (VERT.flt) ctx.filter = VERT.flt;   // les ensembles peints prennent la lumière du lieu (nuit, pluie, soir)
   for (const b of VERT.big) { const M = b.M, X = wx2sx(b.x) - M.a[0]; if (X > VW + 80 || X + M.w < -80) continue; const im = gvImg(b.k); if (im) ctx.drawImage(im, Math.round(X), Math.round(G - b.h - M.a[1])); }
   const bi = gvImg('corm'), BF = GV.corm.fr;
   if (bi) for (const b of VERT.birds || []) { if (b.gone) continue; const X = wx2sx(b.fx); if (X < -300 || X > VW + 300) continue;
@@ -6631,6 +6931,7 @@ function vertDrawBig() {
   const ci = gvImg('coffre'), C = GV.coffre;
   if (ci) for (const c of VERT.chests) { const X = wx2sx(c.x); if (X < -200 || X > VW + 200) continue; const f = !c.open ? 0 : c.t < .35 ? 1 : 2;
     ctx.drawImage(ci, f * C.step, 0, C.w, C.h, Math.round(X - C.w / 2), Math.round(G - c.h - C.base), C.w, C.h); }
+  ctx.restore();
 }
 function folBehind(b) {   // une façade (cabane, cascade) passe derrière Kaeru quand il marche au pied, devant lui quand il est entré
   const F = b.M.fol; if (!F || !F.wall) return false; const FM = GV[F.img], bot = b.h + b.M.a[1] - F.at[1] + FM.a[1] - FM.h;
@@ -6640,7 +6941,7 @@ function vertFront(back) {   // devant Kaeru : les feuillages des cimes et les f
   if (VERT.lv !== LVID || !VERT.big.length) return; const G = CFG.groundLine;
   for (const b of VERT.big) { const F = b.M.fol; if (!F || folBehind(b) !== !!back) continue; const im = gvImg(F.img), FM = GV[F.img]; if (!im) continue;
     const X = wx2sx(b.x) - b.M.a[0] + F.at[0] - FM.a[0], Y = G - b.h - b.M.a[1] + F.at[1] - FM.a[1]; if (X > VW + 80 || X + FM.w < -80) continue;
-    ctx.save(); ctx.globalAlpha = b.fa; ctx.drawImage(im, Math.round(X), Math.round(Y)); ctx.restore(); }
+    ctx.save(); ctx.globalAlpha = b.fa; if (VERT.flt) ctx.filter = VERT.flt; ctx.drawImage(im, Math.round(X), Math.round(Y)); ctx.restore(); }
 }
 function vertDraw() {
   if (VERT.lv !== LVID) return;
@@ -6733,14 +7034,19 @@ function lgUpdate(dt) {   // vrai tant que la langue tient Kaeru
   if (LG.st === 'back') { if (A.onGround) hero.vx = 0; LG.L -= 4600 * dt; if (LG.L <= 0) { LG.st = null; LG.L = 0; } return false; }
   return false;
 }
+// la tête suit la langue : on choisit la pose dont la bouche vise le plus près de l'angle du tir, puis on incline légèrement Kaeru pour finir l'alignement
+const LG_VA = [-20, 0, 20, 35, 50, 65, 80, 90];   // angle de la bouche des 8 poses de visée lg_v0-7
+const LG_NAT = { lg_aim0: 6, lg_aim1: 36, lg_aim2: 66, lg_air0: 60, lg_air1: 40, lg_air2: 42, lg_vol: 20, lg_decol: 42 };
 function lgPose() {
   if (!K4.img.lg_vol) return null;
   if (!LG.st) return LG.rel > 0 && !ACT.onGround ? (LG.pose = { k4: 'lg_arr', a: 'c' }) : null;
   const [mx, my] = lgMouth(), el = Math.atan2(LG.ty - my, Math.abs(LG.tx - mx)) / D2R;
   let p;
-  if (LG.st === 'pull') { const k = LG.air ? 'lg_air2' : LG.t < .07 ? 'lg_decol' : 'lg_vol', nat = k === 'lg_vol' ? 20 : 42; p = { k4: k, a: 'c', rot: clamp(-(el - nat), -60, 22) }; }
-  else if (LG.air) p = { k4: LG.st === 'shoot' && LG.t < .05 ? 'lg_air0' : 'lg_air1', a: 'c' };
-  else p = { k4: LG.st === 'shoot' && LG.t < .05 ? 'lg_antic' : LG.st === 'stick' ? 'lg_tendu' : el < 22 ? 'lg_aim0' : el < 62 ? 'lg_aim1' : 'lg_aim2', a: 'foot' };
+  if (LG.st === 'pull') { const k = LG.air ? 'lg_air2' : LG.t < .07 ? 'lg_decol' : 'lg_vol'; p = { k4: k, a: 'c', rot: clamp(-(el - LG_NAT[k]), -60, 22) }; }
+  else if (LG.air) { const k = LG.st === 'shoot' && LG.t < .05 ? 'lg_air0' : 'lg_air1'; p = { k4: k, a: 'c', rot: clamp(-(el - LG_NAT[k]), -25, 25) }; }
+  else if (LG.st === 'shoot' && LG.t < .05) p = { k4: 'lg_antic', a: 'foot' };
+  else if (K4.img.lg_v7) { let bi = 0; LG_VA.forEach((v, i) => { if (Math.abs(v - el) < Math.abs(LG_VA[bi] - el)) bi = i; }); p = { k4: 'lg_v' + bi, a: 'foot', rot: clamp(-(el - LG_VA[bi]), -8, 8) }; }
+  else { const k = el < 21 ? 'lg_aim0' : el < 51 ? 'lg_aim1' : 'lg_aim2'; p = { k4: k, a: 'foot', rot: clamp(-(el - LG_NAT[k]), -14, 14) }; }
   return (LG.pose = p);
 }
 // la bouche, à l'écran, d'après la pose affichée
@@ -10857,7 +11163,7 @@ function rlMake(nm, x) { const M = RELM[nm]; return { nm, M, x, w: M.w * REL_S, 
 function rlSummit(r) { const P = r.M.prof, mx = Math.max(...P); let bi = 0; P.forEach((v, i) => { if (v >= mx * .95) bi = i; }); return { x: r.x + bi * 4 * REL_S, h: mx * REL_S }; }
 function rlBuild() {
   RL.lv = LVID; RL.list = [];
-  const groups = REL_LV[LVID]; if (!groups || LV.room) return;
+  const g0 = REL_LV[LVID], VD = VERT_DEF[LVID], groups = g0 && VD && VD.rel1 ? g0.slice(0, 1) : g0; if (!groups || LV.room) return;   // rel1 : les modules peints remplacent le second relief
   const n = NODE[LVID], W = LV.linear ? T : C;
   const avoid = [...(LV.exits || []).map(e => e.x * C), ...(LV.exitX != null ? [LV.exitX * C] : []), ...((n && n.doors) || []).map(d => d.x * C), ...((typeof NPC_DEF !== 'undefined' && NPC_DEF[LVID]) || []).map(d => d.x * C)];
   const fr = groups.length === 1 ? [.5] : [.3, .72], spans = [];
