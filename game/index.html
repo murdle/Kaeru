@@ -300,7 +300,9 @@ function drawStrip(c, y, f, draw) {
 function tilesX(w, f, o = 0) { const off = mod(cam.x * f + o, w), xs = []; for (let x = -off; x < VW; x += w) xs.push(x); return xs; }
 
 
-let VPAR = { sky: .10, far: .4, mid: .75 };   // les plans du fond descendent quand la caméra monte, assez pour qu'on ne voie jamais leur pied
+let VPAR = { sky: .10, far: .4, mid: .75, smid: 420, sfar: 240 };
+/* descente des plans du fond : même vitesse que les modules près du sol, puis plafonnée (smid / sfar px) pour que le second plan reste à l'écran quand on monte haut */
+function vSink(CY, v, S) { return S > 0 ? S * Math.tanh(v * CY / S) : v * CY; }   // les plans du fond descendent quand la caméra monte, assez pour qu'on ne voie jamais leur pied
 let _vOff = null;
 function skyTopColor() {
   if (!L.sky) return CFG.bg || '#14101c';
@@ -322,8 +324,8 @@ function vLayer(dy, topY, draw) {
   g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)'); o.fillStyle = g; o.fillRect(0, Math.max(0, y0 - 2), VW, VH); o.globalCompositeOperation = 'source-over';
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); const m = main.getTransform(); ctx.setTransform(m); ctx.drawImage(_vOff, 0, 0); ctx.restore();
 }
-function drawFarV(CY) { if (L.far && CFG.far) vLayer(CY * VPAR.far, CFG.far.y, () => drawStrip(L.far, CFG.far.y, CFG.far.f)); }
-function drawMidV(CY) { if (L.mid && CFG.mid) vLayer(CY * VPAR.mid, CFG.mid.y, () => drawMid()); else drawMid(); }
+function drawFarV(CY) { if (L.far && CFG.far) vLayer(vSink(CY, VPAR.far, VPAR.sfar), CFG.far.y, () => drawStrip(L.far, CFG.far.y, CFG.far.f)); }
+function drawMidV(CY) { if (L.mid && CFG.mid) vLayer(vSink(CY, VPAR.mid, VPAR.smid), CFG.mid.y - (L.midTop ? L.midTop.height - Math.round(MID_HAUT_B * CFG.mid.s) : 0), () => drawMid()); else drawMid(); }
 function drawSky() {
   ctx.fillStyle = CFG.bg || '#14101c'; ctx.fillRect(0, 0, VW, VH);
   if (!L.sky || !CFG.sky) return;
@@ -399,12 +401,15 @@ function drawGlows(list, s, x0, y0, size, base) {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
+const MID_HAUT = new Set(['w_bamb3_mid_all.webp']);   /* plans moyens qui ont un haut repeint (…_haut.webp) */
+const MID_HAUT_B = 64;
 function drawMid() {
   if (!L.mid || !CFG.mid) return;
   const c = L.mid, y = CFG.mid.y, wl = Math.round(CFG.mid.water * CFG.mid.s);
   for (const x of tilesX(c.width, CFG.mid.f, CFG.mid.off || 0)) {
     if (x > VW || x + c.width < 0) continue;
     ctx.drawImage(c, x, y);
+    if (L.midTop) ctx.drawImage(L.midTop, x, y - L.midTop.height + Math.round(MID_HAUT_B * CFG.mid.s));
     drawShimmer(c, x, y, wl, c.height, 4, 1.7);
     drawGlows(CFG.midGlows, CFG.mid.s, x, y, CFG.midGlowSize || 46, .55);
   }
@@ -3130,6 +3135,12 @@ function drawWaveShot(p) {
 window.__spawn = (type, off) => spawnEnemy(type, hero.x + off);
 window.__enx = () => enemies.map(e => e.x);
 window.__god = () => { HERO.inv = 2; HERO.hp = HERO.max || HERO.hp; };
+window.__midinfo = () => { const r = { lv: LVID, camTop: VERT.camTop, cam: cam.y || 0, mid: null, far: null };
+  const scan = (c, cf) => { if (!c || !cf) return null; const g = document.createElement('canvas'), W = 200, H = Math.min(c.height, 1200); g.width = W; g.height = H; const x = g.getContext('2d'); x.drawImage(c, 0, 0, c.width, H, 0, 0, W, H);
+    const d = x.getImageData(0, 0, W, H).data; let any = -1, half = -1; for (let y = 0; y < H; y++) { let n = 0; for (let i = 0; i < W; i++) if (d[(y * W + i) * 4 + 3] > 200) n++; if (any < 0 && n > W * .05) any = y; if (half < 0 && n > W * .5) { half = y; break; } }
+    return { y: cf.y, w: c.width, h: c.height, any, half }; };
+  r.mid = scan(L.mid, CFG.mid); r.far = scan(L.far, CFG.far); return r; };
+window.__mapGo = id => { mapTravel(id); return [STATE, TRANS.to, MAPV.msg]; }; window.__mapOpen = () => { openMap(false); return STATE; };
 window.__pk = () => { const q = k3PoseOf(); return q && (q.k4 || (typeof q.n === "string" ? q.n : JSON.stringify(q).slice(0, 80))); };
 window.__ct = (w, a) => { const A = ACT; if (w === 'rs') { HERO.inv = 0; A.hurt = 0; A.atk = null; A.parryT = 0; A.guard = false; A.rip = false; counterT = 0; } else if (w === 'hurt') { HERO.inv = 0; hurtHero(a, hero.x + 120, null); } else if (w === 'parry') { A.guard = true; A.guardPress = t; return tryGuard(hero.x + hero.dir * 80, a || 5); } else if (w === 'guardoff') A.guard = false; return [A.atk, A.rip, counterT]; };
 window.__ens = () => enemies.map(e => e.type + ':' + e.st + ':' + Math.round(e.hp) + ':p' + Math.round(e.post || 0) + ':b' + (e.broken || 0).toFixed(1) + ':m' + (e.mono || 0) + 'x' + (e.monoMul || 1).toFixed(2)).join(' ');
@@ -5856,12 +5867,13 @@ function neighbors(id) {
 }
 /* MODE TEST : toute la carte est ouverte (désactiver avec ?test=0 dans l'adresse) */
 const TEST_ALL = /[?&]test=1/.test(location.search);
+const MAP_FREE = true;   /* voyage libre depuis la carte : partout, sans torii à proximité, y compris dans les zones non découvertes (mettre false pour revenir au voyage par torii) */
 function sealed(n) { if (TEST_ALL) return false; if (n.don) return !hasDon(n.don); return n.kind === 'scelle' && !(n.unlock && WORLD.visited.has(n.unlock)); }
 function reachable(id) { if (TEST_ALL) return true;
   const n = NODE[id]; if (!n || sealed(n) || n.parent) return false;
   return WORLD.visited.has(id) || neighbors(id).some(k => WORLD.visited.has(k)) || gateNb(id).some(([k, g]) => hasDon(g.don) && WORLD.visited.has(k));
 }
-function regionKnown(r) { return NODES.some(n => n.r === r && (WORLD.visited.has(n.id) || reachable(n.id))); }
+function regionKnown(r) { return MAP_FREE || NODES.some(n => n.r === r && (WORLD.visited.has(n.id) || reachable(n.id))); }
 
 function makeLevel(n) {
   const R = REGIONS[n.r], V = SETVIS[n.set] || {}, B = V.base || n.set, M = SETMETA[B];
@@ -6074,7 +6086,7 @@ function openMap(fromTorii) {
 function closeMap() { STATE = 'play'; keys.clear(); pressed.clear(); }
 function mapItems() {
   const r = MAPV.r, out = [];
-  for (const n of NODES) if (n.r === r && !(n.hidden && !WORLD.visited.has(n.id) && !TEST_ALL)) out.push({ id: n.id, n, px: MAP_BOX.gx0 + n.x * (MAP_BOX.gx1 - MAP_BOX.gx0), py: MAP_BOX.gy0 + n.y * (MAP_BOX.gy1 - MAP_BOX.gy0) });
+  for (const n of NODES) if (n.r === r && !(n.hidden && !WORLD.visited.has(n.id) && !TEST_ALL && !MAP_FREE)) out.push({ id: n.id, n, px: MAP_BOX.gx0 + n.x * (MAP_BOX.gx1 - MAP_BOX.gx0), py: MAP_BOX.gy0 + n.y * (MAP_BOX.gy1 - MAP_BOX.gy0) });
   // passages vers les régions voisines
   for (const n of NODES) if (n.r === r) for (const k of n.links || []) if (NODE[k].r !== r) out.push({ id: k, n: NODE[k], ext: 'out', from: n.id, px: MAP_BOX.gx1 + 70, py: MAP_BOX.gy0 + n.y * (MAP_BOX.gy1 - MAP_BOX.gy0) });
   for (const n of NODES) if (n.r !== r) for (const k of n.links || []) if (NODE[k].r === r) out.push({ id: n.id, n, ext: 'in', to: k, px: MAP_BOX.gx0 - 70, py: MAP_BOX.gy0 + NODE[k].y * (MAP_BOX.gy1 - MAP_BOX.gy0) });
@@ -6097,17 +6109,17 @@ function mapTravel(id) {
   const n = NODE[id];
   if (!n) return;
   if (id === LVID) return mapSay('Tu es ici.');
-  if (sealed(n)) return mapSay('Scellé : il faudra ' + (n.need || 'un pouvoir que tu n’as pas encore') + '.');
-  if (n.parent && !TEST_ALL) return mapSay('On y entre par une porte, depuis « ' + NODE[n.parent].title + ' ».');
-  if (!reachable(id)) return mapSay('Ce chemin t’est encore inconnu.');
-  if (!MAPV.fromTorii) return mapSay('Pour voyager, rejoins le torii ouvert de l’arène.');
+  if (!MAP_FREE && sealed(n)) return mapSay('Scellé : il faudra ' + (n.need || 'un pouvoir que tu n’as pas encore') + '.');
+  if (n.parent && !TEST_ALL && !MAP_FREE) return mapSay('On y entre par une porte, depuis « ' + NODE[n.parent].title + ' ».');
+  if (!MAP_FREE && !reachable(id)) return mapSay('Ce chemin t’est encore inconnu.');
+  if (!MAP_FREE && !MAPV.fromTorii) return mapSay('Pour voyager, rejoins le torii ouvert de l’arène.');
   if (!painted(n)) {
     WORLD.visited.add(id); saveGame(); sfx('uimove');
     if (n.r !== MAPV.r) MAPV.r = n.r;
     MAPV.sel = id;
     return mapSay('« ' + n.title + ' » n’est pas encore peint : Kaeru le traverse à l’encre.');
   }
-  if (!TEST_ALL && !relayOk(id)) return mapSay('Trop loin : on voyage vers un lieu de repos ou l’entrée d’un chapitre déjà visités.');
+  if (!TEST_ALL && !MAP_FREE && !relayOk(id)) return mapSay('Trop loin : on voyage vers un lieu de repos ou l’entrée d’un chapitre déjà visités.');
   closeMap();
   TRANS.to = id; TRANS.t = 0; TRANS.phase = 0; TRANS.fromX = hero.x; TRANS.dx = LV.exitX != null ? ringDx(exitWX()) : 0; TRANS.spawnFrac = null;
   shake = Math.max(shake, 5); sfx('portal');
@@ -7219,6 +7231,9 @@ async function loadLevel(id, spawnFrac) {
   const air = a => airC && a > 0 ? `rgba(${airC[0]},${airC[1]},${airC[2]},${a})` : null;
   L.far = CFG.far ? scaled(far, CFG.far.s, { haze: air(DEPTH.hazeFar), soft: 1 }) || fallbackStrip(2000, 700, '#5b6a9a') : null;
   L.mid = CFG.mid ? scaled(mid, CFG.mid.s, { haze: CFG.indoor ? null : air(DEPTH.hazeMid), foot: 130, soft: 1 }) || fallbackStrip(2400, 600, '#2f3e70') : null;
+  /* haut repeint du plan moyen (bambous, piliers prolongés vers le haut) : image à part, posée au-dessus, 64 px de fondu sur la bande */
+  L.midTop = null;
+  if (CFG.mid && MID_HAUT.has(CFG.mid.file)) { const top = await loadCached('assets/' + CFG.mid.file.replace('.webp', '_haut.webp')).catch(() => null); if (top) L.midTop = scaled(top, CFG.mid.s, { haze: CFG.indoor ? null : air(DEPTH.hazeMid), soft: 1 }); }
   L.ground = scaled(ground, CFG.ground.s, { soft: 1 }) || fallbackStrip(2864, 530, '#4a3a2a');
   L.raw = {}; L.cache = {}; L.obj = {};
   LV.objFiles.forEach((n, i) => { const a = ONPROPS[n], im = objs[i]; if (a && im) { const c = mk(a[2], a[3]); c.getContext('2d').drawImage(im, a[0], a[1], a[2], a[3], 0, 0, a[2], a[3]); L.raw[n] = c; } else L.raw[n] = im; });
@@ -12744,7 +12759,7 @@ function render() {
   drawBirds();
   drawFarV(CY);
   // brumes, lac, fumées : elles suivent la montée de la caméra au rythme du plan moyen (sinon elles restent collées à l'écran et font des bandes)
-  const VM = CY * VPAR.mid, vIn = () => { if (VM > 0) { ctx.save(); ctx.translate(0, VM); } }, vOut = () => { if (VM > 0) ctx.restore(); };
+  const VM = vSink(CY, VPAR.mid, VPAR.smid), vIn = () => { if (VM > 0) { ctx.save(); ctx.translate(0, VM); } }, vOut = () => { if (VM > 0) ctx.restore(); };
   vIn(); drawGouffre();
   const [m0, m1] = LV.mists;
   if (!__skip.has('mist')) drawMist(MISTS[m0[0]], m0[1], m0[2], t * m0[3], m0[4]);
@@ -12996,7 +13011,7 @@ window.__mapGo = (id) => { mapTravel(id); return MAPV.msg; };
 window.__world = () => ({ cur: LVID, visited: [...WORLD.visited], cleared: [...WORLD.cleared], doors: DOORS.map(d => [d.to, Math.round(d.x)]), C, door: DOOR.near && DOOR.near.to, state: STATE });
 window.__hero = (x) => { if (x != null) { hero.x = x; cam.x = camPrev = x - VW / 2; } return hero.x; };
 window.__clear = () => { for (const en of enemies) en.dead = .01; WAVE.i = WAVES.length - 1; WAVE.delay = 0; WAVE.calm = 0; };
-window.__vpar = (m, f) => { VPAR.mid = m; if (f) VPAR.far = f; }; window.__exits = () => LV.exits; window.__mou = () => MOU; window.__mouGo = () => { const f = MOU.list.find(f => !f.got); if (!f) return null; window.__hero(f.x - 120); return f.id; }; window.__mouEat = () => { const f = MOU.list.find(f => !f.got); hero.dir = 1; MOU.anim = { f, t: 0, fr: 0 }; f.got = true; }; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
+window.__vsink = (m, f) => { VPAR.smid = m; VPAR.sfar = f; }; window.__vpar = (m, f) => { VPAR.mid = m; if (f) VPAR.far = f; }; window.__exits = () => LV.exits; window.__mou = () => MOU; window.__mouGo = () => { const f = MOU.list.find(f => !f.got); if (!f) return null; window.__hero(f.x - 120); return f.id; }; window.__mouEat = () => { const f = MOU.list.find(f => !f.got); hero.dir = 1; MOU.anim = { f, t: 0, fr: 0 }; f.got = true; }; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
 window.__goto = (frac) => { hero.x = frac * C; cam.x = camPrev = hero.x - VW / 2; };
 window.__lgm = () => lgMouthScreen(); window.__dbg = () => ({ drawHero, LG, hero, cam, PROG, ACT, VERT, K4, VA, RL, LV, LVID, INV, C: typeof C !== 'undefined' ? C : 0, T: typeof T !== 'undefined' ? T : 0, vaImg }); window.__warm = () => WARM; window.__vert = () => VERT; window.__act = () => ACT; window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
 window.__advance = (sec) => { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); };
