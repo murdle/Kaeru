@@ -823,13 +823,13 @@ function springStep(s, target, f, z, dt) {
    e = courbe pour arriver à la clé : out (départ vif), inout, in, lin.
    hit = fenêtre où la lame touche ; cancel = moment où l'on peut enchaîner, sauter ou dasher. */
 const ATTACKS = {
-  a1: { lunge: 210, lungeWin: [0.039, 0.125], reach: 250, dmg: 12, shake: 6, hit: [0.07, 0.133], cancel: 0.156, end: 0.359, keys: [
+  a1: { lunge: 210, lungeWin: [0.039, 0.125], reach: 250, dmg: 12, shake: 6, hit: [0.07, 0.133], cancel: 0.14, end: 0.359, keys: [
     { t: 0.062, e: 'inout', armFs: 62, armFe: -78, blade: -140, torso: -12, hipRot: -5, hipY: 10, legF: -14, legB: 16, head: 5 },
     { t: 0.117, e: 'out',   armFs: -96, armFe: -8, blade: 22, torso: 15, hipRot: 10, hipY: 18, legF: -36, legB: 30, head: -7 },
     { t: 0.187, e: 'out',   armFs: -110, armFe: 3, blade: 40, torso: 18, hipRot: 12, hipY: 20 },
     { t: 0.328, e: 'inout', armFs: -78, armFe: -22, blade: 14, torso: 8, hipRot: 6, hipY: 12 },
   ] },
-  a2: { lunge: 150, lungeWin: [0.031, 0.117], reach: 240, dmg: 14, shake: 7, hit: [0.062, 0.133], cancel: 0.164, end: 0.374, up: true, keys: [
+  a2: { lunge: 150, lungeWin: [0.031, 0.117], reach: 240, dmg: 14, shake: 7, hit: [0.062, 0.133], cancel: 0.145, end: 0.374, up: true, keys: [
     { t: 0.055, e: 'inout', armFs: 38, armFe: -24, blade: 148, torso: 9, hipRot: 11, hipY: 28, legF: -30, legB: 26, head: 7 },
     { t: 0.109, e: 'out',   armFs: -165, armFe: -6, blade: -108, torso: -7, hipRot: -1, hipY: -6, legF: -18, legB: 34, liftB: 6, head: -10, sy: 1.07, sx: .95 },
     { t: 0.179, e: 'out',   armFs: -178, armFe: 4, blade: -124, torso: -9, hipRot: -2, hipY: -8 },
@@ -915,7 +915,7 @@ function canCancel() { const A = ACT; if (A.hurt > 0 || HERO.dead > 0) return fa
 function endAttack() { ACT.atk = null; ACT.atkKeys = null; trail.length = 0; }
 function startAttack(name) {
   const A = ACT, X = ATTACKS[name];
-  A.atk = name; A.atkT = 0; A.atkHit = new Set(); A.queued = false; A.drawn = MOVE.sheatheAfter;
+  A.atk = name; A.atkT = 0; A.a3dust = false; A.atkHit = new Set(); A.queued = false; A.drawn = MOVE.sheatheAfter;
   trail.length = 0;
   // clé 0 = pose actuelle : aucune coupure entre deux mouvements
   let cur = { t: 0 };
@@ -1007,6 +1007,7 @@ function updateKaeru(dt) {
     if (A.atk !== 'plunge') A.plunged = false;
     if (X.rehit && A.atkT - (A.lastRehit || 0) >= X.rehit) { A.atkHit = new Set(); A.lastRehit = A.atkT; if (A.atk === 'ame') fxSlash('ame', ++A.fxN); }
     if (X.hit && !A.fxDone && A.atkT >= X.hit[0]) { A.fxDone = true; fxSlash(A.atk, 0); }
+    if (A.atk === 'a3' && !A.a3dust && A.atkT >= .3 && A.onGround) { A.a3dust = true; puff(hero.x, 0, 6, .9); shake = Math.max(shake, 4); }
     if (X.hit && A.atkT >= X.hit[0] && A.atkT <= X.hit[1]) hitTest(X);
     if (A.queued && A.atk === 'air' && A.atkT >= X.cancel) { startAttack('air2'); A.vy = Math.max(A.vy, 160); }
     else if (A.queued && X.cancel !== undefined && A.atkT >= X.cancel && !X.air && COMBO.includes(A.atk) && A.comboIdx < COMBO.length - 1) { A.comboIdx++; startAttack(COMBO[A.comboIdx]); }
@@ -3118,7 +3119,9 @@ function drawWaveShot(p) {
   if (Math.random() < .5) inkFx.push({ x: p.x - d * rr(0, 40), y: rr(20, 60), vx: -d * rr(40, 160), vy: rr(150, 420), r: rr(3, 7), a: .9, col: '#4a5156' });
 }
 window.__spawn = (type, off) => spawnEnemy(type, hero.x + off);
-window.__ens = () => enemies.map(e => e.type + ':' + e.st + ':' + Math.round(e.hp)).join(' ');
+window.__enx = () => enemies.map(e => e.x);
+window.__god = () => { HERO.inv = 2; HERO.hp = HERO.max || HERO.hp; };
+window.__ens = () => enemies.map(e => e.type + ':' + e.st + ':' + Math.round(e.hp) + ':p' + Math.round(e.post || 0) + ':b' + (e.broken || 0).toFixed(1) + ':m' + (e.mono || 0) + 'x' + (e.monoMul || 1).toFixed(2)).join(' ');
 window.__noWaves = () => { WAVE.done = true; enemies.length = 0; };
 window.__hurtAll = d => enemies.forEach(e => { if (!e.dead) damageEnemy(e, d, 6, 'a1'); });
 
@@ -4620,7 +4623,10 @@ function resetBattle() {
 /* ---------- dégâts infligés au héros ---------- */
 function hurtHero(dmg, fromX, src) {
   if (HERO.inv > 0 || HERO.dead > 0 || ACT.dash > 0 || ACT.roll > 0) return false;
-  const gr = tryGuard(fromX, dmg);
+  /* couleur du coup : y = jaune, imparable (esquive ou saut) ; r = rouge, parade seulement ; b = bleu, tir (sabre ou feu de Hinoko) */
+  const col = src ? moveCol(src.st) : 'b';
+  if (col === 'y' && ACT.guard && !(ACT.guardBroken > 0)) floaters.push({ wx: hero.x, y: CFG.groundLine - ACT.y - 310, v: 'Imparable', a: 1, hero: true, small: true });
+  const gr = col === 'y' ? false : tryGuard(fromX, col === 'r' ? dmg * 2.5 : dmg);
   if (gr) { if (gr === 'parry') stunFromParry(src); return gr; }
   CB.n = 0; HK.mood = 'fear'; HK.moodT = 1.2; sfx('hurt');
   dmg = invHurtMul(Math.round(dmg * difDmg() * (src && src.ph2 ? 1.2 : 1))); HERO.hp = Math.max(0, HERO.hp - dmg); HERO.inv = .9;
@@ -4675,14 +4681,25 @@ function damageEnemy(e, dmg, sh, how) {
   if (e.intang) return;
   dmg = Math.round(dmg * chargeMul(how) * (e.ward > 0 ? .35 : 1) * invDmgMul(how));
   if (enBlock(e, how)) return;
+  if (e.broken > 0) dmg = Math.round(dmg * 2.5);
+  /* anti-spam : au-delà de 6 coups de sabre simples d'affilée sur le même ennemi, la garde se referme (-15 % par coup, plancher -45 %) ; tout autre coup remet à zéro */
+  e.monoMul = 1;
+  if (how === 'a1' || how === 'a2' || how === 'a3') {
+    e.mono = (e.mono || 0) + 1; e.monoT = 2.2;
+    if (e.mono > MONO_FREE && !(e.broken > 0)) {
+      e.monoMul = Math.max(.55, 1 - .15 * (e.mono - MONO_FREE)); dmg = Math.max(1, Math.round(dmg * e.monoMul));
+      if (e.mono === MONO_FREE + 1) floaters.push({ wx: e.x, y: CFG.groundLine - e.y - ENEMY[e.type].h - 120, v: 'Garde usée · varie tes coups', a: 1.4, small: true });
+    }
+  } else e.mono = 0;
   if (how !== 'shot' && how !== 'ring' && how !== 'fire') {
     if (counterT > 0) { dmg *= 2; counterT = 0; floaters.push({ wx: e.x, y: CFG.groundLine - e.y - ENEMY[e.type].h - 80, v: 'Contre !', a: 1.1, small: true }); }
     if (HK.fireBlade > 0) { dmg = Math.round(dmg * 1.5); for (let i = 0; i < 8; i++) embers.push({ x: e.x - cam.x + rr(-30, 30), y: CFG.groundLine - e.y - ENEMY[e.type].h * .5, vx: rr(-200, 200), vy: rr(-260, -60), life: rr(.5, 1), z: 1, r: rr(1, 1.6) }); }
   }
   if (how !== 'shot' && how !== 'ring' && how !== 'fire') fxImpact(e.x, CFG.groundLine - e.y - ENEMY[e.type].h * .5, sh >= 10, 'hit');
   comboHit(); sfx('hit');
+  const hs = HITSTOP[how] || .07;
   const v = dmg + Math.floor(Math.random() * 4);
-  e.hp -= v; if (how !== 'shot' && how !== 'ring' && how !== 'fire') invOnHit(v); e.flash = .12; hitstop = Math.max(hitstop, .07); shake = Math.max(shake, sh);
+  e.hp -= v; if (how !== 'shot' && how !== 'ring' && how !== 'fire') invOnHit(v); e.flash = .12; hitstop = Math.max(hitstop, hs); shake = Math.max(shake, sh);
   floaters.push({ wx: e.x, y: CFG.groundLine - e.y - ENEMY[e.type].h - 30, v: String(v), a: 1 });
   const kd = Math.sign(dxTo(hero.x, e.x)) || hero.dir;
   if (goreOn() && e.type !== 'onibi') goreHit(e, how); else inkBurst(e.x, e.y + ENEMY[e.type].h * .5, 14, e.type === 'onibi' ? '#9cc8ff' : '#1b1714', 1.1);
@@ -4701,8 +4718,37 @@ function damageEnemy(e, dmg, sh, how) {
   } else {
     e.st = 'hurt'; e.t = 0; e.stun = .35; e.vx = kd * 380; e.vy = how === 'a2' ? 300 : 60;
   }
+  if (!ENEMY[e.type].boss && (how === 'fire' || how === 'ring') && e.hp > 0 && /^(.*Tele|tele)$/.test(e.st) && moveCol(e.st) === 'b') {
+    /* le feu de Hinoko coupe un tir en préparation */
+    e.st = 'hurt'; e.t = 0; e.stun = .9; e.vx = 0; floaters.push({ wx: e.x, y: CFG.groundLine - e.y - ENEMY[e.type].h - 80, v: 'Interrompu', a: 1, small: true });
+    addPosture(e, 25);
+  } else addPosture(e, (PGAIN[how] || 8) * (e.monoMul || 1));
+  if (e.broken > 0 && e.st === 'hurt') e.stun = Math.max(e.stun || 0, e.broken);
   comboReact(e, how);
   if (e.hp <= 0) killEnemy(e, how);
+}
+/* ---------- posture ennemie : les coups la remplissent ; pleine, l'ennemi est sonné et prend x2,5 ---------- */
+/* arrêt sur image selon le coup : léger = sec, lourd = long (poids) */
+const HITSTOP = { a1: .045, a1b: .045, a2: .05, a3: .12, air: .05, air2: .05, plunge: .14, tsuki: .07, iai: .1 };
+const MONO_FREE = 6;
+const PGAIN = { a1: 8, a2: 8, a3: 16, air: 7, air2: 7, plunge: 18, tsuki: 12, iai: 18, shot: 4, fire: 6, ring: 6 };
+const MV_Y = /^(spin|dive|saut|bond|leap|ecrase|quake|balai|sweep|fauche|rafale|charge|gcharge|roule|lunge|tide|under)$/;
+const MV_R = /^(tongue|griffe|frappe|coup|combo|estoc|iai|lance|pique|thrust|swing|sabre|poing|club|dague|zuki|whip|attaque|chain)$/;
+const MV_B = /^(tir|shuri|kunai|sort|souffle|flame|wind|pluie|lancer|chapelet|tele|venom|thunder)$/;
+const MV_COL = { y: '#ffd23a', r: '#e0452c', b: '#5fa8ff' }, MV_KJ = { y: '避', r: '受', b: '炎' };
+function moveCol(st) { if (!st) return null; const b = st.replace(/Tele$/, ''); return MV_Y.test(b) ? 'y' : MV_R.test(b) ? 'r' : MV_B.test(b) ? 'b' : null; }
+function postMax(e) { return Math.max(24, Math.round(e.max * (ENEMY[e.type].boss ? .3 : .45))); }
+function addPosture(e, g) {
+  if (!e || e.dead || e.broken > 0 || !(e.max > 0)) return;
+  const D = ENEMY[e.type]; if (D.boss) g *= .6;
+  e.post = (e.post || 0) + g; e.postT = 2.2;
+  if (e.post < postMax(e)) return;
+  e.post = 0; e.broken = D.boss ? 1.3 : 2;
+  if (e.type === 'tengu') { e.st = 'fall'; e.t = 0; e.vx = 0; e.vy = 0; }
+  else { e.st = 'hurt'; e.t = 0; e.hit = false; e.ch = 0; e.stun = e.broken; e.vx = 0; }
+  shake = Math.max(shake, 9); hitstop = Math.max(hitstop, .12); sfx('guardbreak');
+  floaters.push({ wx: e.x, y: CFG.groundLine - e.y - D.h - 90, v: 'Posture brisée', a: 1.4, small: true });
+  inkBurst(e.x, e.y + D.h * .5, 18, '#ffd27a', 1.2);
 }
 function killEnemy(e, how) {
   sfx('kill'); invOnKill(e);
@@ -4984,7 +5030,22 @@ function drawWarn(x, y, k) {
   ctx.restore(); ctx.globalAlpha = 1;
 }
 function drawEnemyHp(e, x, y) {
-  if (e.hp >= e.max || e.dead) return;
+  if (e.dead) return;
+  const mc = (/Tele$/.test(e.st) || e.st === 'tele') ? moveCol(e.st) : null;
+  if (mc) {
+    const pu = 1 + Math.sin(t * 22) * .12, c = MV_COL[mc];
+    ctx.save(); ctx.translate(clamp(x, 40, VW - 40), clamp(y - 40, 130, 1000)); ctx.scale(pu, pu);
+    ctx.beginPath(); ctx.arc(0, 0, 24, 0, 7); ctx.fillStyle = 'rgba(20,12,16,.78)'; ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = c; ctx.stroke();
+    ctx.font = '700 28px "Shippori Mincho", serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = c; ctx.fillText(MV_KJ[mc], 0, 2);
+    ctx.restore();
+  }
+  if (e.broken > 0 || e.post > 0) {
+    const w = 90, k = e.broken > 0 ? 1 : clamp(e.post / postMax(e), 0, 1);
+    ctx.fillStyle = 'rgba(20,12,16,.75)'; ctx.fillRect(x - w / 2 - 2, y + 9, w + 4, 8);
+    ctx.fillStyle = e.broken > 0 ? (Math.sin(t * 30) > 0 ? '#fff6d8' : '#ffd23a') : '#d9a441'; ctx.fillRect(x - w / 2, y + 11, w * k, 4);
+  }
+  if (e.hp >= e.max) return;
   const w = 90, k = clamp(e.hp / e.max, 0, 1);
   ctx.fillStyle = 'rgba(20,12,16,.75)'; ctx.fillRect(x - w / 2 - 2, y - 2, w + 4, 9);
   ctx.fillStyle = '#c23b22'; ctx.fillRect(x - w / 2, y, w * k, 5);
@@ -8003,6 +8064,7 @@ function stunFromParry(src) {
   if (!src) return;
   src.st = src.type === 'tengu' ? 'fall' : 'hurt'; src.t = 0; src.stun = 1.1; src.vx = Math.sign(dxTo(hero.x, src.x)) * 300; src.vy = src.type === 'tengu' ? 0 : 200;
   src.tongue = 0; src.spinA = 0;
+  addPosture(src, 35); if (src.broken > 0) src.stun = Math.max(src.stun || 0, src.broken);
 }
 function comboHit() {
   CB.n++; CB.t = 2.2; CB.pop = .25; CB.best = Math.max(CB.best, CB.n);
@@ -8012,6 +8074,11 @@ function comboHit() {
 function updateCombat(dt) {
   CB.t -= dt; if (CB.t <= 0) CB.n = 0; CB.pop = Math.max(0, CB.pop - dt);
   SPECIAL.t = Math.max(0, SPECIAL.t - dt); parryFlash = Math.max(0, parryFlash - dt); counterT = Math.max(0, counterT - dt);
+  for (const e of enemies) {
+    if (e.mono > 0) { e.monoT -= dt; if (e.monoT <= 0) e.mono = 0; }
+    if (e.broken > 0) e.broken = Math.max(0, e.broken - dt);
+    else if (e.post > 0) { e.postT -= dt; if (e.postT <= 0) e.post = Math.max(0, e.post - 30 * dt); }
+  }
   const A = ACT;
   A.guardBroken = Math.max(0, (A.guardBroken || 0) - dt);
   if (!A.guard) HERO.guard = Math.min(GUARD.max, HERO.guard + GUARD.regen * dt);
