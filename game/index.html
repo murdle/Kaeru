@@ -302,7 +302,7 @@ function tilesX(w, f, o = 0) { const off = mod(cam.x * f + o, w), xs = []; for (
 
 let VPAR = { sky: .10, far: .4, mid: .75, smid: 420, sfar: 240 };
 /* descente des plans du fond : même vitesse que les modules près du sol, puis plafonnée (smid / sfar px) pour que le second plan reste à l'écran quand on monte haut */
-function vSink(CY, v, S) { return S > 0 ? S * Math.tanh(v * CY / S) : v * CY; }   // les plans du fond descendent quand la caméra monte, assez pour qu'on ne voie jamais leur pied
+function vSink(CY, v, S) { const a = v * CY; return S > 0 ? S * Math.tanh(a / S) + .4 * Math.max(0, a - S) : a; }   /* après le plafond, le plan continue de descendre à 40 % (sinon il défile aussi vite que le premier plan tout en haut) */   // les plans du fond descendent quand la caméra monte, assez pour qu'on ne voie jamais leur pied
 let _vOff = null;
 function skyTopColor() {
   if (!L.sky) return CFG.bg || '#14101c';
@@ -402,7 +402,7 @@ function drawGlows(list, s, x0, y0, size, base) {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
-const MID_HAUT = new Set(['w_bamb3_mid_all.webp', 'w_mar3_mid_all.webp', 'w_lac2_mid_all.webp', 'w_fort2_mid_all.webp', 'w_bamb2_mid_all.webp', 'w_fort3_mid_all.webp', 'w_col3_mid_all.webp', 'w_san3_mid_all.webp', 'w_pon3_mid_all.webp']);   /* plans moyens qui ont un haut repeint (…_haut.webp) */
+const MID_HAUT = new Set(['w_bamb3_mid_all.webp', 'w_mar3_mid_all.webp', 'w_lac2_mid_all.webp', 'w_fort2_mid_all.webp', 'w_bamb2_mid_all.webp', 'w_fort3_mid_all.webp', 'w_col3_mid_all.webp', 'w_san3_mid_all.webp', 'w_pon3_mid_all.webp','w_tem3_mid_all.webp','w_cim2g_mid_all.webp','w_cim2l_mid_all.webp','w_tem2c_mid_all.webp','w_cim2c_mid_all.webp','w_col2p_mid_all.webp','w_col2t_mid_all.webp']);   /* plans moyens qui ont un haut repeint (…_haut.webp) */
 const MID_HAUT_B = 64;
 const FAR_HAUT = new Set(['w_bamb2_far.webp']);   /* plans lointains qui ont un haut repeint */
 /* Vent dans la végétation (2.3) : le plan moyen est dessiné en bandes fines, décalées en sinus ; le pied reste planté, le haut ondule.
