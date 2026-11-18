@@ -313,8 +313,9 @@ function skyTopColor() {
   return L.sky._top;
 }
 // dessine un plan décalé de dy, avec son bord haut fondu sur une hauteur qui grandit avec le décalage
-function vLayer(dy, topY, draw) {
+function vLayer(dy, topY, draw, noFade) {
   if (dy <= .5) { draw(); return; }
+  if (noFade) { ctx.save(); ctx.translate(0, dy); draw(); ctx.restore(); return; }   /* haut repeint : son bord haut est déjà transparent, plus de voile de fondu par-dessus */
   const F = Math.min(300, dy * 1.4), y0 = topY + dy;
   if (y0 + F < 0) { ctx.save(); ctx.translate(0, dy); draw(); ctx.restore(); return; }
   if (!_vOff || _vOff.width !== VW || _vOff.height !== VH) { _vOff = document.createElement('canvas'); _vOff.width = VW; _vOff.height = VH; }
@@ -325,8 +326,8 @@ function vLayer(dy, topY, draw) {
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); const m = main.getTransform(); ctx.setTransform(m); ctx.drawImage(_vOff, 0, 0); ctx.restore();
 }
 function drawFarV(CY) { if (L.far && CFG.far) { const ex = L.farTop ? L.farTop.height - Math.round(MID_HAUT_B * CFG.far.s) : 0;
-  vLayer(vSink(CY, VPAR.far, VPAR.sfar), CFG.far.y - ex, () => drawStrip(L.far, CFG.far.y, CFG.far.f, L.farTop ? x => { ctx.drawImage(L.far, x, CFG.far.y); ctx.drawImage(L.farTop, x, CFG.far.y - ex); } : null)); } }
-function drawMidV(CY) { if (L.mid && CFG.mid) vLayer(vSink(CY, VPAR.mid, VPAR.smid), CFG.mid.y - (L.midTop ? L.midTop.height - Math.round(MID_HAUT_B * CFG.mid.s) : 0), () => drawMid()); else drawMid(); }
+  vLayer(vSink(CY, VPAR.far, VPAR.sfar), CFG.far.y - ex, () => drawStrip(L.far, CFG.far.y, CFG.far.f, L.farTop ? x => { ctx.drawImage(L.far, x, CFG.far.y); ctx.drawImage(L.farTop, x, CFG.far.y - ex); } : null), !!L.farTop); } }
+function drawMidV(CY) { if (L.mid && CFG.mid) vLayer(vSink(CY, VPAR.mid, VPAR.smid), CFG.mid.y - (L.midTop ? L.midTop.height - Math.round(MID_HAUT_B * CFG.mid.s) : 0), () => drawMid(), !!L.midTop); else drawMid(); }
 function drawSky() {
   ctx.fillStyle = CFG.bg || '#14101c'; ctx.fillRect(0, 0, VW, VH);
   if (!L.sky || !CFG.sky) return;
@@ -1095,7 +1096,7 @@ function updateKaeru(dt) {
   // --- vertical
   rlWalk(A, xPrevRL);
   RLV.d *= Math.exp(-dt * 16); if (!A.onGround) RLV.d = 0; if (Math.abs(RLV.d) < .3) RLV.d = 0;
-  if (A.onGround && A.y > 0 && !platSupport(hero.x, A.y)) A.onGround = false;
+  if (A.onGround && (A.y > 0 || mkPit(hero.x)) && !platSupport(hero.x, A.y)) A.onGround = false;
   if (!A.onGround || A.vy > 0) {
     let g = MOVE.gravity;
     if (A.holdT > 0 && A.vy > 0 && isDown(...JUMP_KEYS)) { g *= MOVE.holdGravity; A.holdT -= dt; } else A.holdT = 0;
@@ -5779,6 +5780,7 @@ const NODES = [
 ];
 NODES.find(n => n.id === 's_saisons').links = ['s_aosagi'];
 NODES.push({ id: 'l_hauteurs', r: 1, kind: 'arene', title: 'Les hauteurs des pilotis', sub: '高 み   ·   zone test', set: 'lac2a', mid: 'all', midOff: 3, props: { back: ['l2_cabane@.3', 'l2_phare@.62'], ground: [], front: ['l2_susuki', 'l2_poteau'] }, x: .5, y: .95, hidden: true, test: true, links: [], desc: 'Zone test : grimper, s’accrocher, rallumer les lanternes.' });
+NODES.push({ id: 'l_maquette', r: 1, kind: 'arene', title: 'L’atelier des mécanismes', sub: '高 み   ·   maquette', set: 'lac2a', mid: 'all', midOff: 3, props: { back: ['l2_cabane@.3', 'l2_phare@.62'], ground: [], front: ['l2_susuki', 'l2_poteau'] }, x: .5, y: .95, hidden: true, test: true, links: [], desc: 'Maquette : chaque mécanisme du level design, en blocs gris.' });
 const NODE = Object.fromEntries(NODES.map(n => [n.id, n]));
 /* ennemis par lieu : le clan du Héron (soldats à la lance) là où il occupe le pays, et les trois boss peints */
 const BOSS = (pre, name, type) => [...pre, { name, list: [type] }];
@@ -5871,6 +5873,8 @@ const DONS = {
   cloche:  { n: 'Cloche du temple',   k: '鐘', d: 'Le gardien te confie sa petite cloche : son tintement chasse les brumes.', go: 'Les brumes des rizières du Marais cachent le chemin du Pont des lanternes.' },
   manteau: { n: 'Manteau de pèlerin', k: '蓑', d: 'Au pavillon, on te donne un manteau de paille contre le froid.', go: 'Depuis les remparts de la Forteresse, le sentier des pèlerins grimpe vers le Col enneigé.' },
   eventail: { n: 'Éventail du Kaeru-gami', k: '扇', d: 'Sur l’autel de glace dormait l’éventail du Kaeru-gami, l’ancien gardien grenouille des sources. Son souffle est tiède.', go: 'Aux sources chaudes du Col, une vieille stèle parle de clochettes et de vent.' },
+  langue:  { n: 'Langue du Kaeru-gami', k: '舌', d: 'Sur l’autel, l’esprit grenouille te prête sa langue : elle colle aux anneaux et aux nœuds.', go: 'Vise un anneau ou un nœud et tire la langue (O, ou clic du stick droit).' },
+  langue2: { n: 'Langue souple', k: '揺', d: 'Ta langue tient assez pour te balancer sous une lanterne ou une corde.', go: 'Accroche-toi à un point doré, prends de l’élan avec Gauche / Droite, lâche avec Saut.' },
   plume:   { n: 'Plume noire',        k: '羽', d: 'La plume de Kurotsuru te porte : maintiens Saut en tombant pour planer.', go: 'Du haut du phare de pierre, au Lac, plane jusqu’au Sanctuaire.' },
 };
 const DON_ORDER = ['perle', 'barque', 'saut', 'cloche', 'manteau', 'eventail', 'plume'];
@@ -6507,15 +6511,15 @@ const VERT_DEF = {
      Hauteurs réglées sur Kaeru : il atteint un rebord jusqu'à ~760 au-dessus de ses pieds et franchit ~1 100 de vide ; tout ce qui est « à la langue » est au-delà. */
   l_greve: {
     ver: 2, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13],
-    relAt: [3158],                                                   // le groupe digue + phare reste où il était
-    big: [['gpin', 1250, 0], ['pina', 2150, 0], ['epave', 5664, 0]],   // grands ensembles peints : [modèle, x de l'ancre, hauteur du sol]
+    // le groupe digue + phare reste où il était
+    big: [],   // grands ensembles peints : [modèle, x de l'ancre, hauteur du sol]
     plats: [],
-    walls: [['torii', 9160, 1300], ['torii', 9700, 1300]],
-    lans: [['chochin', 800, 0, 352, 505], ['toro', 3830, 1521], ['chochin', 7592, 438, 772, 1200], ['bois', 9622, 1080]],   // chochin : [x, hauteur où on la prend, haut de la lanterne, haut de la corde]
-    chests: [[2166, 699, 'koban'], [7320, 1267, 'pv'], [1020, 1488, 'ofuda']],
-    camUp: [[5840, 7808, 400, 112]],                                 // sur le pont de l'épave : la caméra monte, on voit la vergue et son coffre
+    walls: [],
+    lans: [],
+    chests: [],
+    camUp: [],
     temps: [],
-    tips: [[1000, 300, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [700, 1010, 'Langue : O (manette R3)  ·  tiens une direction, le point visé s’entoure d’un cercle'], [9430, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre']],
+    tips: [],
   },
   /* La rive des torii : le grand torii dans l'eau (poutre basse, toit, saut mural entre ses piliers) · l'aiguille de rocher au petit torii, collée au grand :
      sa cime n'est qu'à la langue, depuis le toit du torii (anneau scellé sous le replat) · la passerelle sur ses deux poteaux · la cabane sur pilotis,
@@ -6525,317 +6529,319 @@ const VERT_DEF = {
      sa plateforme ne s'atteint qu'à la langue, en deux temps (nœud de corde du mât, puis l'anneau). */
   l_pecheurs: {
     ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13],
-    relAt: [3500, 8000],
-    big: [['sechoir', 560, 0], ['grotte', 4700, 0], ['mat', 6500, 0]],
+    big: [],
     plats: [], walls: [],
-    lans: [['chochin', 1780, 633, 790, 850], ['toro', 4115, 1503], ['toro', 5600, 201], ['toro', 8139, 335]],
-    chests: [[4930, 201, 'koban'], [6560, 1334, 'pv']],
-    birds: [[6600, 1334]],
+    lans: [],
+    chests: [],
+    birds: [],
     camUp: [], temps: [], tips: [],
   },
   l_rive: {
     ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13],
-    relAt: [8200],
-    big: [['torii', 1600, 0], ['rocher', 2560, 0], ['passe', 3550, 0], ['cabane', 6072, 0]],
+    big: [],
     plats: [], walls: [],
-    lans: [['chochin', 960, 732, 880, 1030], ['bois', 5110, 640], ['chochin', 6335, 247, 570, 625], ['toro', 8100, 414]],
-    chests: [[2670, 1922, 'ofuda_b'], [6280, 641, 'koban']],
+    lans: [],
+    chests: [],
     camUp: [], temps: [], tips: [],
   },
   /* Kits peints par chapitre (placés automatiquement entre les reliefs, rel1 : ils remplacent le second relief). Chaque lieu : un étage du milieu au saut, un point à la langue, une cache (façade ou feuillage) avec son coffre. */
+  /* Prologue (LEVEL_DESIGN.md) — Les nénuphars du matin : apprendre à monter. Feuilles de lotus géantes en escalier (saut, double saut), l'arbre-tour (première accroche),
+     la branche du saule (coffre), une chaîne de lotus au-dessus de la mare (jarre), le nid du héron (retour avec le Saut du héron). Pas de langue au Prologue. */
   m_nenuphars: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
-    big: [['lotus1',  1110,  0],  ['lotus2',  5086,  0],  ['lotus3',  5971,  0],  ['lotus4',  6915,  0],  ['lotus5',  8029,  0],  ['arbre',  9127,  0,  'koban']],
-    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
+    big: [['lotus1', 700, 0], ['lotus2', 1150, 0], ['lotus1', 5950, 0], ['lotus3', 6300, 0], ['lotus4', 6700, 0], ['lotus5', 7000, 0]],
+    mk: [
+      { t: 'bloc', x: 4480, w: 440, h: 1350, lab: 'branche du saule', pend: 1 },
+      { t: 'jarre', x: 7000, h: 893 },
+      { t: 'bloc', x: 8380, w: 280, h: 1330, lab: 'nid du héron', need: 'heron', pend: 1 },
+    ],
+    plats: [], walls: [], temps: [],
+    lans: [['toro', 1150, 390], ['toro', 4215, 1530], ['toro', 4620, 1350], ['toro', 6700, 728], ['toro', 8119, 476]],
+    chests: [[4780, 1350, 'koban'], [8520, 1330, 'pv']],
+    camUp: [], tips: [[700, 0, 'Saut : Espace (manette : A)'], [1150, 242, 'En l’air, Saut encore : double saut'], [3300, 0, 'Saute vers un rebord : Kaeru s’accroche  ·  Haut : monter'], [6000, 0, 'Les lotus montent jusqu’à une jarre : casse-la au sabre']],
   },
+  /* Le ponton de Hasu : les barques qui tanguent (bascules douces), le ponton et le grenier sur pilotis (coffre), l'arbre-tour (jarre au sommet),
+     le mât d'amarrage planté dans l'eau (retour avec la Langue I : deux nœuds). */
   m_ponton: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
-    big: [['ponton',  5516,  0],  ['arbre',  7200,  0,  'pv'],  ['grenierp',  8810,  0]],
-    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
+    big: [['ponton', 2000, 0], ['grenierp', 2900, 0], ['mat', 5650, 0]],
+    mk: [
+      { t: 'paire', k: 'bascule', a: [520, 120, 220], b: [760, 120, 220], d: 70, lab: 'barque' },
+      { t: 'jarre', x: 3950, h: 1516 },
+      { t: 'paire', k: 'bascule', a: [6050, 110, 220], b: [6290, 110, 220], d: 80 },
+      { t: 'paire', k: 'bascule', a: [6650, 140, 220], b: [6890, 140, 220], d: 80 },
+      { t: 'paire', k: 'bascule', a: [8700, 120, 220], b: [8940, 120, 220], d: 90 },
+      { t: 'paire', k: 'bascule', a: [9250, 180, 220], b: [9490, 180, 220], d: 90 },
+    ],
+    plats: [], walls: [], temps: [],
+    lans: [['toro', 1700, 257], ['toro', 2050, 635], ['toro', 3990, 764], ['toro', 3960, 1116], ['toro', 8008, 272]],
+    chests: [[2900, 938, 'koban'], [5650, 1334, 'pv']],
+    camUp: [], tips: [[640, 0, 'Les barques penchent sous ton poids'], [5650, 0, 'Un mât d’amarrage… trop haut. Il faudrait autre chose qu’un saut.']],
   },
+  /* La passerelle des roseaux : planches pourries qui cèdent (sans danger, au-dessus de l'eau basse), le séchoir (coffre), la cheminée de deux pieux (saut mural, jarre),
+     un pieu isolé au nœud de corde (retour avec la Langue I), puis une passerelle haute qui cède. */
   m_passerelle: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158],
-    big: [['ponton',  5258,  0],  ['shadouf',  6610,  0],  ['nid',  7552,  0,  'koban'],  ['lotus3',  8348,  0],  ['lotus4',  9238,  0]],
-    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
+    big: [['sechoir', 1500, 0]],
+    mk: [
+      { t: 'cede', x: 420, w: 220, h: 150 }, { t: 'cede', x: 700, w: 220, h: 150 }, { t: 'cede', x: 980, w: 220, h: 150 },
+      { t: 'mur', x: 5000, h1: 1100, lab: 'pieu' }, { t: 'mur', x: 5330, h1: 1100, lab: 'pieu' }, { t: 'jarre', x: 5330, h: 1100 },
+      { t: 'mur', x: 6500, h1: 1300, lab: 'pieu isolé' }, { t: 'crochet', x: 6500, h: 880, need: 'langue' },
+      { t: 'bloc', x: 8300, w: 600, h: 450, lab: 'passerelle haute' }, { t: 'cede', x: 9000, w: 240, h: 540 }, { t: 'cede', x: 9330, w: 240, h: 620 }, { t: 'bloc', x: 9660, w: 300, h: 450, lab: 'passerelle haute' },
+    ],
+    plats: [], walls: [], temps: [],
+    lans: [['toro', 1800, 381], ['toro', 2950, 877], ['toro', 4100, 1468], ['toro', 7727, 388], ['toro', 8600, 450]],
+    chests: [[3150, 877, 'koban'], [6500, 1300, 'pv']],
+    camUp: [], tips: [[560, 0, 'Les planches pourries cèdent : passe vite'], [5165, 0, 'Saute contre un pieu : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre']],
   },
+  /* Les rizières inondées : les digues en terrasses, le grenier de garde sur pilotis posé sur la plus haute (coffre, toit à 1 621), l'épouvantail, le shadouf (première bascule) vers la perche (jarre),
+     une terrasse haute cachée dans la brume (retour avec la Cloche). La sortie du milieu (5 264) reste dégagée. */
   m_rizieres: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [3158],
-    big: [['grenierp',  6360,  0],  ['grenier',  7642,  0,  'koban'],  ['epouv',  9116,  0,  'ofuda']],
-    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
+    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09], flt: 'brightness(.92) sepia(.1)',
+    big: [['grenier', 2650, 540, 'koban'], ['epouv', 6300, 0]],
+    mk: [
+      { t: 'bloc', x: 1300, w: 520, h: 180, lab: 'digue', plein: 1 }, { t: 'bloc', x: 1700, w: 520, h: 360, lab: 'digue', plein: 1 }, { t: 'bloc', x: 2100, w: 1140, h: 540, lab: 'digue', plein: 1 },
+      { t: 'bloc', x: 6900, w: 320, h: 420, lab: 'meule de paille', plein: 1 },
+      { t: 'paire', k: 'bascule', a: [8650, 250, 220], b: [9100, 250, 220], d: 220, lab: 'shadouf' },
+      { t: 'bloc', x: 9420, w: 240, h: 1050, lab: 'perche du shadouf' }, { t: 'jarre', x: 9540, h: 1050 },
+      { t: 'brume', x0: 9750, x1: 10150, h0: 200, h1: 1300, need: 'cloche' },
+      { t: 'bloc', x: 9800, w: 260, h: 420, lab: 'terrasse cachée' }, { t: 'bloc', x: 9850, w: 260, h: 820, lab: 'terrasse cachée' },
+    ],
+    plats: [], walls: [], temps: [],
+    lans: [['toro', 1950, 360], ['toro', 2600, 1105], ['toro', 4100, 1576], ['toro', 6000, 929], ['toro', 8119, 476]],
+    chests: [[9980, 820, 'ofuda']],
+    camUp: [], tips: [[1300, 0, 'Les digues font des marches'], [8870, 0, 'Le shadouf penche sous ton poids : l’autre bras se lève']],
   },
   l_barques: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.85) sepia(.12)', rel1: true, relAt: [8250],
-    big: [['coques',  1642,  0],  ['matb',  3896,  0,  'koban'],  ['coque',  6398,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.85) sepia(.12)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   l_pilotis: {
     ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [2015],
-    big: [['village',  4120,  0,  'koban'],  ['tour_a',  5346,  0,  'ofuda_b'],  ['passe',  6183,  0],  ['cabane',  9030,  0]],
+    big: [['tour_a',  5346,  0,  'ofuda_b']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   l_digue: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.78) saturate(.82)', rel1: true, relAt: [3158],
-    big: [['brisel',  5664,  0],  ['balise',  7485,  0,  'koban'],  ['abri',  8921,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.78) saturate(.82)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   l_phare: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
-    big: [['mat',  1388,  0],  ['sechoir',  6055,  0],  ['grotte',  8343,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.62) saturate(.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_pousses: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [3158],
-    big: [['tiges',  6079,  0],  ['souchec',  8261,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_lisiere: {
-    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
-    big: [['tiges',  9355,  0],  ['cime',  10804,  0,  'koban'],  ['fagot',  11987,  0]],
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_coupeurs: {
     ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [2368],
-    big: [['radeau',  5041,  0],  ['poulie',  6712,  0,  'koban'],  ['cabb',  8470,  0,  'pv']],
+    big: [['poulie',  6712,  0,  'koban']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_hameau: {
-    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6017],
-    big: [['fagot',  9111,  0],  ['cime',  10362,  0,  'pv'],  ['cabb',  13670,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_pont: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [2369],
-    big: [['tiges',  5190,  0],  ['fagot',  7034,  0],  ['panda',  8623,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_sentier: {
-    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
-    big: [['jizo2',  4028,  0],  ['jizo1',  8878,  0],  ['jizo3',  9846,  0],  ['jizog',  10967,  0,  'koban'],  ['cime',  12091,  0]],
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_pluie: {
     ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.78) saturate(.82)', rel1: true, relAt: [3158],
-    big: [['tiges',  5688,  0],  ['poulie',  7206,  0,  'pv'],  ['souchec',  8716,  0,  'koban']],
+    big: [['poulie',  7206,  0,  'pv']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_tombes: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [3158],
-    big: [['jizo1',  5104,  0],  ['steles',  6365,  0],  ['jizo3',  7614,  0],  ['cime',  8859,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.92) sepia(.1)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_lucioles: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
-    big: [['souche1',  4900,  0],  ['souche2',  5806,  0],  ['souche3',  6874,  0],  ['cime',  7902,  0],  ['souchec',  9075,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.62) saturate(.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_tour: {
     ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9ab090', .09], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
-    big: [['fagot',  6266,  0],  ['poulie',  7360,  0,  'koban'],  ['cabb',  8793,  0,  'pv']],
+    big: [['poulie',  7360,  0,  'koban']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   b_avant: {
-    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], rel1: true, relAt: [6317],
-    big: [['fagot',  2830,  0],  ['radeau',  10360,  0],  ['cabb',  13136,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 790, grade: [.86, .86, '#9ab090', .09], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_bourg: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [2369],
-    big: [['bout1',  4373,  0],  ['enseigne',  5334,  0],  ['boutq',  6623,  0,  'koban'],  ['bout2',  8070,  0],  ['kura',  9218,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_douves: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [3158],
-    big: [['caisses',  5406,  0],  ['treuil',  7055,  0,  'koban'],  ['tonneaux',  8704,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_remparts: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [6317],
-    big: [['gradins',  9249,  0],  ['machi',  10660,  0,  'koban'],  ['sacs',  11955,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_porte: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [4738],
-    big: [['treuil',  9656,  0,  'koban'],  ['garde',  11703,  0,  'pv'],  ['gradins',  13864,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_greniers: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.92) sepia(.1)', rel1: true, relAt: [2368],
-    big: [['sacs',  4722,  0],  ['kura',  6156,  0,  'koban'],  ['tonneaux',  7582,  0],  ['banniere',  8903,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.92) sepia(.1)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_arsenal: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], rel1: true, relAt: [3158],
-    big: [['caisses',  5575,  0],  ['ratelier',  7295,  0],  ['banniere',  8775,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_casernes: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [8316],
-    big: [['tente',  2436,  0,  'koban'],  ['caisses',  12667,  0],  ['banniere',  14194,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_tour: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [2368],
-    big: [['gradins',  4977,  0],  ['machi',  6832,  0,  'koban'],  ['caisses',  8559,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.62) saturate(.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_ronde: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', rel1: true, relAt: [6316],
-    big: [['gradins',  9885,  0],  ['machi',  11930,  0,  'pv'],  ['sacs',  13861,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.58) saturate(.8) sepia(.12)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   f_toits: {
     ver: 1, tongue: true, camTop: 1700, grade: [.84, .84, '#9ca4b4', .1], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [2368],
-    big: [['caisses',  4770,  0],  ['donjon',  6576,  0],  ['shachi',  6576,  760,  'pv'],  ['garde',  8559,  0,  'koban']],
+    big: [['donjon',  6576,  0]],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_escalier: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], rel1: true, relAt: [3158],
-    big: [['marches',  6215,  0],  ['lanterneg',  8397,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_cloche: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(.62) saturate(.78)', rel1: true, relAt: [3158],
-    big: [['marches',  6031,  0],  ['lanterneg',  8305,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(.62) saturate(.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_jardin: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], rel1: true, relAt: [3158],
-    big: [['roc1',  5182,  0],  ['roc2',  6279,  0],  ['roc3',  7406,  0],  ['pavillon',  8783,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_cascades: {
-    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.59) saturate(0.78)', rel1: true, relAt: [3962],
-    big: [['roc2',  2168,  0],  ['pavillon',  7000,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.59) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_pont: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.90) saturate(0.88)', rel1: true, relAt: [3159],
-    big: [['erable',  5420,  0,  'koban'],  ['pontarq',  6900,  0],  ['pavillon',  8027,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.90) saturate(0.88)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_pagode: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.80) saturate(0.88)', rel1: true, relAt: [3158],
-    big: [['erable',  6051,  0,  'koban'],  ['roc3',  8308,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.80) saturate(0.88)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_cedres: {
-    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3955],
-    big: [['cedrec',  1221,  0,  'koban'],  ['roc1',  2127,  0],  ['roc3',  6452,  0]],
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_cimetiere: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [7124],
-    big: [['tombes',  1628,  0],  ['lpierre',  3136,  0,  'koban'],  ['cedre',  4164,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_gue: {
-    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
-    big: [['mausolee',  1136,  0,  'pv'],  ['roc1',  4886,  0]],
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   t_ermitage: {
-    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3159],
-    big: [['roc2',  1347,  0],  ['pavillon',  5095,  0,  'pv'],  ['cedrec',  7684,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 0, grade: [.88, .86, '#b8a090', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_berge: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3159],
-    big: [['pontonb',  6122,  0,  'koban'],  ['pontonl',  8263,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_marche: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
-    big: [['echoppes',  5531,  0],  ['guirl',  7296,  0],  ['echoppe',  8866,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_tambour: {
     ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
-    big: [['yagura',  5883,  0,  'koban'],  ['echoppes',  8215,  0]],
+    big: [['yagura',  5883,  0,  'koban']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_brise: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
-    big: [['brise1',  5490,  0],  ['brise2',  7049,  0],  ['brise3',  8638,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_bateau: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', rel1: true, relAt: [3158],
-    big: [['bateau',  5908,  0,  'koban'],  ['pontonl',  8177,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.55) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   p_offrandes: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.62) saturate(0.78)', rel1: true, relAt: [3159],
-    big: [['pontonl',  5593,  0],  ['brise2',  7206,  0],  ['jizog',  8739,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9a90a8', .08], flt: 'brightness(0.62) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_pelerins: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], rel1: true, relAt: [3158],
-    big: [['corniche',  6063,  0],  ['pinn',  8373,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_torii: {
-    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.73) saturate(0.78)', rel1: true, relAt: [3757],
-    big: [['sources',  1840,  0],  ['meule1',  6454,  0],  ['grotteg',  8047,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.73) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_pins: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], rel1: true, relAt: [3159],
-    big: [['pinn',  1283,  0,  'koban'],  ['corniche',  5259,  0],  ['pinn',  7970,  0]],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_charbon: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.88) saturate(0.88)', rel1: true, relAt: [3158],
-    big: [['meule1',  5147,  0],  ['meule2',  6375,  0],  ['hutte',  7739,  0,  'koban'],  ['potence',  8883,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.88) saturate(0.88)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_pont: {
-    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.64) saturate(0.78)', rel1: true, relAt: [2188],
-    big: [['hutte',  3950,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 0, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.64) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_sources: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.77) saturate(0.88)', rel1: true, relAt: [3159],
-    big: [['sources',  1768,  0],  ['singe',  4635,  0,  'koban'],  ['grotteg',  5658,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.77) saturate(0.88)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_blizzard: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], rel1: true, relAt: [3159],
-    big: [['corniche',  6122,  0],  ['hutte',  8511,  0,  'koban']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   c_corniche: {
-    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.75) saturate(0.78)', rel1: true, relAt: [3159],
-    big: [['corniche',  5648,  0],  ['arche',  7742,  0,  'koban'],  ['grotteg',  8934,  0,  'pv']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.84, .86, '#a8b4c8', .1], flt: 'brightness(0.75) saturate(0.78)', big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_escalier: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
-    big: [['tourp',  3375,  0,  'koban'],  ['cloitre',  6896,  0]],
+    big: [['tourp',  3375,  0,  'koban']],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_porte: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
-    big: [['tourp',  3476,  0],  ['salle',  6964,  0,  'koban']],
+    big: [['tourp',  3476,  0]],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_printemps: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
-    big: [['cerisier',  3513,  0,  'koban'],  ['pergola',  7032,  0]],
+    big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_ete: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
-    big: [['pergola',  3661,  0],  ['carillon',  7061,  0,  'koban']],
+    big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_automne: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07],
-    big: [['pontarq',  3494,  0],  ['erable',  6920,  0,  'koban']],
+    big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   s_hiver: {
     ver: 1, tongue: true, camTop: 1700, grade: [.88, .86, '#b8a098', .07], flt: 'brightness(0.80) saturate(0.88)',
-    big: [['cloitre',  2809,  0],  ['cellule',  5458,  0,  'koban'],  ['pinn',  7778,  0,  'pv']],
+    big: [],
     plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   l_hauteurs: {
@@ -6848,6 +6854,26 @@ const VERT_DEF = {
     temps: [['ofuda', 2180, 1720], ['lotus', 1700, 1900], ['ofuda', 1340, 2010]],
     tips: [[700, 420, 'Langue : O (manette : clic du stick droit)  ·  tiens une direction pour choisir le point, il s’allume'], [1950, 300, 'Saute de toit en toit'], [2450, 560, 'Près d’un rebord, Kaeru s’accroche  ·  Haut ou Saut : monter  ·  Bas : lâcher'], [4020, 420, 'Saute contre un pilier : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre'], [3250, 1960, 'Frappe la cloche : des appuis d’esprit apparaissent, fais vite !']],
   },
+};
+/* Maquette des mécanismes (zone test l_maquette) : chaque mécanisme du cahier, dans l'ordre où on les apprend. */
+VERT_DEF.l_maquette = {
+  camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], plats: [], walls: [], lans: [], temps: [], hooks: [],
+  tips: [[1000, 0, 'Autels : Langue I et Langue II'], [1800, 0, 'Saut · double saut · accroche'], [3080, 0, 'Saut mural entre les deux murs'], [4100, 0, 'Planches qui cèdent'], [5000, 0, 'Nacelle : monte quand on est dessus'],
+         [6150, 0, 'Bascule'], [7100, 0, 'Poulie : deux nacelles liées'], [7900, 0, 'Vide : radeau qui dérive, ou balancier au-dessus'], [9300, 0, 'Langue I : la cache'], [9700, 0, 'Brume : il faut la cloche']],
+  mk: [
+    { t: 'autel', x: 700, h: 0, don: 'langue' }, { t: 'autel', x: 950, h: 0, don: 'langue2' },
+    { t: 'bloc', x: 1300, w: 300, h: 220, lab: 'saut' }, { t: 'bloc', x: 1750, w: 300, h: 440, lab: 'double saut' }, { t: 'bloc', x: 2200, w: 320, h: 700, lab: 'accroche' },
+    { t: 'jarre', x: 2360, h: 700 },
+    { t: 'mur', x: 2900, h1: 1000 }, { t: 'mur', x: 3260, h1: 1000 },
+    { t: 'cede', x: 3700, w: 240, h: 300 }, { t: 'cede', x: 4050, w: 240, h: 420 }, { t: 'cede', x: 4400, w: 240, h: 540 },
+    { t: 'nacelle', x: 4900, w: 260, h0: 0, h1: 900, top: 1500 }, { t: 'bloc', x: 5250, w: 320, h: 900, lab: 'haut de la nacelle' },
+    { t: 'sortie', x: 5470, h: 900, to: 'l_greve', lab: 'la grève' },
+    { t: 'paire', k: 'bascule', a: [5900, 300, 240], b: [6400, 300, 240], d: 200 },
+    { t: 'paire', k: 'poulie', a: [6900, 200, 240], b: [7300, 600, 240], d: 300, top: 1500 },
+    { t: 'vide', x0: 7700, x1: 8700 }, { t: 'derive', x0: 7650, x1: 8350, h: 60, w: 300, v: 160 }, { t: 'balance', x: 8200, h: 1050 },
+    { t: 'crochet', x: 9300, h: 900 }, { t: 'bloc', x: 9150, w: 300, h: 1200, lab: 'cache', pend: 1 }, { t: 'jarre', x: 9300, h: 1200 },
+    { t: 'brume', x0: 9550, x1: 9950, h0: 300, h1: 900, need: 'cloche' }, { t: 'bloc', x: 9630, w: 240, h: 500, lab: 'cachée' },
+  ],
 };
 const VERT_NONE = { camTop: 1700, plats: [], walls: [], lans: [], temps: [], tips: [], hooks: [] };
 // corniches des tours peintes (reliefs hauts) : Kaeru s'accroche à leurs bords libres, c'est-à-dire sans mur ni marche juste derrière
@@ -6898,6 +6924,7 @@ function vertBuild() {
   VERT.temps = D.temps.map(([k, x, h]) => vertPlat(k, x, h, { temp: true, born: 0 })); VERT.tips = D.tips || [];
   VERT.hooks = (D.hooks || []).map(([k, x, h]) => ({ k, x, h, tx: x + LA[k].tx, ty: h + LA[k].ty - 6 })).concat(painted); if (VERT.hooks.length) invImg('langue_atlas.webp'); LG.st = null; LG.cand = null;
   if (VERT.done) for (const tp of VERT.temps) { tp.keep = true; tp.born = 1; PROG.plats.push(tp); }
+  mkBuild(D);
 }
 // lanternes rallumées : gardées dans la sauvegarde (sauf zone test)
 function vertSaved(write, what) {
@@ -6914,6 +6941,7 @@ function vertWallJump() {
 function vertAfter(dt, xPrev) {
   const A = ACT; if (VERT.lv !== LVID || PROG.lv !== LVID) { A.hang = null; A.wall = 0; return; }
   A.wjT = Math.max(0, (A.wjT || 0) - dt); A.wallT = Math.max(0, (A.wallT || 0) - dt); A.hangCd = Math.max(0, (A.hangCd || 0) - dt);
+  mkUpdate(dt);
   const inp = (isDown('ArrowRight', 'KeyD', 'PadRight') || touchDir > 0) - (isDown('ArrowLeft', 'KeyA', 'KeyQ', 'PadLeft') || touchDir < 0);
   if (lgUpdate(dt)) { A.hang = null; A.wall = 0; VERT.wasG = A.onGround; return; }
   // --- les appuis suspendus s'enfoncent un peu sous le poids, puis reviennent
@@ -7066,6 +7094,7 @@ function vertDraw() {
   if (VERT.lv !== LVID) return;
   const G = CFG.groundLine;
   vertDrawBig();
+  mkDraw();
   for (const w of VERT.walls) { if (w.painted) continue; const X = wx2sx(w.x); if (X < -200 || X > VW + 200) continue; const c = w.cv || vertWallCv(w); if (c) ctx.drawImage(c, Math.round(X - w.cw / 2), Math.round(G - w.h1 - w.ct)); }
   const B = VERT.bell;
   if (B) { const X = wx2sx(B.x); if (X > -300 && X < VW + 300) { const ph = Math.sin(B.hit * 9) * B.sw, f = B.hit < .1 ? 3 : ph > .22 ? 1 : ph < -.22 ? 2 : B.hit < 1.6 && B.sw > .04 && Math.floor(B.hit * 16) % 2 ? 3 : 0, m = VA.cloche0, pl = PROG.plats.find(p => p.sus && !p.temp && Math.abs(p.h - B.h) < 3 && B.x > p.x && B.x < p.x + p.w); vaDraw('cloche' + f, X - m.w / 2, G - B.h - m.base + (pl ? pl.dip : 0)); } }
@@ -7086,6 +7115,124 @@ function vertHud() {
     ctx.textAlign = 'center'; ctx.fillStyle = '#efe3c8'; ctx.font = '700 26px "Shippori Mincho", Georgia, serif'; ctx.fillText('Défi : ' + Math.ceil(VERT.timer) + ' s', VW / 2, by - 18); }
   ctx.restore();
 }
+/* =========================== MÉCANISMES ET MAQUETTE (cahier LEVEL_DESIGN.md) ===========================
+   VERT_DEF[lieu].mk : liste d'éléments { t: type, ... } (hauteurs comptées depuis le sol, comme le reste de VERT).
+   Tant qu'un élément n'a pas d'image peinte, il est dessiné en bloc de maquette étiqueté : on joue la disposition avant de la faire peindre.
+   - bloc     { x, w, h, lab, pend, only }        appui fixe (posé sur poteaux, ou pendu si pend)
+   - mur      { x, h1, h0, hw }                   pilier pour le saut mural (son sommet est un appui)
+   - cede     { x, w, h }                         tremble sous Kaeru puis tombe ; revient après 3 s
+   - nacelle  { x, w, h0, h1, top }               monte de h0 à h1 tant que Kaeru est dessus, redescend à vide
+   - paire    { a: [x, h, w], b: [x, h, w], d, k: 'bascule' | 'poulie', top }   deux appuis liés : l'un descend sous le poids, l'autre monte
+   - derive   { x0, x1, h, w, v }                 appui qui suit l'eau entre x0 et x1 (x = bord gauche)
+   - crochet  { x, h }                            point de langue (don Langue I)
+   - balance  { x, h }                            point de balancier (don Langue II) : Kaeru se balance et lâche avec l'élan
+   - vide     { x0, x1 }                          sol coupé : chute = retour au dernier appui sûr, petite perte de PV
+   - sortie   { x, h, to, lab }                   sortie en hauteur vers un autre lieu
+   - autel    { x, h, don }                       donne un don (Langue I, Langue II…)
+   - jarre    { x, h }                            un têtard enfermé : on casse la jarre au sabre
+   - brume    { x0, x1, h0, h1, need }            cache ce qu'elle contient tant qu'on n'a pas le don (cloche)
+   need sur un élément : don nécessaire (affiché sur la maquette ; actif pour crochet, balance, brume). */
+const MK = { lv: null, list: [], pits: [], fogs: [], safe: null, jar: null, FALL: 6 };
+function mkPit(x) { if (MK.lv !== LVID) return false; for (const [a, b] of MK.pits) if (x > a && x < b) return true; return false; }
+function mkFogged(x, h) { for (const f of MK.fogs) if (!hasDon(f.need || 'cloche') && x > f.x0 && x < f.x1 && h > f.h0 && h < f.h1) return true; return false; }
+function mkPlat(e, x, w, h, extra) { const p = Object.assign({ x, w, h, mk: e, only: e.only }, extra || {}); e.p = p; if (!e.off) PROG.plats.push(p); return p; }
+function mkBuild(D) {
+  Object.assign(MK, { lv: LVID, list: [], pits: [], fogs: [], safe: { x: hero.x, y: 0 } });
+  const L = D.mk || []; if (!L.length) { MK.lv = null; return; }
+  const Q = progQ(), key = LVID + (D.ver ? '@' + D.ver : ''); Q.jar = Q.jar || {}; MK.jar = Q.jar[key] = Q.jar[key] || [];
+  for (const f of L) if (f.t === 'brume') MK.fogs.push(f);
+  let ji = 0;
+  for (const s of L) {
+    const e = Object.assign({}, s); MK.list.push(e);
+    const at = e.x != null ? e.x + (e.w || 0) / 2 : e.a ? e.a[0] : 0, hh = e.h != null ? e.h : e.h1 != null ? e.h1 : e.h0 || 0;
+    e.off = e.t !== 'brume' && MK.fogs.length > 0 && mkFogged(at, hh);
+    if (e.t === 'bloc') mkPlat(e, e.x, e.w, e.h);
+    else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; }
+    else if (e.t === 'derive') { e.v = e.v || 140; e.dir = 1; e.wait = 0; mkPlat(e, e.x0, e.w, e.h, { mov: 1 }); }
+    else if (e.t === 'nacelle') { mkPlat(e, e.x, e.w, e.h0, { mov: 1 }); }
+    else if (e.t === 'paire') { e.o = 0; e.d = e.d || 260; e.pa = mkPlat(e, e.a[0], e.a[2], e.a[1], { mov: 1 }); e.pb = mkPlat(e, e.b[0], e.b[2], e.b[1], { mov: 1 }); }
+    else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null }); mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }
+    else if (e.t === 'crochet' || e.t === 'balance') { if (!e.off) { VERT.hooks = VERT.hooks || []; VERT.hooks.push({ k: null, painted: true, x: e.x, h: e.h, tx: e.x, ty: e.h, sw: e.t === 'balance', need: e.t === 'balance' ? 'langue2' : e.need, mk: e }); } }
+    else if (e.t === 'vide') MK.pits.push([e.x0, e.x1]);
+    else if (e.t === 'jarre') { e.i = ji++; e.broken = !!MK.jar[e.i]; e.bt = 9; }
+  }
+}
+function mkOn(p) { const A = ACT; return p && A.onGround && PROG.plats.includes(p) && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8; }
+function mkMove(p, nx, nh) {   // déplace un appui et porte Kaeru s'il est dessus
+  const on = mkOn(p) && !ACT.hang, dx = nx - p.x; p.x = nx; p.h = nh;
+  if (on) { hero.x += dx; ACT.y = nh; ACT.vy = 0; }
+}
+function mkUpdate(dt) {
+  if (MK.lv !== LVID) return; const A = ACT;
+  for (const e of MK.list) {
+    if (e.t === 'cede') { const p = e.p;
+      if (e.st === 0 && mkOn(p)) { e.st = 1; e.k = 0; sfx('step'); vertChips(p.x + p.w / 2, p.h, 4); }
+      else if (e.st === 1) { e.k += dt; if (e.k > .55) { e.st = 2; e.k = 0; const i = PROG.plats.indexOf(p); if (i >= 0) PROG.plats.splice(i, 1); if (A.hang && A.hang.p === p) A.hang = null; if (A.onGround && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8) A.onGround = false; vertChips(p.x + p.w / 2, p.h, 10); shake = Math.max(shake, 3); } }
+      else if (e.st === 2) { e.k += dt; if (e.k > 3 && !(Math.abs(hero.x - (p.x + p.w / 2)) < p.w / 2 + 60 && Math.abs(A.y - p.h) < 220)) { e.st = 0; e.k = 0; if (!e.off) PROG.plats.push(p); } } }
+    else if (e.t === 'derive') { const p = e.p;
+      if (e.wait > 0) e.wait -= dt; else { let nx = p.x + e.dir * e.v * dt; if (nx > e.x1) { nx = e.x1; e.dir = -1; e.wait = .7; } if (nx < e.x0) { nx = e.x0; e.dir = 1; e.wait = .7; } mkMove(p, nx, e.h + Math.sin(t * 2.1 + e.x0) * 5); } }
+    else if (e.t === 'nacelle') { const p = e.p, up = mkOn(p), tg = up ? e.h1 : e.h0, sp = up ? 230 : 160;
+      const nh = p.h + clamp(tg - p.h, -sp * dt, sp * dt); if (nh !== p.h) mkMove(p, p.x, nh); }
+    else if (e.t === 'paire') { const onA = mkOn(e.pa), onB = mkOn(e.pb), tg = onA ? e.d : onB ? -e.d : 0, sp = onA || onB ? 260 : 90;
+      e.o += clamp(tg - e.o, -sp * dt, sp * dt); mkMove(e.pa, e.pa.x, e.a[1] - e.o); mkMove(e.pb, e.pb.x, e.b[1] + e.o); }
+    else if (e.t === 'jarre' && !e.broken) { if (A.atk && A.atkT > .04 && Math.abs(hero.x + hero.dir * 70 - e.x) < 150 && Math.abs(A.y - e.h) < 200) {
+        e.broken = true; e.bt = 0; MK.jar[e.i] = 1; if (typeof invSave === 'function') invSave(); sfx('block'); shake = Math.max(shake, 5); vertChips(e.x, e.h + 50, 14, '#8a5a3a');
+        const n = MK.list.filter(j => j.t === 'jarre' && j.broken).length, N = MK.list.filter(j => j.t === 'jarre').length;
+        invMsg('Un têtard libéré !  ' + n + ' / ' + N + ' dans ce lieu', 4); if (HK) { HK.mood = 'joy'; HK.moodT = 1.2; } } }
+    else if (e.t === 'jarre') e.bt += dt;
+    else if (e.t === 'autel' && e.don && !hasDon(e.don)) { if (Math.abs(hero.x - e.x) < 110 && Math.abs(A.y - e.h) < 60 && A.onGround) { INV.dons = INV.dons || {}; INV.dons[e.don] = 1; if (typeof invSave === 'function') invSave(); DONB.q.push(e.don); } }
+    else if (e.t === 'sortie' && !TRANS.to && A.onGround && Math.abs(hero.x - e.x) < 90 && Math.abs(A.y - e.h) < 30 && NODE[e.to]) {
+      TRANS.to = e.to; TRANS.t = 0; TRANS.phase = 0; TRANS.fromX = hero.x; TRANS.dx = 0; TRANS.spawnFrac = null; sfx('portal'); }
+  }
+  // dernier appui sûr (pas sur un appui mobile, loin du bord d'un vide), et retour quand on tombe dans un vide
+  if (A.onGround && !A.hang) { const p = PROG.plats.find(q => Math.abs(q.h - A.y) < 4 && hero.x > q.x && hero.x < q.x + q.w);
+    if (p ? !p.mov && !p.cede : A.y <= 1 && !mkPit(hero.x - 160) && !mkPit(hero.x + 160)) MK.safe = { x: hero.x, y: A.y }; }
+  if (A.y < -650 && MK.safe) { hero.x = MK.safe.x; A.y = MK.safe.y; A.vy = 0; hero.vx = 0; A.onGround = true; A.hang = null; LG.st = null;
+    HERO.hp = Math.max(1, HERO.hp - MK.FALL); HERO.inv = Math.max(HERO.inv || 0, 1); sfx('land'); puff(hero.x, A.y, 6, 1); shake = Math.max(shake, 6); }
+}
+/* ---------- dessin de la maquette ---------- */
+const MK_COL = { bloc: '#8d8270', cede: '#a5774c', derive: '#557f8f', nacelle: '#7f6c96', paire: '#7f6c96', mur: '#6e6a63' };
+function mkLabel(txt, X, Y, col) { ctx.font = '600 17px Georgia, serif'; ctx.textAlign = 'center'; const w = ctx.measureText(txt).width + 12; ctx.fillStyle = 'rgba(24,18,14,.72)'; ctx.fillRect(X - w / 2, Y - 16, w, 21); ctx.fillStyle = col || '#efe3c8'; ctx.fillText(txt, X, Y); }
+function mkSlab(p, col, lab, dy, alpha) {
+  const G = CFG.groundLine, X = wx2sx(p.x), Y = G - p.h + (dy || 0); if (X > VW + 80 || X + p.w < -80) return;
+  ctx.save(); if (alpha != null) ctx.globalAlpha = alpha;
+  ctx.fillStyle = col; ctx.fillRect(X, Y, p.w, 26); ctx.fillStyle = 'rgba(255,245,220,.35)'; ctx.fillRect(X, Y, p.w, 4);
+  ctx.strokeStyle = 'rgba(28,18,12,.9)'; ctx.lineWidth = 3; ctx.strokeRect(X, Y, p.w, 26);
+  if (lab !== false) mkLabel((lab ? lab + ' · ' : '') + Math.round(p.h), X + p.w / 2, Y - 8);
+  ctx.restore();
+}
+function mkPosts(p, col) { const G = CFG.groundLine, X = wx2sx(p.x), Y = G - p.h + 26; if (X > VW + 80 || X + p.w < -80 || p.h < 30) return;
+  ctx.fillStyle = col; ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2;
+  for (const px of p.w > 160 ? [X + 14, X + p.w - 32] : [X + p.w / 2 - 9]) { ctx.fillRect(px, Y, 18, G - Y); ctx.strokeRect(px, Y, 18, G - Y); } }
+function mkRope(X, Y0, Y1) { ctx.strokeStyle = '#6b5636'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(X, Y0); ctx.lineTo(X, Y1); ctx.stroke(); }
+function mkDraw() {
+  if (MK.lv !== LVID) return; const G = CFG.groundLine, top = -(cam.y || 0) - 40;
+  for (const [a, b] of MK.pits) { const X0 = wx2sx(a), X1 = wx2sx(b); if (X1 < -50 || X0 > VW + 50) continue; const gr = ctx.createLinearGradient(0, G - 20, 0, G + 340);
+    gr.addColorStop(0, '#1a1410'); gr.addColorStop(1, '#050304'); ctx.fillStyle = gr; ctx.fillRect(X0, G - 18, X1 - X0, 600); ctx.fillStyle = '#4a3a2a'; ctx.fillRect(X0 - 8, G - 22, 16, 60); ctx.fillRect(X1 - 8, G - 22, 16, 60); mkLabel('vide', (X0 + X1) / 2, G + 60, '#e88'); }
+  for (const e of MK.list) {
+    const need = e.need ? ' [' + e.need + ']' : '';
+    if (e.t === 'bloc') { const p = e.p; if (e.pend) { const X = wx2sx(p.x); mkRope(X + 20, top, G - p.h); mkRope(X + p.w - 20, top, G - p.h); } else if (e.plein) { const X = wx2sx(p.x); ctx.fillStyle = '#7a7060'; ctx.fillRect(X, G - p.h + 20, p.w, p.h - 20); ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2; ctx.strokeRect(X, G - p.h + 20, p.w, p.h - 20); } else mkPosts(p, '#6d6455'); mkSlab(p, e.off ? 'rgba(141,130,112,.35)' : MK_COL.bloc, (e.lab || '') + need); }
+    else if (e.t === 'cede') { const p = e.p, sh = e.st === 1 ? Math.sin(t * 70) * 4 : 0, dy = e.st === 2 ? Math.min(900, e.k * e.k * 1400) : 0, al = e.st === 2 ? Math.max(0, 1 - e.k * 1.6) : 1;
+      if (al > 0) { ctx.save(); ctx.translate(sh, 0); mkSlab(p, MK_COL.cede, 'cède' + need, dy, al); ctx.restore(); } else if (e.k > 2.4) mkSlab(p, MK_COL.cede, false, 0, (e.k - 2.4) * .6); }
+    else if (e.t === 'derive') { const p = e.p; ctx.fillStyle = 'rgba(70,120,150,.35)'; ctx.fillRect(wx2sx(e.x0), G - p.h + 20, e.x1 - e.x0 + p.w, 10); mkSlab(p, MK_COL.derive, 'dérive' + need); }
+    else if (e.t === 'nacelle') { const p = e.p, X = wx2sx(p.x), Yt = G - (e.top || e.h1 + 500); mkRope(X + 16, Yt, G - p.h); mkRope(X + p.w - 16, Yt, G - p.h); ctx.fillStyle = '#5a4a3a'; ctx.beginPath(); ctx.arc(X + p.w / 2, Yt, 26, 0, 6.283); ctx.fill(); mkSlab(p, MK_COL.nacelle, 'nacelle ' + e.h0 + '→' + e.h1 + need); }
+    else if (e.t === 'paire') { const A = e.pa, B = e.pb, ax = wx2sx(A.x + A.w / 2), bx = wx2sx(B.x + B.w / 2);
+      if (e.k === 'bascule') { const mx = (ax + bx) / 2, my = (G - A.h + G - B.h) / 2; ctx.strokeStyle = '#4c3c2c'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(ax, G - A.h + 12); ctx.lineTo(bx, G - B.h + 12); ctx.stroke();
+        ctx.fillStyle = '#5a4a3a'; ctx.fillRect(mx - 14, my + 12, 28, G - my - 12); }
+      else { const Yt = G - (e.top || Math.max(e.a[1], e.b[1]) + e.d + 500); mkRope(ax, Yt, G - A.h); mkRope(bx, Yt, G - B.h); ctx.strokeStyle = '#6b5636'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ax, Yt); ctx.lineTo(bx, Yt); ctx.stroke(); }
+      mkSlab(A, MK_COL.paire, (e.k || 'poulie') + ' A'); mkSlab(B, MK_COL.paire, (e.k || 'poulie') + ' B'); }
+    else if (e.t === 'mur') { const X = wx2sx(e.x - e.hw), Y = G - e.h1; if (X < VW + 80 && X + 2 * e.hw > -80) { ctx.fillStyle = MK_COL.mur; ctx.fillRect(X, Y, 2 * e.hw, e.h1 - (e.h0 || 0)); ctx.strokeStyle = 'rgba(28,18,12,.9)'; ctx.lineWidth = 3; ctx.strokeRect(X, Y, 2 * e.hw, e.h1 - (e.h0 || 0)); mkLabel('mur · ' + e.h1, X + e.hw, Y - 8); } }
+    else if (e.t === 'crochet' || e.t === 'balance') { const X = wx2sx(e.x), Y = G - e.h; if (X < -100 || X > VW + 100) continue; if (e.t === 'balance') mkRope(X, top, Y - 18);
+      ctx.strokeStyle = e.off ? 'rgba(200,190,170,.3)' : e.t === 'balance' ? '#d8b25a' : '#c9c2b4'; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(X, Y, 18, 0, 6.283); ctx.stroke(); mkLabel((e.t === 'balance' ? 'balancier' : 'langue') + ' · ' + e.h + need, X, Y - 34); }
+    else if (e.t === 'sortie') { const X = wx2sx(e.x), Y = G - e.h; ctx.fillStyle = '#a8432c'; ctx.fillRect(X - 70, Y - 230, 16, 230); ctx.fillRect(X + 54, Y - 230, 16, 230); ctx.fillRect(X - 95, Y - 250, 190, 20); ctx.fillRect(X - 80, Y - 205, 160, 12); mkLabel('sortie → ' + (e.lab || e.to), X, Y - 262, '#ffd27a'); }
+    else if (e.t === 'autel') { const X = wx2sx(e.x), Y = G - e.h, got = hasDon(e.don); ctx.fillStyle = got ? '#5d5a52' : '#8c7a4a'; ctx.fillRect(X - 40, Y - 70, 80, 70); ctx.strokeStyle = '#2a1e14'; ctx.lineWidth = 3; ctx.strokeRect(X - 40, Y - 70, 80, 70); mkLabel('autel : ' + (DONS[e.don] ? DONS[e.don].n : e.don) + (got ? ' (pris)' : ''), X, Y - 84, '#ffd27a'); }
+    else if (e.t === 'jarre') { const X = wx2sx(e.x), Y = G - e.h; if (X < -100 || X > VW + 100) continue;
+      if (!e.broken) { ctx.fillStyle = '#7a4e30'; ctx.beginPath(); ctx.ellipse(X, Y - 46, 34, 44, 0, 0, 6.283); ctx.fill(); ctx.fillStyle = '#5c3a22'; ctx.fillRect(X - 18, Y - 98, 36, 14); ctx.fillStyle = '#efe3c8'; ctx.fillRect(X - 7, Y - 72, 14, 34); ctx.strokeStyle = '#2a1a10'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(X, Y - 46, 34, 44, 0, 0, 6.283); ctx.stroke(); mkLabel('jarre', X, Y - 108); }
+      else if (e.bt < 1.2) { ctx.save(); ctx.globalAlpha = 1 - e.bt / 1.2; ctx.fillStyle = '#7a4e30'; for (let k = 0; k < 5; k++) ctx.fillRect(X - 40 + k * 18, Y - 12 + e.bt * 40 * (k % 2), 14, 10); ctx.restore(); } }
+  }
+  for (const f of MK.fogs) { if (hasDon(f.need || 'cloche')) continue; const X0 = wx2sx(f.x0), X1 = wx2sx(f.x1); if (X1 < -50 || X0 > VW + 50) continue; ctx.save();
+    for (let k = 0; k < 4; k++) { ctx.globalAlpha = .28; ctx.fillStyle = '#dfe3e6'; ctx.fillRect(X0 + k * 20, G - f.h1 + k * 20, X1 - X0 - k * 40, f.h1 - f.h0 - k * 40); } ctx.restore(); mkLabel('brume [' + (f.need || 'cloche') + ']', (X0 + X1) / 2, G - (f.h0 + f.h1) / 2); }
+}
 /* =========================== LA LANGUE (grappin) ===========================
    Visée assistée : on tient une direction (8 directions) et la langue choisit le point d'accroche le plus proche dans cet axe ; sans direction, le plus proche devant Kaeru.
    Le point visé s'allume avant le tir. La langue colle, tire Kaeru jusqu'au point, puis le lâche avec de l'élan. Zone test, puis don « langue ». */
@@ -7105,6 +7252,7 @@ function lgPick() {
   const [mx, my] = lgMouth(), [ix, iy] = lgInput(), free = !ix && !iy, want = free ? 0 : Math.atan2(iy, ix);
   let best = null, bs = 1e9;
   for (const h of H) {
+    if (h.need && !hasDon(h.need)) continue;   /* point de balancier : don Langue II */
     const dx = h.tx - mx, dy = h.ty - my, d = Math.hypot(dx, dy); if (d > LG.range || d < 70) continue;
     let s;
     if (free) { if (dy < -220) continue; s = d + (dx * hero.dir < 0 ? 240 : 0); }
@@ -7137,7 +7285,26 @@ function lgUpdate(dt) {   // vrai tant que la langue tient Kaeru
       else { LG.st = 'back'; LG.t = 0; } }
     return true;
   }
-  if (LG.st === 'stick') { hero.vx = 0; if (!A.onGround) A.vy = 0; LG.L = full; if (LG.t > .1) { LG.st = 'pull'; LG.t = 0; LG.v = 520; sfx('dash'); } return true; }
+  if (LG.st === 'stick') { hero.vx = 0; if (!A.onGround) A.vy = 0; LG.L = full;
+    if (LG.t > .1) { if (LG.tgt && LG.tgt.sw && LG.ty > A.y + 260) {   /* balancier : Kaeru pend sous le point et se balance */
+        const dx = hero.x - LG.tx, dy = A.y + 150 - LG.ty, R = Math.max(220, Math.hypot(dx, dy)), th = Math.atan2(dx, -dy);
+        LG.sw = { R, th, w: (hero.vx * Math.cos(th) + A.vy * Math.sin(th)) / R + hero.dir * .6 }; LG.st = 'swing'; LG.t = 0; LG.air = true; sfx('dash'); }
+      else { LG.st = 'pull'; LG.t = 0; LG.v = 520; sfx('dash'); } }
+    return true; }
+  if (LG.st === 'swing') {   /* Gauche / Droite : prendre de l'élan · Saut ou Langue : lâcher avec l'élan · Bas : se laisser tomber */
+    const S = LG.sw, [ix] = lgInput(), g = MOVE.gravity * .8;
+    S.R += (clamp(S.R, 260, 540) - S.R) * Math.min(1, dt * 4);
+    S.w += (-g / S.R * Math.sin(S.th) + (Math.abs(S.th) < 1.25 ? ix * 1500 / S.R * Math.cos(S.th) : 0)) * dt;
+    S.w *= Math.exp(-dt * .25); S.th += S.w * dt; if (Math.abs(S.th) > 1.5) { S.th = Math.sign(S.th) * 1.5; S.w = 0; }
+    hero.x = LG.tx + S.R * Math.sin(S.th); A.y = LG.ty - S.R * Math.cos(S.th) - 150; hero.vx = 0; A.vy = 0; A.onGround = false; A.flip = 0; A.crouch = 0; A.airJumps = 0; A.coyote = 0; LG.L = full;
+    const vt = S.R * S.w; if (Math.abs(vt) > 40) hero.dir = vt * Math.cos(S.th) > 0 ? 1 : -1;
+    const jump = A.jumpBuf > 0 || consume(...TONGUE_KEYS), drop = isDown(...DOWN_KEYS);
+    if (A.y <= 0 || jump || drop || LG.t > 15) {
+      LG.st = null; LG.rel = .22; LG.offT = 0; LG.offX = LG.tx; LG.offY = LG.ty; A.y = Math.max(0, A.y); A.jumpBuf = 0;
+      if (jump) { hero.vx = vt * Math.cos(S.th) * 1.15; A.vy = vt * Math.sin(S.th) * 1.15 + 380; A.wjT = .4; A.holdT = 0; }
+      A.airJumps = 1; A.airDash = true; A.hangCd = 0; sfx('step'); return false; }
+    return true;
+  }
   if (LG.st === 'pull') {
     const cx = hero.x, cy = A.y + 150, dx = LG.tx - cx, dy = LG.ty - cy, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
     LG.v = Math.min(1800, LG.v + 5600 * dt); LG.L = full;
@@ -8536,6 +8703,7 @@ function menuItems() {
     ...(SAVE.exists ? [{ label: 'Continuer · ' + NODE[SAVE.level].title, act: () => startGame(SAVE.level, false) }] : []),
     { label: 'Nouvelle partie', act: () => { WORLD.visited.clear(); WORLD.cleared.clear(); storyReset(); startGame('m_nenuphars', true); } },
     { label: 'Zone test · les hauteurs', act: () => startGame('l_hauteurs', false) },
+    { label: 'Zone test · maquette des mécanismes', act: () => startGame('l_maquette', false) },
     { label: 'Options', act: () => openOptions() },
     { label: 'Plein écran', act: () => toggleFullscreen() },
     ...(IS_APP ? [{ label: 'Quitter le jeu', act: () => quitGame() }] : []),
@@ -11237,9 +11405,9 @@ function progBuild() {
   }
 }
 function platFloor(x, yPrev, y) {
-  if (PROG.drop > 0 || PROG.lv !== LVID) return 0; let best = 0;
+  if (PROG.drop > 0 || PROG.lv !== LVID) return 0; let best = mkPit(x) ? -1e9 : 0;   /* sol coupé : on tombe dans le vide */
   for (const p of PROG.plats) if (mod(x - p.x, C) < p.w && yPrev >= p.h - 1 && y <= p.h && p.h > best) best = p.h;
-  { const h = rlFloor(x, yPrev, y); if (h > best) best = h; }
+  { const h = rlFloor(x, yPrev, y); if (h > best && (h > 0 || best >= 0)) best = h; }
   return best;
 }
 function platSupport(x, y) { if (PROG.drop > 0) return false; if (RL.lv === LVID && rlSupport(x, y)) return true; return PROG.plats.some(p => (mod(x - p.x + 4, C) < p.w + 8) && Math.abs(p.h - y) < 3); }
@@ -11375,7 +11543,7 @@ function drawPlatforms() {
   for (const p of PROG.plats) if (p.V) vertDrawPlat(p);
   const im = invImg('plat_atlas.webp'); if (!im.complete || !im.naturalWidth) return;
   for (const p of PROG.plats) {
-    if (p.V || p.hid || p.big) continue;
+    if (p.V || p.hid || p.big || p.mk) continue;
     const M = p.M, X0 = wx2sx(p.x) - M.L; if (X0 + M.aw < -60 || X0 > VW + 60) continue;
     const gy = CFG.groundLine + gOff(p.x + p.w / 2), top = gy - p.h - M.top;
     ctx.save();
@@ -13104,6 +13272,7 @@ window.__hero = (x) => { if (x != null) { hero.x = x; cam.x = camPrev = x - VW /
 window.__clear = () => { for (const en of enemies) en.dead = .01; WAVE.i = WAVES.length - 1; WAVE.delay = 0; WAVE.calm = 0; };
 window.__vsink = (m, f) => { VPAR.smid = m; VPAR.sfar = f; }; window.__vpar = (m, f) => { VPAR.mid = m; if (f) VPAR.far = f; }; window.__exits = () => LV.exits; window.__mou = () => MOU; window.__mouGo = () => { const f = MOU.list.find(f => !f.got); if (!f) return null; window.__hero(f.x - 120); return f.id; }; window.__mouEat = () => { const f = MOU.list.find(f => !f.got); hero.dir = 1; MOU.anim = { f, t: 0, fr: 0 }; f.got = true; }; window.__packs = () => [...Object.keys(typeof PACKW !== 'undefined' ? PACKW : {}), ...Object.keys(typeof PACK0 !== 'undefined' ? PACK0 : {}), ...Object.keys(typeof PACK !== 'undefined' ? PACK : {})]; window.__lvfiles = () => NODES.filter(n => n.set || n.lv).map(n => { try { const L = levelFor(n.id), c = L.cfg; return [n.id, [c.sky, c.far, c.mid, c.ground].filter(Boolean).map(x => x.file), (L.objFiles || []).map(f => (L.objPrefix || '') + f + '.webp')]; } catch (e) { return [n.id, 'ERR ' + e.message]; } }); window.__drop = (id, n, dx) => invDrop(id, n, hero.x + dx, CFG.groundLine - 300); window.__ryo = () => [INV.ryo, INVRT.pick.map(q => q.id + (q.fly ? '*' : '')).join(',')]; window.__equip = (l, m) => { EQ.lame = l; EQ.masque = m; equipApply(); return LAMES[l].n + ' / ' + MASQUES[m].n; }; window.__k4f = (n, flip) => { const c = document.createElement('canvas'); const f = K4.M.f[n]; c.width = 600; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#3c3830'; g.fillRect(0, 0, 600, 700); g.translate(300, 680); g.scale(1.45, 1.45); k4Draw(g, 0, 0, n, flip || 1, 'foot', 1, 0); return c.toDataURL('image/jpeg', .85); }; window.__tenue = i => { tenueApply(i); return TENUES[TEN.i].n; }; window.__wx = () => ({ ...WX, rain, drops: drops.length, snow: CFG.snow, storm: LV.storm, dark: LV.rainDark }); window.__choosing = () => CINE.choosing; window.__zone = { ZONE, open: id => zoneOpen(ONSEN.baths.find(b => b.id === id)), visit: () => zoneVisit() }; window.__casc = { CASC, Q: () => cascQ(), surf: x => cascSurf(x) }; window.__onsen = { ONSEN, Q: () => onsenQ(), doors: () => DOORS.map(d => ({ to: d.to, x: Math.round(d.x), rev: d.rev, hidden: d.hidden })) }; window.__mou = { MOU, n: r => mouCount(r) }; window.__camy = () => cam.y; window.__ui = { talk: (who, line) => { const n = NPCS.find(n => npcVisible(n)) || NPCS[0]; talkStart(n); TALK.ph = 'talk'; TALK.bars = 1; n.lines = [line]; TALK.i = 0; TALK.chars = 999; if (who) n.lines[0] = who + ' : ' + line; }, ban: (who, txt) => { BAN.list = [who + ' : ' + txt]; BAN.i = 0; BAN.t = 1.2; }, menu: (st, sel) => { STATE = st; MENU.sel = sel || 0; MENU.t = 5; } }; window.__camty = () => [cam.ty, hitstop, STATE, slowmo]; window.__rl = { RL, h: x => rlH(x), segs: () => RL.list.filter(r => r.tall).map(r => r.M.segs.map(([x0, x1, P]) => [r.x + x0 * REL_S, r.x + x1 * REL_S, Math.max(...P) * REL_S - REL_SINK])), sum: () => RL.list.filter(r => !r.tall).map(rlSummit), tp: (x, y) => { hero.x = x; ACT.y = y; ACT.vy = 0; ACT.onGround = true; }, act: () => ({ y: ACT.y, g: ACT.onGround, x: hero.x }) }; window.__boss = { BX, raw: (st) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); e.bx = false; e.st = st; e.t = 0; e.cd = 9; }, god: () => { HERO.hp = 99999; }, force: (m) => { const e = enemies.find(e => ENEMY[e.type].boss && !e.dead); if (!e) return null; if (m === 'ph2') { e.hp = e.max * .49; return 1; } e.bx = m; e.st = m + 'Tele'; e.t = 0; e.n = 0; e.cd = 9; return e.st; }, info: () => enemies.filter(e => ENEMY[e.type].boss).map(e => ({ type: e.type, st: e.st, hp: Math.round(e.hp), max: e.max, ph2: !!e.ph2, bx: e.bx, hide: e.hide })) }; window.__dons = { DONB, give: d => { INV.dons = INV.dons || {}; INV.dons[d] = 1; }, has: hasDon, relayOk, reach: id => reachable(id) }; window.__loot = { drop: invDrop, pick: () => INVRT.pick, near: () => (INVRT.lootNear || []).length, shot: o => shots.push(Object.assign({ t: 0, life: 9, friendly: false, vx: 0, vy: 0 }, o)) }; window.__pad = { PADUSE, padMap }; window.NODES_IDS = NODES.filter(n => n.kind === 'arene' || n.kind === 'defi').map(n => n.id); window.__platx = () => ({ plats: PROG.plats.map(p => [Math.round(p.x), p.w]), ex: (LV.exits || []).map(e => e.x), C, T, lin: !!LV.linear, lv: LVID }); window.__mouse = { map: mouseMap, keys: () => [...keys] }; window.__prog = () => ({ wd: WAVE.done, wdd: wDone(), lk: sealLocked(EXN), exn: EXN && EXN.to, plats: PROG.plats.length, items: PROG.items.map(i => i.k + '@' + Math.round(i.h)), rev: REVISIT, q: progQ(), ay: ACT.y, ong: ACT.onGround, hx: hero.x, p0: PROG.plats[0] }); window.__npcdbg = () => ({ hx: hero.x, C, T, npcs: NPCS.map(n => [n.who, Math.round(n.x), n.near]), talk: NPC_TALK && NPC_TALK.who, shop: INVRT.near && INVRT.near.kind, portal: PORTAL.near, door: DOOR.near }); window.__ban = () => ({ list: BAN.list, i: BAN.i, lv: BAN.lv }); window.__inv = { INV, IT, INVRT, IUI, add: invAdd, open: invOpen, atelier: atelierOpen, craft: craftPlay, CANIM, use: invUse, plant: invPlant, key: invKey, kill: (e) => invOnKill(e), rt: INVRT, hx: (x) => { if (x != null) hero.x = x; return hero.x; }, lv: () => LVID, en: () => enemies.filter(e => !e.dead).map(e => [e.type, e.hp]), wave: () => WAVE.i, sw: (i) => { enemies.length = 0; startWave(i); return WAVES.length; } }; window.__story = () => ({ ...STORY, scene: SCENE.on, st: SCENE.t, actors: SCENE.actors.map(a => a.k + ':' + a.st), lv: LVID, hk: !LV.noHinoko && STORY.hinoko }); window.__scene = (id) => sceneStart(id || 'raid'); window.__setStory = (o) => Object.assign(STORY, o); window.__cine = (id) => { if (id) cineStart(id); return { on: CINE.on, id: CINE.id, s: CINE.s, l: CINE.l, st: STATE }; }; window.__cineUpd = (d) => updateCine(d); window.__talk = () => ({ on: TALK.on, ph: TALK.ph, i: TALK.i, bars: TALK.bars, hx: hero.x, nx: TALK.n && TALK.n.x, dir: hero.dir }); window.__mu = () => [musicWanted(), MU.cur, Object.keys(MU.el), AU.ctx && AU.ctx.state]; window.__where = () => [LVID, hero.x / C];
 window.__goto = (frac) => { hero.x = frac * C; cam.x = camPrev = hero.x - VW / 2; };
+window.__mk = () => ({ MK, TRANS, HERO, INV, LG, ACT, hero, PROG, cam });   /* tests des mécanismes (tests/meca.js) */
 window.__lgm = () => lgMouthScreen(); window.__dbg = () => ({ drawHero, LG, hero, cam, PROG, ACT, VERT, K4, VA, RL, LV, LVID, INV, C: typeof C !== 'undefined' ? C : 0, T: typeof T !== 'undefined' ? T : 0, vaImg }); window.__warm = () => WARM; window.__vert = () => VERT; window.__act = () => ACT; window.__k4 = () => K4; window.__k4draw = k4Draw; window.__k4fade = v => (K4FADE.on = !!v); window.__pose = () => k3PoseOf();
 window.__advance = (sec) => { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) update(1 / 60); render(); };
 window.__key = (code, down) => { if (down) { press(code); keys.add(code); } else keys.delete(code); };
