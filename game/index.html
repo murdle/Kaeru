@@ -6545,72 +6545,57 @@ const VERT_DEF = {
     camUp: [], temps: [], tips: [],
   },
   /* Kits peints par chapitre (placés automatiquement entre les reliefs, rel1 : ils remplacent le second relief). Chaque lieu : un étage du milieu au saut, un point à la langue, une cache (façade ou feuillage) avec son coffre. */
-  /* Prologue (LEVEL_DESIGN.md) — Les nénuphars du matin : apprendre à monter. Feuilles de lotus géantes en escalier (saut, double saut), l'arbre-tour (première accroche),
-     la branche du saule (coffre), une chaîne de lotus au-dessus de la mare (jarre), le nid du héron (retour avec le Saut du héron). Pas de langue au Prologue. */
+  /* Prologue 1 — Les nénuphars du matin (level_design/01_nenuphars.md) : apprendre sur l'arbre-tour (relief peint), puis le défi : l'ascension du Saule-Mère (6 450 – 9 350),
+     facultative et difficile. Maquette grise en attendant les peintures P1-P3 ; la butte aux racines (relief saule1) est retirée (rel1), l'arbre-tour reste à 3 158. */
   m_nenuphars: {
-    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
-    big: [['lotus1', 700, 0], ['lotus2', 1150, 0], ['lotus1', 5950, 0], ['lotus3', 6300, 0], ['lotus4', 6700, 0], ['lotus5', 7000, 0]],
+    ver: 4, camTop: 1750, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158], big: [],
     mk: [
-      { t: 'bloc', x: 4480, w: 440, h: 1350, lab: 'branche du saule', pend: 1 },
-      { t: 'jarre', x: 7000, h: 893 },
-      { t: 'bloc', x: 8380, w: 280, h: 1330, lab: 'nid du héron', need: 'heron', pend: 1 },
+      /* peintures (calage en cours, visibles avec window.__peint) : P1 v2 recadrée [4,10,1241,1230] ; tronc source x≈455 → 7290 ; plancher de la cabane source y≈580 → 1450 */
+      { t: 'peint', img: 'saule', x: 6217, sc: 2.38, foot: -95, wip: 1 },
+      { t: 'facade', img: 'saule_fac', x: 6217 + 573 * 2.38, h: -95 + (1220 - 584) * 2.38, sc: 2.38, zone: [7560, 8520, 1440, 1850], wip: 1 },
+      /* surfaces calées sur la peinture : x = 6217 + (sx-4)*2.38 ; h = -95 + (1230-sy)*2.38 */
+      { t: 'bloc', x: 6445, w: 370, h: 220, lab: 'souche basse', plein: 1 }, { t: 'bloc', x: 6720, w: 390, h: 417, lab: 'souche haute', plein: 1 },
+      { t: 'bloc', x: 6340, w: 650, h: 862, lab: 'branche basse' },
+      { t: 'mur', x: 6755, hw: 14, h0: 862, h1: 1560, lab: 'perche' }, { t: 'mur', x: 7190, hw: 40, h0: 862, h1: 1440, lab: 'tronc', notop: 1 },
+      { t: 'bloc', x: 6700, w: 90, h: 1576, lab: 'écriteau' },
+      { t: 'cede', x: 6810, w: 140, h: 1452, img: 'planche1', wip: 1 }, { t: 'cede', x: 7010, w: 140, h: 1452, img: 'planche2', wip: 1 }, { t: 'cede', x: 7210, w: 140, h: 1452, img: 'planche3', wip: 1 }, { t: 'cede', x: 7410, w: 140, h: 1452, img: 'planche4', wip: 1 },
+      { t: 'bloc', x: 7530, w: 1030, h: 1452, lab: 'cabane de guet' },
+      { t: 'bloc', x: 8800, w: 335, h: 1650, lab: 'bout de branche' },
+      { t: 'bloc', x: 7760, w: 565, h: 1880, lab: 'toit de la cabane' },
+      { t: 'bloc', x: 8380, w: 230, h: 2010, lab: 'branche haute' },
+      { t: 'bloc', x: 7300, w: 680, h: 2333, lab: 'nid de la cime' }, { t: 'jarre', x: 7900, h: 2333 },
     ],
     plats: [], walls: [], temps: [],
-    lans: [['toro', 1150, 390], ['toro', 4215, 1530], ['toro', 4620, 1350], ['toro', 6700, 728], ['toro', 8119, 476]],
-    chests: [[4780, 1350, 'koban'], [8520, 1330, 'pv']],
-    camUp: [], tips: [[700, 0, 'Saut : Espace (manette : A)'], [1150, 242, 'En l’air, Saut encore : double saut'], [3300, 0, 'Saute vers un rebord : Kaeru s’accroche  ·  Haut : monter'], [6000, 0, 'Les lotus montent jusqu’à une jarre : casse-la au sabre']],
+    lans: [['bois', 4215, 1530], ['toro', 6300, 0], ['bois', 6745, 1576], ['chochin', 8450, 1452], ['chochin', 7400, 2333]],
+    chests: [[8150, 1452, 'koban']],
+    camUp: [], tips: [[2400, 0, 'Saut : Espace (manette : A)  ·  en l’air, encore Saut : double saut'], [3300, 0, 'Saute vers un rebord : Kaeru s’accroche  ·  Haut : monter'],
+      [6300, 0, 'Le Saule-Mère : grimpe jusqu’à la cime'], [6970, 862, 'Entre la perche et le tronc : saute contre l’un, puis Saut pour rebondir'], [6800, 1576, 'Planches pourries : ne t’arrête pas']],
   },
-  /* Le ponton de Hasu : les barques qui tanguent (bascules douces), le ponton et le grenier sur pilotis (coffre), l'arbre-tour (jarre au sommet),
-     le mât d'amarrage planté dans l'eau (retour avec la Langue I : deux nœuds). */
+  /* Prologue 2 — Le ponton de Hasu (level_design/02_hasu.md) : la maison de Hasu sur pilotis (4 700 – 6 650). Maquette grise en attendant les peintures.
+     Défi : des toits de la maison au mât d'amarrage, par trois barques retournées sur leurs chevalets, qui basculent sous le poids. Cache : le coffre entre les pilotis, derrière les filets. */
   m_ponton: {
-    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
-    big: [['ponton', 2000, 0], ['grenierp', 2900, 0], ['mat', 5650, 0]],
+    ver: 3, tongue: true, camTop: 1750, grade: [.86, .86, '#9aa890', .09], big: [],
     mk: [
-      { t: 'paire', k: 'bascule', a: [520, 120, 220], b: [760, 120, 220], d: 70, lab: 'barque' },
-      { t: 'jarre', x: 3950, h: 1516 },
-      { t: 'paire', k: 'bascule', a: [6050, 110, 220], b: [6290, 110, 220], d: 80 },
-      { t: 'paire', k: 'bascule', a: [6650, 140, 220], b: [6890, 140, 220], d: 80 },
-      { t: 'paire', k: 'bascule', a: [8700, 120, 220], b: [8940, 120, 220], d: 90 },
-      { t: 'paire', k: 'bascule', a: [9250, 180, 220], b: [9490, 180, 220], d: 90 },
+      /* peinture P1 v2 (level_design/hasu_decoupe.json, box [1,110,1246,1055]) : x = 7390 + (sx-1080)*2.97 ; h = (955-sy)*2.97 */
+      { t: 'peint', img: 'hasu', x: 4185, sc: 2.97, foot: -297, wip: 1 },
+      { t: 'facade', img: 'hasu_filets', x: 4682, h: 30, sc: 2.65, zone: [4680, 5460, -10, 420], wip: 1 },
+      { t: 'bloc', x: 4250, w: 180, h: 200, lab: 'marches' }, { t: 'bloc', x: 4430, w: 1090, h: 555, lab: 'galerie (engawa)' },
+      { t: 'bloc', x: 4205, w: 230, h: 935, lab: 'avant-toit' }, { t: 'bloc', x: 4465, w: 980, h: 1494, lab: 'toit' },
+      { t: 'cede', x: 5543, w: 392, h: 1207, img: 'barque1', pw: 640, pt: .1, wip: 1 }, { t: 'cede', x: 6062, w: 392, h: 1487, img: 'barque2', pw: 640, pt: .1, wip: 1 }, { t: 'cede', x: 6594, w: 410, h: 1837, img: 'barque3', pw: 660, pt: .1, wip: 1 },
+      { t: 'mur', x: 7390, hw: 50, h0: 0, h1: 2150, lab: 'mât', notop: 1 }, { t: 'bloc', x: 7167, w: 461, h: 2189, lab: 'hune du mât' }, { t: 'jarre', x: 7520, h: 2189 },
     ],
     plats: [], walls: [], temps: [],
-    lans: [['toro', 1700, 257], ['toro', 2050, 635], ['toro', 3990, 764], ['toro', 3960, 1116], ['toro', 8008, 272]],
-    chests: [[2900, 938, 'koban'], [5650, 1334, 'pv']],
-    camUp: [], tips: [[640, 0, 'Les barques penchent sous ton poids'], [5650, 0, 'Un mât d’amarrage… trop haut. Il faudrait autre chose qu’un saut.']],
+    lans: [['toro', 4640, 0], ['bois', 5350, 555], ['bois', 5000, 1494], ['bois', 7240, 2189]],
+    chests: [[5100, 0, 'koban']],
+    camUp: [], tips: [[4500, 0, 'La maison de Hasu : par les toits jusqu’au mât'], [5300, 1494, 'Barques retournées : elles basculent, saute sans t’arrêter']],
   },
-  /* La passerelle des roseaux : planches pourries qui cèdent (sans danger, au-dessus de l'eau basse), le séchoir (coffre), la cheminée de deux pieux (saut mural, jarre),
-     un pieu isolé au nœud de corde (retour avec la Langue I), puis une passerelle haute qui cède. */
   m_passerelle: {
-    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09],
-    big: [['sechoir', 1500, 0]],
-    mk: [
-      { t: 'cede', x: 420, w: 220, h: 150 }, { t: 'cede', x: 700, w: 220, h: 150 }, { t: 'cede', x: 980, w: 220, h: 150 },
-      { t: 'mur', x: 5000, h1: 1100, lab: 'pieu' }, { t: 'mur', x: 5330, h1: 1100, lab: 'pieu' }, { t: 'jarre', x: 5330, h: 1100 },
-      { t: 'mur', x: 6500, h1: 1300, lab: 'pieu isolé' }, { t: 'crochet', x: 6500, h: 880, need: 'langue' },
-      { t: 'bloc', x: 8300, w: 600, h: 450, lab: 'passerelle haute' }, { t: 'cede', x: 9000, w: 240, h: 540 }, { t: 'cede', x: 9330, w: 240, h: 620 }, { t: 'bloc', x: 9660, w: 300, h: 450, lab: 'passerelle haute' },
-    ],
-    plats: [], walls: [], temps: [],
-    lans: [['toro', 1800, 381], ['toro', 2950, 877], ['toro', 4100, 1468], ['toro', 7727, 388], ['toro', 8600, 450]],
-    chests: [[3150, 877, 'koban'], [6500, 1300, 'pv']],
-    camUp: [], tips: [[560, 0, 'Les planches pourries cèdent : passe vite'], [5165, 0, 'Saute contre un pieu : Kaeru glisse  ·  Saut pour rebondir de l’un à l’autre']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], big: [],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
-  /* Les rizières inondées : les digues en terrasses, le grenier de garde sur pilotis posé sur la plus haute (coffre, toit à 1 621), l'épouvantail, le shadouf (première bascule) vers la perche (jarre),
-     une terrasse haute cachée dans la brume (retour avec la Cloche). La sortie du milieu (5 264) reste dégagée. */
   m_rizieres: {
-    ver: 2, camTop: 1700, grade: [.86, .86, '#9aa890', .09], flt: 'brightness(.92) sepia(.1)',
-    big: [['grenier', 2650, 540, 'koban'], ['epouv', 6300, 0]],
-    mk: [
-      { t: 'bloc', x: 1300, w: 520, h: 180, lab: 'digue', plein: 1 }, { t: 'bloc', x: 1700, w: 520, h: 360, lab: 'digue', plein: 1 }, { t: 'bloc', x: 2100, w: 1140, h: 540, lab: 'digue', plein: 1 },
-      { t: 'bloc', x: 6900, w: 320, h: 420, lab: 'meule de paille', plein: 1 },
-      { t: 'paire', k: 'bascule', a: [8650, 250, 220], b: [9100, 250, 220], d: 220, lab: 'shadouf' },
-      { t: 'bloc', x: 9420, w: 240, h: 1050, lab: 'perche du shadouf' }, { t: 'jarre', x: 9540, h: 1050 },
-      { t: 'brume', x0: 9750, x1: 10150, h0: 200, h1: 1300, need: 'cloche' },
-      { t: 'bloc', x: 9800, w: 260, h: 420, lab: 'terrasse cachée' }, { t: 'bloc', x: 9850, w: 260, h: 820, lab: 'terrasse cachée' },
-    ],
-    plats: [], walls: [], temps: [],
-    lans: [['toro', 1950, 360], ['toro', 2600, 1105], ['toro', 4100, 1576], ['toro', 6000, 929], ['toro', 8119, 476]],
-    chests: [[9980, 820, 'ofuda']],
-    camUp: [], tips: [[1300, 0, 'Les digues font des marches'], [8870, 0, 'Le shadouf penche sous ton poids : l’autre bras se lève']],
+    ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], flt: 'brightness(.92) sepia(.1)', big: [],
+    plats: [], walls: [], lans: [], chests: [], camUp: [], temps: [], tips: [],
   },
   l_barques: {
     ver: 1, tongue: true, camTop: 1700, grade: [.78, .8, '#8fa6bd', .13], flt: 'brightness(.85) sepia(.12)', big: [],
@@ -7085,6 +7070,7 @@ function folBehind(b) {   // une façade (cabane, cascade) passe derrière Kaeru
   return ACT.y < (F.minY != null ? F.minY : bot - 40);
 }
 function vertFront(back) {   // devant Kaeru : les feuillages des cimes et les façades
+  if (!back) mkFront();
   if (VERT.lv !== LVID || !VERT.big.length) return; const G = CFG.groundLine;
   for (const b of VERT.big) { const F = b.M.fol; if (!F || folBehind(b) !== !!back) continue; const im = gvImg(F.img), FM = GV[F.img]; if (!im) continue;
     const X = wx2sx(b.x) - b.M.a[0] + F.at[0] - FM.a[0], Y = G - b.h - b.M.a[1] + F.at[1] - FM.a[1]; if (X > VW + 80 || X + FM.w < -80) continue;
@@ -7119,7 +7105,7 @@ function vertHud() {
    VERT_DEF[lieu].mk : liste d'éléments { t: type, ... } (hauteurs comptées depuis le sol, comme le reste de VERT).
    Tant qu'un élément n'a pas d'image peinte, il est dessiné en bloc de maquette étiqueté : on joue la disposition avant de la faire peindre.
    - bloc     { x, w, h, lab, pend, only }        appui fixe (posé sur poteaux, ou pendu si pend)
-   - mur      { x, h1, h0, hw }                   pilier pour le saut mural (son sommet est un appui)
+   - mur      { x, h1, h0, hw, notop }            pilier pour le saut mural (son sommet est un appui, sauf notop)
    - cede     { x, w, h }                         tremble sous Kaeru puis tombe ; revient après 3 s
    - nacelle  { x, w, h0, h1, top }               monte de h0 à h1 tant que Kaeru est dessus, redescend à vide
    - paire    { a: [x, h, w], b: [x, h, w], d, k: 'bascule' | 'poulie', top }   deux appuis liés : l'un descend sous le poids, l'autre monte
@@ -7131,6 +7117,10 @@ function vertHud() {
    - autel    { x, h, don }                       donne un don (Langue I, Langue II…)
    - jarre    { x, h }                            un têtard enfermé : on casse la jarre au sabre
    - brume    { x0, x1, h0, h1, need }            cache ce qu'elle contient tant qu'on n'a pas le don (cloche)
+   - peint    { img, x, sc, foot, wip }           peinture d'ensemble (gv_<img>.webp) : bord gauche en x, bas de l'image au sol (+ foot), échelle sc
+   - facade   { img, x, h, sc, zone: [x0, x1, h0, h1] }   mur avant peint, devant Kaeru ; s'efface quand il est dans la zone
+   img sur un cede : planche peinte (gv_<img>.webp) à la place du bloc. wip : peinture affichée seulement avec window.__peint (calage en cours) ;
+   quand une peinture est affichée, les blocs gris ne sont plus que des traits de calage (window.__gris pour les revoir pleins).
    need sur un élément : don nécessaire (affiché sur la maquette ; actif pour crochet, balance, brume). */
 const MK = { lv: null, list: [], pits: [], fogs: [], safe: null, jar: null, FALL: 6 };
 function mkPit(x) { if (MK.lv !== LVID) return false; for (const [a, b] of MK.pits) if (x > a && x < b) return true; return false; }
@@ -7147,11 +7137,12 @@ function mkBuild(D) {
     const at = e.x != null ? e.x + (e.w || 0) / 2 : e.a ? e.a[0] : 0, hh = e.h != null ? e.h : e.h1 != null ? e.h1 : e.h0 || 0;
     e.off = e.t !== 'brume' && MK.fogs.length > 0 && mkFogged(at, hh);
     if (e.t === 'bloc') mkPlat(e, e.x, e.w, e.h);
-    else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; }
+    else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; e.i0 = MK.list.length; if (e.img) invImg('gv_' + e.img + '.webp'); }
+    else if (e.t === 'peint' || e.t === 'facade') invImg('gv_' + e.img + '.webp');
     else if (e.t === 'derive') { e.v = e.v || 140; e.dir = 1; e.wait = 0; mkPlat(e, e.x0, e.w, e.h, { mov: 1 }); }
     else if (e.t === 'nacelle') { mkPlat(e, e.x, e.w, e.h0, { mov: 1 }); }
     else if (e.t === 'paire') { e.o = 0; e.d = e.d || 260; e.pa = mkPlat(e, e.a[0], e.a[2], e.a[1], { mov: 1 }); e.pb = mkPlat(e, e.b[0], e.b[2], e.b[1], { mov: 1 }); }
-    else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null }); mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }
+    else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null }); if (!e.notop) mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }   /* notop : un tronc qui continue, sans dessus où se poser */
     else if (e.t === 'crochet' || e.t === 'balance') { if (!e.off) { VERT.hooks = VERT.hooks || []; VERT.hooks.push({ k: null, painted: true, x: e.x, h: e.h, tx: e.x, ty: e.h, sw: e.t === 'balance', need: e.t === 'balance' ? 'langue2' : e.need, mk: e }); } }
     else if (e.t === 'vide') MK.pits.push([e.x0, e.x1]);
     else if (e.t === 'jarre') { e.i = ji++; e.broken = !!MK.jar[e.i]; e.bt = 9; }
@@ -7205,15 +7196,35 @@ function mkPosts(p, col) { const G = CFG.groundLine, X = wx2sx(p.x), Y = G - p.h
   ctx.fillStyle = col; ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2;
   for (const px of p.w > 160 ? [X + 14, X + p.w - 32] : [X + p.w / 2 - 9]) { ctx.fillRect(px, Y, 18, G - Y); ctx.strokeRect(px, Y, 18, G - Y); } }
 function mkRope(X, Y0, Y1) { ctx.strokeStyle = '#6b5636'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(X, Y0); ctx.lineTo(X, Y1); ctx.stroke(); }
+window.__peint = !/[?&]peint=0/.test(location.search);   /* peintures du Saule-Mère et de la maison de Hasu affichées (1.0.25) ; ?peint=0 pour revenir aux blocs gris */
+if (/[?&]gris=1/.test(location.search)) window.__gris = 1;
+function mkShow(e) { return !e.wip || window.__peint; }
+function mkPaint(e, im, x, yBot, sc, al) { const w = im.naturalWidth * sc, h = im.naturalHeight * sc, X = wx2sx(x); if (X > VW + 80 || X + w < -80) return;
+  ctx.save(); if (al != null) ctx.globalAlpha = al; if (VERT.flt) ctx.filter = VERT.flt; ctx.drawImage(im, Math.round(X), Math.round(CFG.groundLine - yBot - h), Math.round(w), Math.round(h)); ctx.restore(); }
+function mkFront() {   /* façades peintes, devant Kaeru */
+  if (MK.lv !== LVID) return;
+  for (const e of MK.list) { if (e.t !== 'facade' || !mkShow(e)) continue; const im = gvImg(e.img); if (!im) continue; const z = e.zone,
+      inside = z && hero.x > z[0] && hero.x < z[1] && ACT.y > z[2] - 20 && ACT.y < z[3];
+    e.fa = e.fa == null ? 1 : e.fa + ((inside ? .22 : 1) - e.fa) * Math.min(1, (typeof DT === 'number' ? DT : 1 / 60) * 8);
+    mkPaint(e, im, e.x, e.h, e.sc, e.fa); }
+}
 function mkDraw() {
-  if (MK.lv !== LVID) return; const G = CFG.groundLine, top = -(cam.y || 0) - 40;
+  if (MK.lv !== LVID) return;
+  MK.peint = false; for (const e of MK.list) if (e.t === 'peint' && mkShow(e)) { const im = gvImg(e.img); if (im) { mkPaint(e, im, e.x, e.foot || 0, e.sc); MK.peint = true; } }
+  if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } const G = CFG.groundLine, top = -(cam.y || 0) - 40, ghost = MK.peint && !window.__gris;   /* sous une peinture, les blocs de calage sont cachés (?gris=1 pour les voir) */
   for (const [a, b] of MK.pits) { const X0 = wx2sx(a), X1 = wx2sx(b); if (X1 < -50 || X0 > VW + 50) continue; const gr = ctx.createLinearGradient(0, G - 20, 0, G + 340);
     gr.addColorStop(0, '#1a1410'); gr.addColorStop(1, '#050304'); ctx.fillStyle = gr; ctx.fillRect(X0, G - 18, X1 - X0, 600); ctx.fillStyle = '#4a3a2a'; ctx.fillRect(X0 - 8, G - 22, 16, 60); ctx.fillRect(X1 - 8, G - 22, 16, 60); mkLabel('vide', (X0 + X1) / 2, G + 60, '#e88'); }
   for (const e of MK.list) {
+    if (ghost && e.t !== 'jarre' && e.t !== 'autel' && e.t !== 'sortie' && !(e.t === 'cede' && e.img)) continue;
     const need = e.need ? ' [' + e.need + ']' : '';
     if (e.t === 'bloc') { const p = e.p; if (e.pend) { const X = wx2sx(p.x); mkRope(X + 20, top, G - p.h); mkRope(X + p.w - 20, top, G - p.h); } else if (e.plein) { const X = wx2sx(p.x); ctx.fillStyle = '#7a7060'; ctx.fillRect(X, G - p.h + 20, p.w, p.h - 20); ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2; ctx.strokeRect(X, G - p.h + 20, p.w, p.h - 20); } else mkPosts(p, '#6d6455'); mkSlab(p, e.off ? 'rgba(141,130,112,.35)' : MK_COL.bloc, (e.lab || '') + need); }
     else if (e.t === 'cede') { const p = e.p, sh = e.st === 1 ? Math.sin(t * 70) * 4 : 0, dy = e.st === 2 ? Math.min(900, e.k * e.k * 1400) : 0, al = e.st === 2 ? Math.max(0, 1 - e.k * 1.6) : 1;
-      if (al > 0) { ctx.save(); ctx.translate(sh, 0); mkSlab(p, MK_COL.cede, 'cède' + need, dy, al); ctx.restore(); } else if (e.k > 2.4) mkSlab(p, MK_COL.cede, false, 0, (e.k - 2.4) * .6); }
+      const pim = e.img && mkShow(e) ? gvImg(e.img) : null;
+      if (pim) { const sc = (e.pw || p.w + 30) / pim.naturalWidth, a2 = al > 0 ? al : e.k > 2.4 ? Math.min(1, (e.k - 2.4) * .6) : 0;   /* planche peinte : le dessus de la planche au niveau de l'appui, elle bascule en tombant */
+        if (a2 > 0) { const w = pim.naturalWidth * sc, h = pim.naturalHeight * sc, X = wx2sx(p.x + p.w / 2) - w / 2 + sh, Y = CFG.groundLine - p.h - h * (e.pt != null ? e.pt : .22) + (al > 0 ? dy : 0);
+          if (MK.peint && !window.__gris) ctx.restore(); ctx.save(); ctx.globalAlpha = a2; if (VERT.flt) ctx.filter = VERT.flt; ctx.translate(X + w / 2, Y + h / 2); if (e.st === 2 && al > 0) ctx.rotate(e.k * 1.8 * (e.i0 % 2 ? 1 : -1));
+          ctx.drawImage(pim, -w / 2, -h / 2, w, h); ctx.restore(); if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } } }
+      else if (al > 0) { ctx.save(); ctx.translate(sh, 0); mkSlab(p, MK_COL.cede, 'cède' + need, dy, al); ctx.restore(); } else if (e.k > 2.4) mkSlab(p, MK_COL.cede, false, 0, (e.k - 2.4) * .6); }
     else if (e.t === 'derive') { const p = e.p; ctx.fillStyle = 'rgba(70,120,150,.35)'; ctx.fillRect(wx2sx(e.x0), G - p.h + 20, e.x1 - e.x0 + p.w, 10); mkSlab(p, MK_COL.derive, 'dérive' + need); }
     else if (e.t === 'nacelle') { const p = e.p, X = wx2sx(p.x), Yt = G - (e.top || e.h1 + 500); mkRope(X + 16, Yt, G - p.h); mkRope(X + p.w - 16, Yt, G - p.h); ctx.fillStyle = '#5a4a3a'; ctx.beginPath(); ctx.arc(X + p.w / 2, Yt, 26, 0, 6.283); ctx.fill(); mkSlab(p, MK_COL.nacelle, 'nacelle ' + e.h0 + '→' + e.h1 + need); }
     else if (e.t === 'paire') { const A = e.pa, B = e.pb, ax = wx2sx(A.x + A.w / 2), bx = wx2sx(B.x + B.w / 2);
@@ -7232,6 +7243,7 @@ function mkDraw() {
   }
   for (const f of MK.fogs) { if (hasDon(f.need || 'cloche')) continue; const X0 = wx2sx(f.x0), X1 = wx2sx(f.x1); if (X1 < -50 || X0 > VW + 50) continue; ctx.save();
     for (let k = 0; k < 4; k++) { ctx.globalAlpha = .28; ctx.fillStyle = '#dfe3e6'; ctx.fillRect(X0 + k * 20, G - f.h1 + k * 20, X1 - X0 - k * 40, f.h1 - f.h0 - k * 40); } ctx.restore(); mkLabel('brume [' + (f.need || 'cloche') + ']', (X0 + X1) / 2, G - (f.h0 + f.h1) / 2); }
+  if (MK.peint && !window.__gris) ctx.restore();
 }
 /* =========================== LA LANGUE (grappin) ===========================
    Visée assistée : on tient une direction (8 directions) et la langue choisit le point d'accroche le plus proche dans cet axe ; sans direction, le plus proche devant Kaeru.
