@@ -6545,31 +6545,29 @@ const VERT_DEF = {
     camUp: [], temps: [], tips: [],
   },
   /* Kits peints par chapitre (placés automatiquement entre les reliefs, rel1 : ils remplacent le second relief). Chaque lieu : un étage du milieu au saut, un point à la langue, une cache (façade ou feuillage) avec son coffre. */
-  /* Prologue 1 — Les nénuphars du matin (level_design/01_nenuphars.md) : apprendre sur l'arbre-tour (relief peint), puis le défi : l'ascension du Saule-Mère (6 450 – 9 350),
-     facultative et difficile. Maquette grise en attendant les peintures P1-P3 ; la butte aux racines (relief saule1) est retirée (rel1), l'arbre-tour reste à 3 158. */
+  /* Prologue 1 — Les nénuphars du matin (level_design/01_nenuphars.md, v3 « parcours ») : apprendre sur l'arbre-tour (relief peint), puis le défi, dur façon Rayman :
+     la montée des esprits du marais (6 250 – 9 750), îlots volants, rebonds, îlot mobile, planches qui cèdent, cheminée de murs volants. Une chute ramène au sol (tout à refaire).
+     Chaque palier est hors de portée sans le geste prévu (tests/atteinte.js). La butte aux racines (relief saule1) est retirée (rel1), l'arbre-tour reste à 3 158.
+     Le Saule-Mère peint (gv_saule…) n'est plus posé ici : trop agrandi, flou, et une montée sans intérêt (retour de Lucas, 19 nov.). */
   m_nenuphars: {
-    ver: 4, camTop: 1750, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158], big: [],
+    ver: 5, camTop: 1820, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158], big: [],
     mk: [
-      /* peintures (calage en cours, visibles avec window.__peint) : P1 v2 recadrée [4,10,1241,1230] ; tronc source x≈455 → 7290 ; plancher de la cabane source y≈580 → 1450 */
-      { t: 'peint', img: 'saule', x: 6217, sc: 2.38, foot: -95, wip: 1 },
-      { t: 'facade', img: 'saule_fac', x: 6217 + 573 * 2.38, h: -95 + (1220 - 584) * 2.38, sc: 2.38, zone: [7560, 8520, 1440, 1850], wip: 1 },
-      /* surfaces calées sur la peinture : x = 6217 + (sx-4)*2.38 ; h = -95 + (1230-sy)*2.38 */
-      { t: 'bloc', x: 6445, w: 370, h: 220, lab: 'souche basse', plein: 1 }, { t: 'bloc', x: 6720, w: 390, h: 417, lab: 'souche haute', plein: 1 },
-      { t: 'bloc', x: 6340, w: 650, h: 862, lab: 'branche basse' },
-      { t: 'mur', x: 6755, hw: 14, h0: 862, h1: 1560, lab: 'perche' }, { t: 'mur', x: 7190, hw: 40, h0: 862, h1: 1440, lab: 'tronc', notop: 1 },
-      { t: 'bloc', x: 6700, w: 90, h: 1576, lab: 'écriteau' },
-      { t: 'cede', x: 6810, w: 140, h: 1452, img: 'planche1', wip: 1 }, { t: 'cede', x: 7010, w: 140, h: 1452, img: 'planche2', wip: 1 }, { t: 'cede', x: 7210, w: 140, h: 1452, img: 'planche3', wip: 1 }, { t: 'cede', x: 7410, w: 140, h: 1452, img: 'planche4', wip: 1 },
-      { t: 'bloc', x: 7530, w: 1030, h: 1452, lab: 'cabane de guet' },
-      { t: 'bloc', x: 8800, w: 335, h: 1650, lab: 'bout de branche' },
-      { t: 'bloc', x: 7760, w: 565, h: 1880, lab: 'toit de la cabane' },
-      { t: 'bloc', x: 8380, w: 230, h: 2010, lab: 'branche haute' },
-      { t: 'bloc', x: 7300, w: 680, h: 2333, lab: 'nid de la cime' }, { t: 'jarre', x: 7900, h: 2333 },
+      { t: 'rebond', x: 6250, w: 200, h: 40, v: 2350, lab: 'lotus élastique' },
+      { t: 'bloc', x: 6550, w: 250, h: 950, lab: 'îlot', vol: 1 },
+      { t: 'mobile', a: [6950, 1000], b: [7400, 1150], w: 220, T: 3.2 },
+      { t: 'cede', x: 7850, w: 160, h: 1150 },
+      { t: 'mur', x: 8330, hw: 40, h0: 1080, h1: 1650, notop: 1, lab: 'pieu volant' }, { t: 'mur', x: 8680, hw: 40, h0: 760, h1: 1650, notop: 1, lab: 'pieu volant' },
+      { t: 'bloc', x: 8400, w: 210, h: 820, lab: 'fond du puits', vol: 1 },
+      { t: 'bloc', x: 8780, w: 220, h: 1600, lab: 'îlot', vol: 1, only: -1 },
+      { t: 'cede', x: 9080, w: 140, h: 1520 }, { t: 'cede', x: 9320, w: 140, h: 1450 },
+      { t: 'rebond', x: 9560, w: 180, h: 1250, v: 2350, vol: 1, lab: 'lotus élastique' },
+      { t: 'bloc', x: 9330, w: 330, h: 2380, lab: 'sommet', vol: 1 }, { t: 'jarre', x: 9420, h: 2380 },
     ],
     plats: [], walls: [], temps: [],
-    lans: [['bois', 4215, 1530], ['toro', 6300, 0], ['bois', 6745, 1576], ['chochin', 8450, 1452], ['chochin', 7400, 2333]],
-    chests: [[8150, 1452, 'koban']],
+    lans: [['bois', 4215, 1530], ['toro', 6650, 950], ['toro', 8505, 820], ['toro', 8890, 1600], ['toro', 9580, 2380]],
+    chests: [[6720, 950, 'koban']],
     camUp: [], tips: [[2400, 0, 'Saut : Espace (manette : A)  ·  en l’air, encore Saut : double saut'], [3300, 0, 'Saute vers un rebord : Kaeru s’accroche  ·  Haut : monter'],
-      [6300, 0, 'Le Saule-Mère : grimpe jusqu’à la cime'], [6970, 862, 'Entre la perche et le tronc : saute contre l’un, puis Saut pour rebondir'], [6800, 1576, 'Planches pourries : ne t’arrête pas']],
+      [6100, 0, 'Lotus élastique : retombe dessus pour être propulsé'], [8505, 820, 'Le puits : saute contre un pieu, puis Saut pour rebondir de l’un à l’autre']],
   },
   /* Prologue 2 — Le ponton de Hasu (level_design/02_hasu.md) : la maison de Hasu sur pilotis (4 700 – 6 650). Maquette grise en attendant les peintures.
      Défi : des toits de la maison au mât d'amarrage, par trois barques retournées sur leurs chevalets, qui basculent sous le poids. Cache : le coffre entre les pilotis, derrière les filets. */
@@ -7110,6 +7108,9 @@ function vertHud() {
    - nacelle  { x, w, h0, h1, top }               monte de h0 à h1 tant que Kaeru est dessus, redescend à vide
    - paire    { a: [x, h, w], b: [x, h, w], d, k: 'bascule' | 'poulie', top }   deux appuis liés : l'un descend sous le poids, l'autre monte
    - derive   { x0, x1, h, w, v }                 appui qui suit l'eau entre x0 et x1 (x = bord gauche)
+   - mobile   { a: [x, h], b: [x, h], w, T, ph }  îlot volant qui va et vient en continu de a à b (période T s, décalage ph)
+   - rebond   { x, w, h, v, vol }                 on retombe dessus : propulsé à la vitesse v (Saut tenu : +10 %) ; vol = sans tige
+   - bloc vol : îlot volant (dessous en pointe, sans poteaux)
    - crochet  { x, h }                            point de langue (don Langue I)
    - balance  { x, h }                            point de balancier (don Langue II) : Kaeru se balance et lâche avec l'élan
    - vide     { x0, x1 }                          sol coupé : chute = retour au dernier appui sûr, petite perte de PV
@@ -7140,6 +7141,8 @@ function mkBuild(D) {
     else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; e.i0 = MK.list.length; if (e.img) invImg('gv_' + e.img + '.webp'); }
     else if (e.t === 'peint' || e.t === 'facade') invImg('gv_' + e.img + '.webp');
     else if (e.t === 'derive') { e.v = e.v || 140; e.dir = 1; e.wait = 0; mkPlat(e, e.x0, e.w, e.h, { mov: 1 }); }
+    else if (e.t === 'rebond') { e.sq = 0; mkPlat(e, e.x, e.w, e.h); }
+    else if (e.t === 'mobile') mkPlat(e, e.a[0], e.w, e.a[1], { mov: 1 });
     else if (e.t === 'nacelle') { mkPlat(e, e.x, e.w, e.h0, { mov: 1 }); }
     else if (e.t === 'paire') { e.o = 0; e.d = e.d || 260; e.pa = mkPlat(e, e.a[0], e.a[2], e.a[1], { mov: 1 }); e.pb = mkPlat(e, e.b[0], e.b[2], e.b[1], { mov: 1 }); }
     else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null }); if (!e.notop) mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }   /* notop : un tronc qui continue, sans dessus où se poser */
@@ -7160,6 +7163,9 @@ function mkUpdate(dt) {
       if (e.st === 0 && mkOn(p)) { e.st = 1; e.k = 0; sfx('step'); vertChips(p.x + p.w / 2, p.h, 4); }
       else if (e.st === 1) { e.k += dt; if (e.k > .55) { e.st = 2; e.k = 0; const i = PROG.plats.indexOf(p); if (i >= 0) PROG.plats.splice(i, 1); if (A.hang && A.hang.p === p) A.hang = null; if (A.onGround && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8) A.onGround = false; vertChips(p.x + p.w / 2, p.h, 10); shake = Math.max(shake, 3); } }
       else if (e.st === 2) { e.k += dt; if (e.k > 3 && !(Math.abs(hero.x - (p.x + p.w / 2)) < p.w / 2 + 60 && Math.abs(A.y - p.h) < 220)) { e.st = 0; e.k = 0; if (!e.off) PROG.plats.push(p); } } }
+    else if (e.t === 'rebond') { e.sq = Math.max(0, e.sq - dt * 3);   /* on retombe dessus : propulsé très haut (Saut tenu : un peu plus) */
+      if (mkOn(e.p) && A.vy <= 0 && !A.hang) { A.vy = e.v * (isDown(...JUMP_KEYS) ? 1.1 : 1); A.onGround = false; A.airJumps = 1; A.airDash = true; A.coyote = 0; A.jumpBuf = 0; A.crouch = 0; A.holdT = 0; e.sq = 1; sfx('dash'); puff(hero.x, e.h, 5, .8); } }
+    else if (e.t === 'mobile') { const f = .5 - .5 * Math.cos(t * 6.2832 / (e.T || 4) + (e.ph || 0)); mkMove(e.p, e.a[0] + (e.b[0] - e.a[0]) * f, e.a[1] + (e.b[1] - e.a[1]) * f); }
     else if (e.t === 'derive') { const p = e.p;
       if (e.wait > 0) e.wait -= dt; else { let nx = p.x + e.dir * e.v * dt; if (nx > e.x1) { nx = e.x1; e.dir = -1; e.wait = .7; } if (nx < e.x0) { nx = e.x0; e.dir = 1; e.wait = .7; } mkMove(p, nx, e.h + Math.sin(t * 2.1 + e.x0) * 5); } }
     else if (e.t === 'nacelle') { const p = e.p, up = mkOn(p), tg = up ? e.h1 : e.h0, sp = up ? 230 : 160;
@@ -7217,7 +7223,7 @@ function mkDraw() {
   for (const e of MK.list) {
     if (ghost && e.t !== 'jarre' && e.t !== 'autel' && e.t !== 'sortie' && !(e.t === 'cede' && e.img)) continue;
     const need = e.need ? ' [' + e.need + ']' : '';
-    if (e.t === 'bloc') { const p = e.p; if (e.pend) { const X = wx2sx(p.x); mkRope(X + 20, top, G - p.h); mkRope(X + p.w - 20, top, G - p.h); } else if (e.plein) { const X = wx2sx(p.x); ctx.fillStyle = '#7a7060'; ctx.fillRect(X, G - p.h + 20, p.w, p.h - 20); ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2; ctx.strokeRect(X, G - p.h + 20, p.w, p.h - 20); } else mkPosts(p, '#6d6455'); mkSlab(p, e.off ? 'rgba(141,130,112,.35)' : MK_COL.bloc, (e.lab || '') + need); }
+    if (e.t === 'bloc') { const p = e.p; if (e.pend) { const X = wx2sx(p.x); mkRope(X + 20, top, G - p.h); mkRope(X + p.w - 20, top, G - p.h); } else if (e.plein) { const X = wx2sx(p.x); ctx.fillStyle = '#7a7060'; ctx.fillRect(X, G - p.h + 20, p.w, p.h - 20); ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2; ctx.strokeRect(X, G - p.h + 20, p.w, p.h - 20); } else if (e.vol) { const X = wx2sx(p.x); ctx.fillStyle = '#5d6b48'; ctx.beginPath(); ctx.moveTo(X + 6, G - p.h + 24); ctx.lineTo(X + p.w / 2, G - p.h + 24 + Math.min(150, p.w * .5)); ctx.lineTo(X + p.w - 6, G - p.h + 24); ctx.closePath(); ctx.fill(); } else mkPosts(p, '#6d6455'); mkSlab(p, e.off ? 'rgba(141,130,112,.35)' : MK_COL.bloc, (e.lab || '') + need); }
     else if (e.t === 'cede') { const p = e.p, sh = e.st === 1 ? Math.sin(t * 70) * 4 : 0, dy = e.st === 2 ? Math.min(900, e.k * e.k * 1400) : 0, al = e.st === 2 ? Math.max(0, 1 - e.k * 1.6) : 1;
       const pim = e.img && mkShow(e) ? gvImg(e.img) : null;
       if (pim) { const sc = (e.pw || p.w + 30) / pim.naturalWidth, a2 = al > 0 ? al : e.k > 2.4 ? Math.min(1, (e.k - 2.4) * .6) : 0;   /* planche peinte : le dessus de la planche au niveau de l'appui, elle bascule en tombant */
@@ -7225,6 +7231,10 @@ function mkDraw() {
           if (MK.peint && !window.__gris) ctx.restore(); ctx.save(); ctx.globalAlpha = a2; if (VERT.flt) ctx.filter = VERT.flt; ctx.translate(X + w / 2, Y + h / 2); if (e.st === 2 && al > 0) ctx.rotate(e.k * 1.8 * (e.i0 % 2 ? 1 : -1));
           ctx.drawImage(pim, -w / 2, -h / 2, w, h); ctx.restore(); if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } } }
       else if (al > 0) { ctx.save(); ctx.translate(sh, 0); mkSlab(p, MK_COL.cede, 'cède' + need, dy, al); ctx.restore(); } else if (e.k > 2.4) mkSlab(p, MK_COL.cede, false, 0, (e.k - 2.4) * .6); }
+    else if (e.t === 'rebond') { const p = e.p, X = wx2sx(p.x + p.w / 2), Y = G - p.h; if (X < -200 || X > VW + 200) continue; const sq = 1 - .45 * e.sq;
+      if (!e.vol) { ctx.fillStyle = '#5f7a3a'; ctx.fillRect(X - 10, Y + 12, 20, G - Y - 12); }
+      ctx.fillStyle = '#c96a8a'; ctx.beginPath(); ctx.ellipse(X, Y + 14, p.w / 2, 30 * sq, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(28,18,12,.9)'; ctx.lineWidth = 3; ctx.stroke(); mkLabel('rebond · ' + e.h, X, Y - 40); }
+    else if (e.t === 'mobile') { const p = e.p; ctx.strokeStyle = 'rgba(150,190,230,.55)'; ctx.setLineDash([8, 8]); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(wx2sx(e.a[0] + p.w / 2), G - e.a[1] + 13); ctx.lineTo(wx2sx(e.b[0] + p.w / 2), G - e.b[1] + 13); ctx.stroke(); ctx.setLineDash([]); mkSlab(p, '#6f8fa8', 'mobile' + need); }
     else if (e.t === 'derive') { const p = e.p; ctx.fillStyle = 'rgba(70,120,150,.35)'; ctx.fillRect(wx2sx(e.x0), G - p.h + 20, e.x1 - e.x0 + p.w, 10); mkSlab(p, MK_COL.derive, 'dérive' + need); }
     else if (e.t === 'nacelle') { const p = e.p, X = wx2sx(p.x), Yt = G - (e.top || e.h1 + 500); mkRope(X + 16, Yt, G - p.h); mkRope(X + p.w - 16, Yt, G - p.h); ctx.fillStyle = '#5a4a3a'; ctx.beginPath(); ctx.arc(X + p.w / 2, Yt, 26, 0, 6.283); ctx.fill(); mkSlab(p, MK_COL.nacelle, 'nacelle ' + e.h0 + '→' + e.h1 + need); }
     else if (e.t === 'paire') { const A = e.pa, B = e.pb, ax = wx2sx(A.x + A.w / 2), bx = wx2sx(B.x + B.w / 2);
