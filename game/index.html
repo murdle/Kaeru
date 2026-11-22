@@ -1917,9 +1917,9 @@ const K4 = { M: {"A":0.72,"n":4,"f":{"coup32":{"r":[0,0,0,223,590],"sw":310,"sh"
 function k4Load(base, ld) {
   const M = K4.M, jobs = [];
   for (let i = 0; i < M.n; i++) jobs.push(ld(base + 'k4_atlas' + i + '.webp'));
-  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp')); jobs.push(ld(base + 'k4_langue.webp')); jobs.push(ld(base + 'k4_vise.webp')); jobs.push(ld(base + 'k4_combat.webp'));
+  jobs.push(ld(base + 'k4_marche.webp')); jobs.push(ld(base + 'k4_repos.webp')); jobs.push(ld(base + 'k4_csabre.webp')); jobs.push(ld(base + 'k4_vert.webp')); jobs.push(ld(base + 'k4_langue.webp')); jobs.push(ld(base + 'k4_vise.webp')); jobs.push(ld(base + 'k4_combat.webp')); jobs.push(ld(base + 'k4_paroi.webp')); jobs.push(ld(base + 'k4_rebord.webp'));
   return Promise.all(jobs).then(ats => {
-    const KXI = ats.pop(), KAI = ats.pop(), KLI = ats.pop(), KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
+    const KBI = ats.pop(), KPI = ats.pop(), KXI = ats.pop(), KAI = ats.pop(), KLI = ats.pop(), KVI = ats.pop(), KCI = ats.pop(), KRI = ats.pop(), KWI = ats.pop(); if (!ats.every(Boolean)) return false;
     for (const n in M.f) {
       const [ai, x, y, w, h] = M.f[n].r, cv = document.createElement('canvas');
       cv.width = w; cv.height = h; cv.getContext('2d').drawImage(ats[ai], x, y, w, h, 0, 0, w, h);
@@ -1930,8 +1930,11 @@ function k4Load(base, ld) {
     if (KXI) { const KR = {"fin0":[0,0,397,326],"fin1":[400,0,304,317],"fin2":[707,0,250,331],"fin3":[960,0,237,346],"fin4":[1200,0,282,341],"fin5":[1485,0,275,341],"leger0":[0,349,301,337],"leger1":[304,349,324,316],"leger2":[631,349,289,330],"leger3":[923,349,262,336],"leger4":[1188,349,260,337],"leger5":[1451,349,261,338],"lourd0":[0,690,322,333],"lourd1":[325,690,318,298],"lourd2":[646,690,314,304],"lourd3":[963,690,349,330],"lourd4":[1315,690,394,245],"lourd5":[0,1026,355,256],"parade0":[358,1026,602,337],"parade1":[963,1026,303,337],"parade2":[1269,1026,274,334],"parade3":[1546,1026,265,344],"parade4":[0,1373,259,397],"riposte0":[262,1373,234,315],"riposte1":[499,1373,298,272],"riposte2":[800,1373,367,275],"riposte3":[1170,1373,459,259],"riposte4":[1632,1373,295,284],"riposte5":[0,1773,266,292],"final0":[269,1773,266,260],"final1":[538,1773,244,342],"final2":[785,1773,257,371],"final3":[1045,1773,245,340],"final4":[1293,1773,241,259],"final5":[1537,1773,234,270]}, MF = {"fin0":{"sw":551,"sh":453,"foot":[354,443],"c":[361,230],"hx":354,"ay":2,"drop":443,"blade":null,"k":1.2},"fin1":{"sw":422,"sh":440,"foot":[247,431],"c":[253,228],"hx":247,"ay":2,"drop":431,"blade":null,"k":1.2},"fin2":{"sw":347,"sh":460,"foot":[190,451],"c":[187,239],"hx":190,"ay":2,"drop":451,"blade":null,"k":1.2},"fin3":{"sw":329,"sh":481,"foot":[192,471],"c":[181,244],"hx":192,"ay":2,"drop":471,"blade":null,"k":1.2},"fin4":{"sw":392,"sh":474,"foot":[256,464],"c":[244,243],"hx":256,"ay":2,"drop":464,"blade":null,"k":1.2},"fin5":{"sw":382,"sh":474,"foot":[257,464],"c":[240,245],"hx":257,"ay":2,"drop":464,"blade":null,"k":1.2},"leger0":{"sw":418,"sh":468,"foot":[274,458],"c":[252,240],"hx":274,"ay":2,"drop":458,"blade":null,"k":1.2},"leger1":{"sw":450,"sh":439,"foot":[276,429],"c":[249,231],"hx":276,"ay":2,"drop":429,"blade":null,"k":1.2},"leger2":{"sw":401,"sh":458,"foot":[253,449],"c":[228,240],"hx":253,"ay":2,"drop":449,"blade":null,"k":1.2},"leger3":{"sw":364,"sh":467,"foot":[223,457],"c":[219,241],"hx":223,"ay":2,"drop":457,"blade":null,"k":1.2},"leger4":{"sw":361,"sh":468,"foot":[221,458],"c":[221,241],"hx":221,"ay":2,"drop":458,"blade":null,"k":1.2},"leger5":{"sw":363,"sh":469,"foot":[235,460],"c":[223,244],"hx":235,"ay":2,"drop":460,"blade":null,"k":1.2},"lourd0":{"sw":447,"sh":463,"foot":[91,453],"c":[188,227],"hx":91,"ay":2,"drop":453,"blade":null,"k":1.2},"lourd1":{"sw":442,"sh":414,"foot":[358,404],"c":[213,197],"hx":358,"ay":2,"drop":404,"blade":null,"k":1.2},"lourd2":{"sw":436,"sh":422,"foot":[348,347],"c":[199,188],"hx":348,"ay":2,"drop":347,"blade":null,"k":1.2},"lourd3":{"sw":485,"sh":458,"foot":[282,450],"c":[287,218],"hx":282,"ay":2,"drop":450,"blade":null,"k":1.2},"lourd4":{"sw":547,"sh":340,"foot":[374,331],"c":[321,183],"hx":374,"ay":2,"drop":331,"blade":null,"k":1.2},"lourd5":{"sw":493,"sh":356,"foot":[345,346],"c":[299,199],"hx":345,"ay":2,"drop":346,"blade":null,"k":1.2},"parade0":{"sw":836,"sh":468,"foot":[409,458],"c":[413,245],"hx":409,"ay":2,"drop":458,"blade":null,"k":1.2},"parade1":{"sw":421,"sh":468,"foot":[211,458],"c":[210,245],"hx":211,"ay":2,"drop":458,"blade":null,"k":1.2},"parade2":{"sw":381,"sh":464,"foot":[189,454],"c":[204,235],"hx":189,"ay":2,"drop":454,"blade":null,"k":1.2},"parade3":{"sw":368,"sh":478,"foot":[185,467],"c":[189,244],"hx":185,"ay":2,"drop":467,"blade":null,"k":1.2},"parade4":{"sw":360,"sh":551,"foot":[187,542],"c":[204,309],"hx":187,"ay":2,"drop":542,"blade":null,"k":1.2},"riposte0":{"sw":325,"sh":438,"foot":[144,428],"c":[164,236],"hx":144,"ay":2,"drop":428,"blade":null,"k":1.2},"riposte1":{"sw":414,"sh":378,"foot":[93,369],"c":[167,190],"hx":93,"ay":2,"drop":369,"blade":null,"k":1.2},"riposte2":{"sw":510,"sh":382,"foot":[120,372],"c":[214,195],"hx":120,"ay":2,"drop":372,"blade":null,"k":1.2},"riposte3":{"sw":638,"sh":360,"foot":[182,351],"c":[261,188],"hx":182,"ay":2,"drop":351,"blade":null,"k":1.2},"riposte4":{"sw":410,"sh":394,"foot":[140,385],"c":[169,199],"hx":140,"ay":2,"drop":385,"blade":null,"k":1.2},"riposte5":{"sw":369,"sh":406,"foot":[240,396],"c":[236,212],"hx":240,"ay":2,"drop":396,"blade":null,"k":1.2},"final0":{"sw":369,"sh":361,"foot":[133,351],"c":[177,192],"hx":133,"ay":2,"drop":351,"blade":null,"k":1.2},"final1":{"sw":339,"sh":475,"foot":[171,464],"c":[194,248],"hx":171,"ay":2,"drop":464,"blade":null,"k":1.2},"final2":{"sw":357,"sh":515,"foot":[142,504],"c":[189,279],"hx":142,"ay":2,"drop":504,"blade":null,"k":1.2},"final3":{"sw":340,"sh":472,"foot":[200,458],"c":[182,217],"hx":200,"ay":2,"drop":458,"blade":null,"k":1.2},"final4":{"sw":335,"sh":360,"foot":[138,350],"c":[174,185],"hx":138,"ay":2,"drop":350,"blade":null,"k":1.2},"final5":{"sw":325,"sh":375,"foot":[121,365],"c":[172,202],"hx":121,"ay":2,"drop":365,"blade":null,"k":1.2}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KXI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
     if (KCI) { const KR = {"cs_0":[0,0,383,336,0,0],"cs_1":[386,0,375,331,0,0],"cs_2":[764,0,380,316,0,0],"cs_3":[1147,0,378,329,0,0],"cs_4":[1528,0,370,344,0,0],"cs_5":[1901,0,359,296,0,0],"cs_6":[2263,0,374,339,0,0],"cs_7":[2640,0,378,329,0,0],"cs_8":[3021,0,375,317,0,0],"cs_9":[3399,0,368,327,0,0],"cs_10":[3770,0,373,341,0,0],"cs_11":[4146,0,362,294,0,0]}, MF = {"cs_0":{"sw":532,"sh":467,"foot":[386,459],"c":[266,233],"hx":386,"ay":0,"drop":459,"blade":null,"k":1.1},"cs_1":{"sw":521,"sh":460,"foot":[386,450],"c":[260,230],"hx":386,"ay":0,"drop":450,"blade":null,"k":1.1},"cs_2":{"sw":528,"sh":439,"foot":[392,429],"c":[264,219],"hx":392,"ay":0,"drop":429,"blade":null,"k":1.1},"cs_3":{"sw":525,"sh":457,"foot":[389,449],"c":[262,228],"hx":389,"ay":0,"drop":449,"blade":null,"k":1.1},"cs_4":{"sw":514,"sh":478,"foot":[379,469],"c":[257,239],"hx":379,"ay":0,"drop":469,"blade":null,"k":1.1},"cs_5":{"sw":499,"sh":411,"foot":[364,480],"c":[249,206],"hx":364,"ay":0,"drop":480,"blade":null,"k":1.1},"cs_6":{"sw":519,"sh":471,"foot":[386,462],"c":[260,235],"hx":386,"ay":0,"drop":462,"blade":null,"k":1.1},"cs_7":{"sw":525,"sh":457,"foot":[391,450],"c":[262,228],"hx":391,"ay":0,"drop":450,"blade":null,"k":1.1},"cs_8":{"sw":521,"sh":440,"foot":[386,431],"c":[260,220],"hx":386,"ay":0,"drop":431,"blade":null,"k":1.1},"cs_9":{"sw":511,"sh":454,"foot":[377,452],"c":[256,227],"hx":377,"ay":0,"drop":452,"blade":null,"k":1.1},"cs_10":{"sw":518,"sh":474,"foot":[382,469],"c":[259,237],"hx":382,"ay":0,"drop":469,"blade":null,"k":1.1},"cs_11":{"sw":503,"sh":408,"foot":[373,483],"c":[251,204],"hx":373,"ay":0,"drop":483,"blade":null,"k":1.1}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KCI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }
     if (KVI) { const KR = {"accroche0":[0,0,273,439,0,0],"retab0":[276,0,279,387,0,0],"retab1":[558,0,283,370,0,0],"retab2":[844,0,293,417,0,0],"retab3":[1140,0,306,316,0,0],"retab4":[1449,0,305,247,0,0],"mur0":[1757,0,251,360,0,0],"mur1":[2011,0,253,369,0,0]}, MF = {"accroche0":{"sw":379,"sh":610,"foot":[256,402],"c":[256,176],"hx":256,"ay":2,"drop":420,"blade":null,"k":1.001},"retab0":{"sw":388,"sh":538,"foot":[240,402],"c":[240,176],"hx":240,"ay":2,"drop":420,"blade":null,"k":1.001},"retab1":{"sw":393,"sh":514,"foot":[275,463],"c":[275,237],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001},"retab2":{"sw":407,"sh":579,"foot":[146,743],"c":[146,517],"hx":146,"ay":2,"drop":420,"blade":null,"k":1.001},"retab3":{"sw":425,"sh":439,"foot":[49,738],"c":[49,512],"hx":49,"ay":2,"drop":420,"blade":null,"k":1.001},"retab4":{"sw":424,"sh":343,"foot":[45,719],"c":[45,493],"hx":45,"ay":2,"drop":420,"blade":null,"k":1.001},"mur0":{"sw":349,"sh":500,"foot":[161,493],"c":[161,267],"hx":161,"ay":2,"drop":420,"blade":null,"k":1.001},"mur1":{"sw":351,"sh":512,"foot":[164,490],"c":[164,264],"hx":164,"ay":2,"drop":420,"blade":null,"k":1.001}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KVI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // accroche, rétablissement, glissade au mur
+    if (KBI) { const KR = {"reb0":[0,0,190,350],"reb1":[194,0,191,345],"reb2":[389,0,182,338],"reb3":[575,0,204,312],"reb4":[783,0,210,195],"reb5":[997,0,182,269]}, MF = {"reb0":{"sw":264,"sh":486,"foot":[113,298],"c":[113,72],"hx":113,"ay":2,"drop":420,"blade":null,"k":1.38},"reb1":{"sw":265,"sh":479,"foot":[113,298],"c":[113,72],"hx":113,"ay":2,"drop":420,"blade":null,"k":1.38},"reb2":{"sw":253,"sh":469,"foot":[141,456],"c":[141,230],"hx":141,"ay":2,"drop":420,"blade":null,"k":1.38},"reb3":{"sw":283,"sh":433,"foot":[76,566],"c":[76,340],"hx":76,"ay":2,"drop":420,"blade":null,"k":1.38},"reb4":{"sw":292,"sh":271,"foot":[37,542],"c":[37,317],"hx":37,"ay":2,"drop":420,"blade":null,"k":1.38},"reb5":{"sw":253,"sh":374,"foot":[45,642],"c":[45,417],"hx":45,"ay":2,"drop":420,"blade":null,"k":1.38}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KBI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   /* accroché au rebord, repeint (planche level_design/K_rebord.webp, rebord en haut à droite) : pendu 0-1, rétablissement 2-5 */
+    if (KPI) { const KR = {"paroi0":[0,0,266,327],"paroi1":[270,0,252,337],"paroi2":[526,0,219,239],"paroi3":[749,0,253,262],"paroi4":[1006,0,291,320],"paroi5":[1301,0,281,280]}, MF = {"paroi0":{"sw":369,"sh":454,"foot":[167,454],"c":[167,228],"hx":167,"ay":2,"drop":420,"blade":null,"k":1.0},"paroi1":{"sw":350,"sh":468,"foot":[138,468],"c":[138,242],"hx":138,"ay":2,"drop":420,"blade":null,"k":1.0},"paroi2":{"sw":304,"sh":332,"foot":[84,332],"c":[84,106],"hx":84,"ay":2,"drop":420,"blade":null,"k":1.0},"paroi3":{"sw":351,"sh":364,"foot":[133,364],"c":[133,138],"hx":133,"ay":2,"drop":420,"blade":null,"k":1.0},"paroi4":{"sw":404,"sh":444,"foot":[202,444],"c":[202,218],"hx":202,"ay":2,"drop":420,"blade":null,"k":1.0},"paroi5":{"sw":390,"sh":389,"foot":[195,389],"c":[195,163],"hx":195,"ay":2,"drop":420,"blade":null,"k":1.0}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KPI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   /* contre la paroi, repeint (planche level_design/K_paroi.webp, mur à droite) : glisse 0-1, accroché 2, saut mural 3-5 */
     if (KAI) { const KR = {"lg_v0":[0,0,266,394,0,0],"lg_v1":[269,0,245,397,0,0],"lg_v2":[517,0,247,403,0,0],"lg_v3":[767,0,248,405,0,0],"lg_v4":[1018,0,250,411,0,0],"lg_v5":[1271,0,250,416,0,0],"lg_v6":[1524,0,250,415,0,0],"lg_v7":[1777,0,250,413,0,0]}, MF = {"lg_v0":{"sw":369,"sh":547,"foot":[225,542],"c":[225,316],"hx":225,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[272,153]},"lg_v1":{"sw":340,"sh":551,"foot":[222,546],"c":[222,320],"hx":222,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[265,143]},"lg_v2":{"sw":343,"sh":560,"foot":[225,554],"c":[225,328],"hx":225,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[258,125]},"lg_v3":{"sw":344,"sh":562,"foot":[226,557],"c":[226,331],"hx":226,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[250,118]},"lg_v4":{"sw":347,"sh":571,"foot":[227,565],"c":[227,339],"hx":227,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[225,65]},"lg_v5":{"sw":347,"sh":578,"foot":[228,572],"c":[228,346],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[211,69]},"lg_v6":{"sw":347,"sh":576,"foot":[228,571],"c":[228,345],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[206,76]},"lg_v7":{"sw":347,"sh":574,"foot":[228,568],"c":[228,342],"hx":228,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[197,74]}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KAI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // langue : 8 visées, la tête suit l'angle
     if (KLI) { const KR = {"lg_antic":[0,0,333,408,0,0],"lg_tir":[336,0,347,410,0,0],"lg_tendu":[686,0,391,404,0,0],"lg_decol":[1080,0,324,415,0,0],"lg_vol":[1407,0,494,367,0,0],"lg_arr":[0,418,368,350,0,0],"lg_aim0":[371,418,378,408,0,0],"lg_aim1":[752,418,381,410,0,0],"lg_aim2":[1136,418,396,439,0,0],"lg_air0":[1535,418,326,383,0,0],"lg_air1":[0,860,342,388,0,0],"lg_air2":[345,860,376,453,0,0]}, MF = {"lg_antic":{"sw":462,"sh":567,"foot":[279,560],"c":[279,334],"hx":279,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[401,141]},"lg_tir":{"sw":482,"sh":569,"foot":[289,564],"c":[289,338],"hx":289,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[397,125]},"lg_tendu":{"sw":543,"sh":561,"foot":[320,554],"c":[320,328],"hx":320,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[316,108]},"lg_decol":{"sw":450,"sh":576,"foot":[259,518],"c":[259,292],"hx":259,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[385,120]},"lg_vol":{"sw":686,"sh":510,"foot":[403,478],"c":[403,252],"hx":403,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[602,116]},"lg_arr":{"sw":511,"sh":486,"foot":[283,470],"c":[283,244],"hx":283,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[459,132]},"lg_aim0":{"sw":525,"sh":567,"foot":[310,560],"c":[310,334],"hx":310,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[375,133]},"lg_aim1":{"sw":529,"sh":569,"foot":[312,564],"c":[312,338],"hx":312,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[342,111]},"lg_aim2":{"sw":550,"sh":610,"foot":[321,603],"c":[321,377],"hx":321,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[279,114]},"lg_air0":{"sw":453,"sh":532,"foot":[252,509],"c":[252,283],"hx":252,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[331,122]},"lg_air1":{"sw":475,"sh":539,"foot":[255,509],"c":[255,283],"hx":255,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[383,122]},"lg_air2":{"sw":522,"sh":629,"foot":[275,544],"c":[275,318],"hx":275,"ay":2,"drop":420,"blade":null,"k":1.001,"mouth":[439,122]}}; for (const n in KR) { const [x, y, w, h] = KR[n], c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(KLI, x, y, w, h, 0, 0, w, h); c._px = 0; c._py = 0; c._kw = 1; K4.img[n] = c; M.f[n] = MF[n]; } }   // la langue : tir, visée, traction
+    if (!window.__nohomog && !/nohomog/.test(location.search)) k4Homog();
     K4.ready = true; if (TEN.i || EQ.lame || TENUES[TEN.i].armure) setTimeout(() => tenueApply(TEN.i), 0); return true;
   });
 }
@@ -2045,6 +2048,37 @@ function equipOverlay(c, n, ox, oy) {
   }
   c.restore();
 }
+/* HOMOGÉNÉITÉ des poses de Kaeru : même taille de chapeau et mêmes couleurs que k4_repos.webp (référence).
+   Table calculée par outils/modules/tests/homog_calc.js : par animation, s = facteur de taille, c = par zone (peau, kimono, rouges/chapeau, hakama)
+   [dR, dG, dB, contraste, lum. moyenne], o = renfort du contour d'encre. window.__nohomog = true pour voir les poses brutes. */
+const K4_HOMOG = {"coup":{"s":0.877,"c":[[45.18,41.54,5.57,0.97,107.11],[12.59,9.23,16.48,1.04,54.64],[7.96,3.11,0.43,1,75.14],[7.81,5.78,-3.25,1.08,162.93]]},"tensho":{"s":0.802,"c":[[53.25,49.87,9.35,1.04,99.36],[11.87,6.07,12.72,1.09,57.13],[7.09,-5.18,-2.53,1.01,80.61],[21.54,16.64,8.27,1.14,151.14]]},"jishin":{"s":0.845,"c":[[49.27,48.04,6.76,1,101.92],[13.86,5.12,12.92,0.98,57.07],[8.24,-4.37,-1.97,0.99,79.73],[18.18,11.35,2.57,1.12,155.89]]},"plongeon":{"s":0.84,"c":[[36.55,37.01,8.67,0.98,112.03],[9.86,8.33,15.37,1.02,56.11],[0.79,-0.34,-1.05,0.99,79.49],[8.36,5.25,-3.88,1.09,163.15]]},"tsubame":{"s":0.821,"c":[[49.96,46.9,8.41,1.01,102.21],[13.61,4,9.57,0.96,58.17],[10.44,-5.41,-0.39,1,79.51],[24.3,15.11,8.56,1.11,151.18]]},"salto":{"s":0.835,"c":[[31.77,31.11,5.69,0.95,117.27],[18.37,12.12,21.33,1.05,50.67],[1.5,0.09,-0.57,1,78.97],[15.83,11.99,3.99,1.07,156.07]]},"coup_air":{"s":0.866,"c":[[36.87,37.14,8.36,0.97,111.9],[13.28,11.62,18.21,0.98,52.83],[4.02,2.01,1.02,0.97,76.91],[10.93,10.61,0.42,1.09,158.75]]},"accroupi":{"s":0.826,"c":[[40.55,41.57,6.42,0.99,108.39],[14.02,7.64,17.18,1.12,55.07],[9.51,-4.01,-1.48,0.99,79.09],[15.72,13.23,5.96,1.13,155.15]]},"marche_a":{"s":0.916,"c":[[5.28,3.47,4.27,0.92,141.69],[9.31,2.98,6.78,0.87,60.37],[-11.72,-1.55,1.92,0.93,83.63],[1.71,1.2,-3.07,1.03,167.44]]},"marche_b":{"c":[[6.06,2.89,4.21,0.92,141.8],[11.04,5.4,7.75,0.89,58.32],[-13.13,0.69,5.2,0.95,82.37],[-2.33,-3.72,-6.18,1.03,171.9]]},"demitour":{"s":0.835,"c":[[39.47,36.98,2.39,0.94,111.86],[12.81,7.03,15.29,1,56],[9.84,0.71,-0.1,0.98,76.05],[8.41,6.23,0.46,1.09,162.08]]},"touche":{"s":0.82,"c":[[39.14,37.8,7.33,0.96,110.94],[18.56,14.9,25.93,1.16,48.46],[8.28,2.55,1.08,1.01,75.31],[10.86,7.67,-2.19,1.07,160.79]]},"accroupi_sabre":{"s":0.821,"c":[[51.26,48.57,7.6,1,100.92],[11.58,4.71,14.46,1.05,57.83],[13.9,-0.46,-1.66,1,75.69],[16.87,12.75,4.11,1.17,155.29]]},"saut":{"s":0.83,"c":[[54.37,48.03,3.44,0.98,100.76],[18.77,10.99,21.75,1.08,51.16],[18.24,2.29,1.4,1.02,72.43],[16.95,9.63,1.2,1.09,157.43]]},"course_b":{"c":[[12.99,10.01,4.03,0.93,135.54],[6.54,2.32,4.16,0.85,61.88],[-15.43,0.59,3.28,0.96,83.33],[-2.16,-3.27,-8.68,1.03,171.86]]},"kote":{"s":0.826,"c":[[47.25,44.75,2.59,0.99,104.92],[20.61,10.18,20.97,1.19,51.18],[5.78,-9.04,-3.7,1.02,83.41],[22.69,13.89,8.72,1.14,152.36]]},"kaze":{"s":0.861,"c":[[48.39,43.49,5.02,0.97,105.06],[13.51,6.14,16.75,1.05,56.15],[1.62,-5.85,-3.31,0.98,82.74],[22.09,14,8.13,1.14,152.55]]},"demitour_sabre":{"s":0.84,"c":[[40.51,39.69,7.12,0.97,109.43],[12.08,2.54,12.12,0.99,59.22],[6.18,0.7,-0.8,1,77.23],[16.49,11.53,2.85,1.13,156.27]]},"guruma":{"s":0.785,"c":[[60.95,56.39,7.88,0.99,93.36],[19.3,8.8,18.42,1.06,52.66],[5.56,-4.78,-3.26,1.02,80.92],[19.55,13.21,8.03,1.1,153.79]]},"chute":{"s":0.776,"c":[[44.75,45.68,3.91,1,104.98],[20.08,14.44,25.59,1.19,48.32],[7.5,-3.15,-2.87,1.02,79.33],[16.12,13.54,2.86,1.11,155.19]]},"course_a":{"c":[[14.1,13.28,4.73,0.96,133.2],[12.27,6.53,14.42,0.99,56.55],[-10.77,-0.01,1.13,0.95,82.52],[0.16,-1.68,-6.4,1.05,169.98]]},"vrille":{"s":0.84,"c":[[53.6,50.84,2.14,0.93,99.48],[21.8,15.22,27.25,1.18,47.15],[6.31,-1.38,-1.86,1.01,78.54],[18.42,14.54,6.55,1.08,153.5]]},"coursesabre_b":{"s":0.85,"c":[[52.43,49.19,9.43,0.99,100],[16.33,10.09,18.47,1.05,52.79],[0.23,1.76,1.95,1,78.09],[10.68,8.81,0.74,1.1,159.85]]},"glissade":{"s":0.802,"c":[[41.37,40.9,7.41,0.99,108.43],[22.01,15.79,28.65,1.2,46.6],[5.66,-4.37,0.02,1,80.29],[18.99,12.91,4.72,1.11,154.49]]},"zuki":{"s":0.871,"c":[[56.06,52.98,6.44,1.01,97],[17.99,8.83,18.43,1.18,53.04],[10.76,-6.63,-3.69,1.01,80.5],[26.87,20.38,13.31,1.18,146.78]]},"coursesabre_a":{"s":0.835,"c":[[48.25,45.21,4.44,0.96,104.15],[11.59,7.68,15.83,0.98,55.92],[4.37,2.4,-0.31,1,76.72],[10.77,11.35,1.42,1.11,158.24]]},"raiko":{"s":0.826,"c":[[58.49,51.71,7.18,1.02,96.94],[21.63,12.61,23.22,1.2,49.19],[8.08,-5.13,-2.52,1.03,80.29],[18.35,13.31,8.04,1.13,154.09]]},"dash":{"s":0.835,"c":[[45.64,41.94,2.11,1,107.12],[4.23,4.62,12.69,0.97,60.28],[3.44,1.29,-1.19,1.04,77.75],[7.12,6.56,-1.56,1.07,162.49]]},"charge":{"s":0.84,"c":[[53.96,48.42,5.17,0.98,100.46],[15.02,7.63,17.53,1.13,54.74],[2.28,-4.29,-4.37,1.04,81.74],[17.54,13.16,5.92,1.12,154.65]]},"nagare":{"s":0.821,"c":[[61.59,57.96,5.46,1.03,92.51],[10.61,0.03,8.15,1.06,61.57],[2.18,-9.36,-6.41,1.03,84.99],[21.11,15.38,8.31,1.14,152.01]]},"barai":{"s":0.845,"c":[[58.41,53.21,7.83,1.08,96.01],[14.15,5.03,13.19,1.17,57.01],[8.53,-4.45,-3.41,1.07,79.85],[24.05,18.07,9.58,1.17,149.4]]},"course_d":{"c":[[2.86,4.09,-3.31,0.9,142.88],[12.66,6.88,15.14,0.94,56.15],[-16.05,-4.89,3.05,0.94,86.78],[-4.23,-8.1,-11.2,1.03,175.61]]},"course_c":{"c":[[-0.46,-2.47,-2.46,0.92,147.65],[20.37,10.23,21.5,1.17,51.16],[-20.38,-6.53,4.08,0.93,88.93],[7.46,4.54,0.02,1,163.41]]},"fin":{"c":[[42.5,43.2,10.03,1.03,106.45],[22.39,14.09,23.72,1.2,48.03],[3.32,-4.49,-2.7,1.01,81.36],[14.11,9.52,9.75,1.04,157.41]]},"leger":{"c":[[49.41,48.92,14.86,1.09,100.47],[22.56,14.57,23.12,1.2,47.77],[5.87,-4.05,-2.86,1,80.35],[16.82,12.89,11.9,1.08,154.37]]},"lourd":{"c":[[68.27,69.55,14.17,1.09,82.71],[27.55,19.1,28.41,1.2,43.01],[19.96,-6.8,-2.68,0.98,77.73],[17.55,13.38,11.09,1.07,153.95]]},"parade":{"c":[[54.1,55.1,12.68,1.07,95.65],[33.19,26.02,38.77,1.2,36.1],[12.63,-4.57,-4.05,0.97,78.76],[22.88,20.28,14.73,1.08,147.88]]},"riposte":{"c":[[52.29,52.63,13.54,1.09,97.56],[27.64,19.96,29.55,1.2,42.35],[11.6,-1.58,-1.84,0.99,77.06],[18.85,15.16,12.35,1.05,152.37]]},"final":{"c":[[61.85,63.18,13.38,1.1,88.49],[32.63,25.81,36.91,1.2,36.6],[21.65,-2.49,-1.39,0.97,74.54],[19.88,17.52,12.46,1.05,150.66]]},"cs":{"s":0.94,"c":[[19.25,15.44,11.39,1.04,129.65],[10.71,12.4,14.02,1.15,53.6],[-3.31,1.41,-0.03,1.04,79.58],[3.41,2.41,-1.63,1.01,166.06]],"o":0.45},"accroche":{"c":[[32.7,26.41,15.31,1.1,118.71],[21.41,17.16,18.19,1.2,47.12],[2.31,4.58,3.3,1.01,75.65],[3.65,3.76,4.82,1.1,164.49]],"o":0.58},"retab":{"c":[[32.73,26.11,14.31,1.07,118.99],[14.39,10.52,11.75,1.09,53.85],[6.63,4.91,2.41,0.99,74.26],[1.4,0.67,2.03,1.06,167.29]],"o":0.52},"mur":{"c":[[30.85,32.26,18.88,1.2,115.42],[25.43,23.94,31.89,1.2,40.41],[22.95,10.04,5.36,0.98,66.01],[3.48,0.96,1.15,1.05,166.59]],"o":0.8},"reb":{"c":[[18.06,20.52,-6.96,1.07,129.03],[13.03,14.71,18.33,1.2,51.07],[3.48,-5.61,-5.73,1.02,82.31],[9.39,11.22,10.49,1.08,157.74]],"o":1},"paroi":{"s":1.193,"c":[[45.39,39.8,23.78,1.2,106.07],[5.78,7.81,8.16,1.2,58.43],[9.19,8.59,2.27,1.16,71.34],[9.22,22.04,10.65,1.2,151.39]],"o":1},"lg_v":{"c":[[15.28,13.07,3.3,1,133.13],[10.29,3.59,4,0.97,60.03],[5.95,3.72,2,1.01,75.21],[-10.38,-9.54,-1.59,1.08,177.25]]},"lg_antic":{"s":0.877,"c":[[-0.22,-1,-1.83,1.07,146.65],[4.66,3.67,0.71,1.2,62.03],[6.56,1.31,2.83,0.96,76.36],[-0.34,0,-2.33,1.09,168.69]]},"lg_tir":{"s":0.887,"c":[[0.74,0.55,1.09,1.08,145.12],[4.19,3.82,1.66,1.2,61.98],[6.24,1.45,3.07,0.97,76.34],[-1.61,-1.03,-4.12,1.1,169.87]]},"lg_tendu":{"s":0.899,"c":[[2.27,2.18,3.59,1.09,143.42],[5.08,5.98,6.38,1.2,59.92],[7.42,2.18,3.47,0.98,75.52],[3.21,3.02,-0.92,1.07,165.69]]},"lg_decol":{"s":0.893,"c":[[-4.34,-2.64,3.68,1.11,148.24],[5.29,3.37,1.14,1.14,61.97],[11.52,3.51,4.2,0.98,73.42],[-1.15,-1.27,-2.87,1.08,169.74]]},"lg_vol":{"s":0.899,"c":[[-4.74,-2.31,-3.48,1.07,148.95],[1.67,1.58,-0.97,1.2,64.35],[6.71,2.41,1.96,0.97,75.76],[2.37,4.76,2.55,1.05,164.53]]},"lg_arr":{"s":0.928,"c":[[-2.2,-0.37,8.48,1.08,145.73],[5.42,5.39,1.9,1.2,60.66],[3.71,-1.03,4.37,0.96,78.42],[2.09,5.79,-1.36,1.14,164.44]]},"lg_aim":{"s":0.855,"c":[[15.55,18.44,1.77,1.1,130.05],[7.56,4.53,6.89,1.1,59.97],[11.38,0.6,0.32,0.97,75.61],[2.46,-2.62,-0.48,1,169.19]]},"lg_air":{"s":0.871,"c":[[16.66,19.34,2.94,1.11,129.05],[5.61,3.31,7.24,1.09,61.24],[18.53,5.7,3.35,1.02,70.12],[0.6,-3.69,-1.65,1.02,170.5]]}};
+function k4W(r, g, b) {
+  r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn + 1e-6, s = mx ? (mx - mn) / mx : 0;
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6; if (h < 0) h += 1; const hw = h > .7 ? h - 1 : h;
+  const ramp = (v, a, z) => Math.max(0, Math.min(1, (v - a) / (z - a))), band = (v, a, z, e) => Math.min(ramp(v, a - e, a + e), 1 - ramp(v, z - e, z + e));
+  const skin = band(h, .12, .42, .03) * ramp(s, .2, .3), kim = band(h, .55, .85, .03) * ramp(s, .08, .16);
+  const warm = band(hw, -.07, .11, .02), red = warm * ramp(s, .45, .55), pale = warm * ramp(s, .1, .18) * (1 - ramp(s, .45, .55)) * ramp(mx, .35, .45);
+  const t = skin + kim + red + pale; return t > 1 ? [skin / t, kim / t, red / t, pale / t] : [skin, kim, red, pale];
+}
+window.__k4w = k4W;
+function k4Homog() {
+  const grp = n => n.replace(/\d+$/, '').replace(/_$/, ''), done = new Set();
+  for (const n in K4.M.f) { const H = K4_HOMOG[grp(n)], f = K4.M.f[n], im = K4.img[n]; if (!H) continue;
+    if (H.s) { const ko = f.k || 1, kn = ko * H.s;
+      if (/^paroi[0-3]$/.test(n)) { const dx = (VERT.WD + 8) / K4.S * (1 / ko - 1 / kn); f.foot[0] += dx; f.c[0] += dx; f.hx += dx; }   /* garde la main collée au pieu */
+      f.k = kn; }
+    if (!im || !im.getContext || done.has(im) || (!H.c && !H.o)) continue; done.add(im);
+    const g = im.getContext('2d'), w = im.width, h = im.height, D = g.getImageData(0, 0, w, h), a = D.data, K = .85;
+    if (H.c) for (let i = 0; i < a.length; i += 4) { if (a[i + 3] < 8) continue; const r = a[i], gg = a[i + 1], b = a[i + 2], W = k4W(r, gg, b), l = .3 * r + .59 * gg + .11 * b; let dr = 0, dg = 0, db = 0;
+      for (let c = 0; c < 4; c++) { const ww = W[c] * K; if (!ww) continue; const C = H.c[c], q = (l - C[4]) * (C[3] - 1); dr += ww * (C[0] + q); dg += ww * (C[1] + q); db += ww * (C[2] + q); }
+      a[i] = r + dr; a[i + 1] = gg + dg; a[i + 2] = b + db; }
+    if (H.o) { const al = new Uint8Array(w * h); for (let i = 0; i < w * h; i++) al[i] = a[i * 4 + 3];
+      const ring = new Uint8Array(w * h), out = i => i < 0 || i >= w * h || al[i] < 100;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; if (al[i] < 8) continue; if ((x === 0 || out(i - 1)) || (x === w - 1 || out(i + 1)) || out(i - w) || out(i + w)) ring[i] = 1; }
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; if (al[i] < 8 || ring[i]) continue; if ((x > 0 && ring[i - 1] === 1) || (x < w - 1 && ring[i + 1] === 1) || (y > 0 && ring[i - w] === 1) || (y < h - 1 && ring[i + w] === 1)) ring[i] = 2; }
+      for (let i = 0; i < w * h; i++) if (ring[i]) { const m = 1 - H.o * (ring[i] === 1 ? .62 : .3); a[i * 4] = 26 + (a[i * 4] - 26) * m; a[i * 4 + 1] = 18 + (a[i * 4 + 1] - 18) * m; a[i * 4 + 2] = 12 + (a[i * 4 + 2] - 12) * m; } }
+    g.putImageData(D, 0, 0); }
+}
 const K4_AIR = .42 * 537;          // hauteur du centre du corps au-dessus des pieds (px planche)
 /* dessine l'image n : ancre « foot » (pieds sur y) ou « c » (centre du corps en l'air) ; renvoie la lame éventuelle */
 function k4Tip(x, y, n, flip, anchor) {
@@ -2079,9 +2113,11 @@ function k3PoseOf() {
   if (!K4.ready) return null;
   if (LG.st || LG.rel > 0) { const lp = lgPose(); if (lp) return lp; }
   if (A.hang) { const c = A.climbT > 0, u = c ? 1 - A.climbT / VERT.climb : 0;
+    if (K4.img.reb5) return c ? { k4: ['reb2', 'reb3', 'reb4', 'reb5'][Math.min(3, Math.floor(u * 4))], a: 'foot' } : { k4: 'reb' + (Math.floor(t * 2.5) % 2), a: 'foot' };
     if (K4.img.accroche0) return c ? { k4: 'retab' + Math.min(4, Math.floor(u * 5)), a: 'foot' } : { k4: 'accroche0', a: 'foot' };
     return c ? { k4: u < .5 ? 'saut1' : 'accroupi2', a: 'foot' } : { k4: 'saut2', a: 'c' }; }
-  if (A.wall && !A.onGround && A.vy < 0 && !A.atk) return { k4: K4.img.mur0 ? 'mur' + (Math.floor(t * 5) % 2) : 'chute1', a: 'c', flip: A.wall };
+  if (A.wjT > 0 && !A.onGround && !A.atk && K4.img.paroi5) { const u = 1 - A.wjT / .2; return { k4: u < .3 ? 'paroi3' : u < .65 ? 'paroi4' : 'paroi5', a: 'c', flip: A.wjS || 1 }; }   /* impulsion du saut mural (mur du côté wjS) */
+  if (A.wall && !A.onGround && A.vy < 0 && !A.atk) return { k4: K4.img.paroi0 ? (A.vy > -150 ? 'paroi2' : 'paroi' + (Math.floor(t * 6) % 2)) : K4.img.mur0 ? 'mur' + (Math.floor(t * 5) % 2) : 'chute1', a: 'c', flip: A.wall };
   if (A.parryT > 0 && A.onGround && K4.img.parade0) return { k4: 'parade' + Math.min(4, Math.floor((1 - A.parryT / .4) * 5)), a: 'foot' };
   if (A.hurt > 0 && K4.img.leger0 && A.hurt <= .32) return { k4: (A.hurtBig ? 'lourd' : 'leger') + Math.min(5, Math.floor((1 - A.hurt / .32) * 6)), a: 'foot' };
   if (A.hurt > 0) return { k4: 'touche' + Math.min(3, Math.floor((1 - A.hurt / .32) * 4)), a: 'h' };
@@ -6550,42 +6586,59 @@ const VERT_DEF = {
      Chaque palier est hors de portée sans le geste prévu (tests/atteinte.js). La butte aux racines (relief saule1) est retirée (rel1), l'arbre-tour reste à 3 158.
      Le Saule-Mère peint (gv_saule…) n'est plus posé ici : trop agrandi, flou, et une montée sans intérêt (retour de Lucas, 19 nov.). */
   m_nenuphars: {
-    ver: 5, camTop: 1820, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158], big: [],
+    ver: 6, camTop: 2000, grade: [.86, .86, '#9aa890', .09], rel1: true, relAt: [3158], big: [],
+    /* parcours des esprits du marais, peint (planche level_design/M_parcours_marais.webp, découpe : marais_decoupe.json) */
     mk: [
-      { t: 'rebond', x: 6250, w: 200, h: 40, v: 2350, lab: 'lotus élastique' },
-      { t: 'bloc', x: 6550, w: 250, h: 950, lab: 'îlot', vol: 1 },
-      { t: 'mobile', a: [6950, 1000], b: [7400, 1150], w: 220, T: 3.2 },
-      { t: 'cede', x: 7850, w: 160, h: 1150 },
-      { t: 'mur', x: 8330, hw: 40, h0: 1080, h1: 1650, notop: 1, lab: 'pieu volant' }, { t: 'mur', x: 8680, hw: 40, h0: 760, h1: 1650, notop: 1, lab: 'pieu volant' },
-      { t: 'bloc', x: 8400, w: 210, h: 820, lab: 'fond du puits', vol: 1 },
-      { t: 'bloc', x: 8780, w: 220, h: 1600, lab: 'îlot', vol: 1, only: -1 },
-      { t: 'cede', x: 9080, w: 140, h: 1520 }, { t: 'cede', x: 9320, w: 140, h: 1450 },
-      { t: 'rebond', x: 9560, w: 180, h: 1250, v: 2350, vol: 1, lab: 'lotus élastique' },
-      { t: 'bloc', x: 9330, w: 330, h: 2380, lab: 'sommet', vol: 1 }, { t: 'jarre', x: 9420, h: 2380 },
+      { t: 'rebond', x: 6250, w: 200, h: 147, v: 2350, lab: 'lotus élastique', img: 'mp_lotus_motte', sc: .95, ix: 148, iy: 20 },
+      { t: 'bloc', x: 6530, w: 290, h: 950, lab: 'îlot', vol: 1, img: 'mp_ilot2', sc: .8, ix: 197.5, iy: 52 },
+      { t: 'mobile', a: [6950, 1000], b: [7400, 1150], w: 260, T: 3.2, img: 'mp_ilot1', sc: .8, ix: 176.5, iy: 47 },
+      { t: 'cede', x: 7838, w: 185, h: 1150, img: 'mp_tourbe', img2: 'mp_tourbe_f', sc: .42, ix: 245, iy: 42, ix2: 254, iy2: 42, deb: 'terre' },
+      { t: 'mur', x: 8330, hw: 40, h0: 1080, h1: 1650, notop: 1, lab: 'pieu volant', img: 'mp_pieu_mid', cap: 'mp_pieu_bas', capFlip: 1, foot: 'mp_pieu_bas', sc: .88 },
+      { t: 'mur', x: 8680, hw: 40, h0: 760, h1: 1650, notop: 1, lab: 'pieu volant', img: 'mp_pieu_mid', cap: 'mp_pieu_bas', capFlip: 1, foot: 'mp_pieu_bas', sc: .88 },
+      { t: 'bloc', x: 8400, w: 211, h: 820, lab: 'fond du puits', vol: 1, img: 'mp_ilot1', sc: .65, ix: 176.5, iy: 47 },
+      { t: 'bloc', x: 8780, w: 221, h: 1600, lab: 'îlot', vol: 1, only: -1, img: 'mp_ilot1', sc: .68, ix: 176.5, iy: 47 },
+      { t: 'cede', x: 9063, w: 174, h: 1520, img: 'mp_dalle', img2: 'mp_dalle_f', sc: .38, ix: 238.5, iy: 10, ix2: 244.5, iy2: 8, deb: 'pierre' },
+      { t: 'cede', x: 9293, w: 193, h: 1450, img: 'mp_feuille', img2: 'mp_feuille_f', sc: .38, ix: 263, iy: 12, ix2: 271.5, iy2: 24, deb: 'feuille' },
+      { t: 'rebond', x: 9560, w: 180, h: 1250, v: 2350, vol: 1, lab: 'lotus élastique', img: 'mp_lotus_motte', sc: .86, ix: 148, iy: 20 },
+      { t: 'bloc', x: 9316, w: 358, h: 2380, lab: 'sommet', vol: 1, img: 'mp_sommet', sc: .75, ix: 284.5, iy: 120 }, { t: 'jarre', x: 9610, h: 2380 },
+      /* cache à la langue, en deux temps, à gauche du sommet (hors de portée au saut : 1 400 de vide) */
+      { t: 'crochet', x: 8650, h: 2700, img: 'mp_anneau_racine', sc: .55, ix: 89, iy: 90, rt: 30 },
+      { t: 'crochet', x: 8050, h: 2780, img: 'mp_anneau_fer', sc: .5, ix: 84, iy: 112, rt: 14 },
+      { t: 'bloc', x: 7600, w: 290, h: 2620, lab: 'cache', vol: 1, img: 'mp_ilot2', sc: .8, ix: 197.5, iy: 52 },
     ],
     plats: [], walls: [], temps: [],
-    lans: [['bois', 4215, 1530], ['toro', 6650, 950], ['toro', 8505, 820], ['toro', 8890, 1600], ['toro', 9580, 2380]],
-    chests: [[6720, 950, 'koban']],
+    lans: [['bois', 4215, 1530], ['toro', 6650, 950], ['toro', 8505, 820], ['toro', 8890, 1600], ['toro', 7660, 2620]],
+    chests: [[6720, 950, 'koban'], [7790, 2620, 'koban']],
     camUp: [], tips: [[2400, 0, 'Saut : Espace (manette : A)  ·  en l’air, encore Saut : double saut'], [3300, 0, 'Saute vers un rebord : Kaeru s’accroche  ·  Haut : monter'],
-      [6100, 0, 'Lotus élastique : retombe dessus pour être propulsé'], [8505, 820, 'Le puits : saute contre un pieu, puis Saut pour rebondir de l’un à l’autre']],
+      [6100, 0, 'Lotus élastique : retombe dessus pour être propulsé'], [8505, 820, 'Le puits : saute contre un pieu, puis Saut pour rebondir de l’un à l’autre'], [9400, 2380, 'Un anneau, là-haut à gauche… la langue (O) y collerait']],
   },
   /* Prologue 2 — Le ponton de Hasu (level_design/02_hasu.md) : la maison de Hasu sur pilotis (4 700 – 6 650). Maquette grise en attendant les peintures.
      Défi : des toits de la maison au mât d'amarrage, par trois barques retournées sur leurs chevalets, qui basculent sous le poids. Cache : le coffre entre les pilotis, derrière les filets. */
   m_ponton: {
-    ver: 3, tongue: true, camTop: 1750, grade: [.86, .86, '#9aa890', .09], big: [],
+    ver: 7, tongue: true, camTop: 2400, grade: [.86, .86, '#9aa890', .09], big: [],
+    /* défi des esprits du ponton (4 400 – 8 200) : chaque palier exige son geste (rebond, îlot mobile au bon moment, cheminée de pieux en saut mural, mottes qui s'effritent, îlot qui file). Une chute ramène au sol. */
     mk: [
-      /* peinture P1 v2 (level_design/hasu_decoupe.json, box [1,110,1246,1055]) : x = 7390 + (sx-1080)*2.97 ; h = (955-sy)*2.97 */
-      { t: 'peint', img: 'hasu', x: 4185, sc: 2.97, foot: -297, wip: 1 },
-      { t: 'facade', img: 'hasu_filets', x: 4682, h: 30, sc: 2.65, zone: [4680, 5460, -10, 420], wip: 1 },
-      { t: 'bloc', x: 4250, w: 180, h: 200, lab: 'marches' }, { t: 'bloc', x: 4430, w: 1090, h: 555, lab: 'galerie (engawa)' },
-      { t: 'bloc', x: 4205, w: 230, h: 935, lab: 'avant-toit' }, { t: 'bloc', x: 4465, w: 980, h: 1494, lab: 'toit' },
-      { t: 'cede', x: 5543, w: 392, h: 1207, img: 'barque1', pw: 640, pt: .1, wip: 1 }, { t: 'cede', x: 6062, w: 392, h: 1487, img: 'barque2', pw: 640, pt: .1, wip: 1 }, { t: 'cede', x: 6594, w: 410, h: 1837, img: 'barque3', pw: 660, pt: .1, wip: 1 },
-      { t: 'mur', x: 7390, hw: 50, h0: 0, h1: 2150, lab: 'mât', notop: 1 }, { t: 'bloc', x: 7167, w: 461, h: 2189, lab: 'hune du mât' }, { t: 'jarre', x: 7520, h: 2189 },
+      { t: 'rebond', x: 4500, w: 200, h: 147, v: 2350, lab: 'lotus élastique', img: 'mp_lotus_motte', sc: .95, ix: 148, iy: 20 },
+      { t: 'bloc', x: 5000, w: 290, h: 1050, lab: 'îlot', vol: 1, img: 'mp_ilot2', sc: .8, ix: 197.5, iy: 52 },
+      { t: 'mobile', a: [5450, 1000], b: [5780, 1330], w: 260, T: 3.4, img: 'mp_ilot1', sc: .8, ix: 176.5, iy: 47 },
+      { t: 'cede', x: 6130, w: 185, h: 1480, img: 'mp_tourbe', img2: 'mp_tourbe_f', sc: .42, ix: 245, iy: 42, ix2: 254, iy2: 42, deb: 'terre' },
+      /* cheminée : deux pieux volants, fond sur un petit îlot, on remonte en saut mural */
+      { t: 'mur', x: 6600, hw: 40, h0: 1800, h1: 2300, notop: 1, lab: 'pieu volant', img: 'mp_pieu_mid', cap: 'mp_pieu_bas', capFlip: 1, foot: 'mp_pieu_bas', sc: .88 },
+      { t: 'mur', x: 7100, hw: 40, h0: 1300, h1: 1700, notop: 1, lab: 'pieu volant', img: 'mp_pieu_mid', cap: 'mp_pieu_bas', capFlip: 1, foot: 'mp_pieu_bas', sc: .88 },
+      { t: 'bloc', x: 6420, w: 420, h: 1400, lab: 'fond de la cheminée', vol: 1, img: 'mp_sommet', sc: .88, ix: 284.5, iy: 120 }, { t: 'bloc', x: 6800, w: 221, h: 1400, lab: 'fond de la cheminée', vol: 1, img: 'mp_ilot1', sc: .68, ix: 176.5, iy: 47 },
+      { t: 'bloc', x: 6750, w: 150, h: 1860, lab: 'palier de la cheminée', vol: 1, img: 'mp_feuille', sc: .3, ix: 263, iy: 12 },
+      { t: 'cede', x: 7260, w: 174, h: 1900, img: 'mp_dalle', img2: 'mp_dalle_f', sc: .38, ix: 238.5, iy: 10, ix2: 244.5, iy2: 8, deb: 'pierre' },
+      { t: 'mobile', a: [7580, 2200], b: [8000, 2200], w: 260, T: 2.4, ph: 1.6, img: 'mp_ilot1', sc: .8, ix: 176.5, iy: 47 },
+      { t: 'bloc', x: 8350, w: 358, h: 2560, lab: 'sommet', vol: 1, img: 'mp_sommet', sc: .75, ix: 284.5, iy: 120 }, { t: 'jarre', x: 8630, h: 2560 },
+      /* cache à la langue : deux anneaux au-dessus du saule creux mènent à un îlot isolé (2 300) */
+      { t: 'crochet', x: 4150, h: 2010, img: 'mp_anneau_fer', sc: .5, ix: 84, iy: 112, rt: 14 },
+      { t: 'crochet', x: 3600, h: 2250, img: 'mp_anneau_racine', sc: .55, ix: 89, iy: 90, rt: 30 },
+      { t: 'bloc', x: 2950, w: 290, h: 2300, lab: 'îlot caché', vol: 1, img: 'mp_ilot2', sc: .8, ix: 197.5, iy: 52 },
     ],
     plats: [], walls: [], temps: [],
-    lans: [['toro', 4640, 0], ['bois', 5350, 555], ['bois', 5000, 1494], ['bois', 7240, 2189]],
-    chests: [[5100, 0, 'koban']],
-    camUp: [], tips: [[4500, 0, 'La maison de Hasu : par les toits jusqu’au mât'], [5300, 1494, 'Barques retournées : elles basculent, saute sans t’arrêter']],
+    lans: [['toro', 4300, 0], ['toro', 5120, 1050], ['toro', 6740, 1400], ['bois', 8430, 2560], ['bois', 3030, 2300]],
+    chests: [[5100, 0, 'koban'], [3150, 2300, 'koban'], [8500, 2560, 'koban']],
+    camUp: [], tips: [[4300, 0, 'Le lotus élastique te lance vers les îlots : une chute et tout est à refaire'], [6700, 1400, 'Rebondis d’un pieu à l’autre pour sortir de la cheminée'], [3700, 1516, 'Un anneau, là-haut… la langue (O) y collerait']],
   },
   m_passerelle: {
     ver: 1, tongue: true, camTop: 1700, grade: [.86, .86, '#9aa890', .09], big: [],
@@ -6918,7 +6971,7 @@ function vertChips(x, h, n, col) { for (let i = 0; i < n; i++) inkFx.push({ x: x
 function vertWallJump() {
   const A = ACT, s = A.wall || A.wallSide || 1;   // s = côté du pilier (1 : à droite de Kaeru)
   if (A.atk) endAttack();
-  hero.dir = -s; hero.vx = -s * 640; A.vy = 1010; A.holdT = MOVE.holdTime; A.wjT = .2; A.wallT = 0; A.wall = 0; A.airJumps = 1; A.airDash = true; A.flip = 0;
+  hero.dir = -s; hero.vx = -s * 640; A.vy = 1010; A.holdT = MOVE.holdTime; A.wjT = .2; A.wjS = s; A.wallT = 0; A.wall = 0; A.airJumps = 1; A.airDash = true; A.flip = 0;
   ring(hero.x + s * VERT.WD, A.y + 60, .6); puff(hero.x + s * (VERT.WD - 20), A.y + 30, 3, .6); vertChips(hero.x + s * VERT.WD, A.y + 40, 5, A.wallW && VERT_COL[A.wallW.k]); sfx('dash');
 }
 function vertAfter(dt, xPrev) {
@@ -6951,6 +7004,10 @@ function vertAfter(dt, xPrev) {
   // --- piliers : au sol Kaeru passe devant ; en l'air il s'y plaque, glisse, rebondit. Le haut du pilier reste libre pour attraper le rebord du sommet.
   A.wall = 0;
   for (const w of VERT.walls) {
+    if (w.solid && A.y + 300 > w.h0 && A.y < w.h1 - 10) {   /* pieu volant : bloque toujours ; si Kaeru arrive dedans (par la pointe ou le dessous), il est repoussé du côté le plus proche */
+      const L = w.x - w.hw - VERT.WD, R = w.x + w.hw + VERT.WD;
+      if (xPrev > L + 1 && xPrev < R - 1 && hero.x > L && hero.x < R) { if (hero.x < w.x) { hero.x = L; if (hero.vx > 0) hero.vx = 0; } else { hero.x = R; if (hero.vx < 0) hero.vx = 0; } continue; }
+      if (A.onGround) { if (xPrev <= L + 1 && hero.x > L) { hero.x = L; if (hero.vx > 0) hero.vx = 0; } else if (xPrev >= R - 1 && hero.x < R) { hero.x = R; if (hero.vx < 0) hero.vx = 0; } continue; } }
     if (A.onGround || A.y + 225 < w.h0 || A.y > w.h1 - 250) continue;
     const L = w.x - w.hw - VERT.WD, R = w.x + w.hw + VERT.WD;
     if (xPrev <= L + 1 && hero.x > L) { hero.x = L; if (hero.vx > 0) hero.vx = 0; if (inp >= 0) { A.wall = 1; A.wallSide = 1; A.wallT = .14; A.wallW = w; } }
@@ -6986,8 +7043,9 @@ function vertAfter(dt, xPrev) {
     b.fa += ((inside ? .3 : 1) - b.fa) * Math.min(1, dt * 7); }
   // --- lanternes, cloche, appuis d'esprit
   for (const l of VERT.lans) { l.t += dt; if (l.on) l.lit = Math.min(1, l.lit + dt * 2.5);
-    if (!l.on && Math.abs(hero.x - l.x) < 140 && Math.abs(A.y - l.h) < 200 && HERO.dead <= 0) {
-      l.on = true; sfx('special'); const n = VERT.lans.filter(k => k.on).length, N = VERT.lans.length; vertSaved(true);
+    l.near = !l.on && Math.abs(hero.x - l.x) < 160 && Math.abs(A.y - l.h) < 200 && HERO.dead <= 0 && !DOOR.near && !PORTAL.near;
+    if (l.near && consume(...USE_KEYS)) {   /* Hinoko allume la lanterne quand on le demande (touche Utiliser) */
+      l.on = true; l.near = false; sfx('special'); const n = VERT.lans.filter(k => k.on).length, N = VERT.lans.length; vertSaved(true);
       for (let k = 0; k < 14; k++) inkFx.push({ x: l.x + rr(-40, 40), y: l.h + 120 + rr(-40, 40), vx: rr(-110, 110), vy: rr(60, 240), r: rr(3, 6), a: .9, col: 'gold', glow: true });
       if (HK) { HK.mood = 'joy'; HK.moodT = 1.2; }
       if (n >= N) { VERT.done = true; INV.ryo += 150; invMsg('Toutes les lanternes du lieu brillent !  ·  + 150 ryō', 5); for (const tp of VERT.temps) tp.keep = true; VERT.timer = 0; }
@@ -7032,13 +7090,23 @@ function vertWallCv(w) {
 }
 function vertRopeTop(wx, h, G) { let best = 1e9; for (const p of PROG.plats) if (p.sus && !p.temp && p.h > h + 40 && wx > p.x + 4 && wx < p.x + p.w - 4 && p.h < best) best = p.h; return best < 1e9 ? G - best + 34 : -(cam.y || 0) - 30; }
 function vertRope(im, X, yBot, yTop, sw) { const P = VA.plateau, th = P.r1 - P.r0; ctx.save(); ctx.beginPath(); ctx.rect(X - 30, yTop, 60, yBot - yTop); ctx.clip(); for (let y = yBot - th; y > yTop - th; y -= th) ctx.drawImage(im, P.x + 66, P.y + P.r0, 28, th, Math.round(X - sw / 2), Math.round(y), sw, th + 1); ctx.restore(); }
+const LAN_SC = { toro: .55, bois: .55, chochin: .6, flot: .6 };   /* lanternes repeintes, opaques (planche level_design/M_lanternes.webp, découpe lanternes_decoupe.json) */
+function lanHint(l, X, y) { if (l.near) VERT.hint = { X, y }; }   /* la bulle est dessinée devant Kaeru (vertFront) */
+function lanHintDraw() { const H = VERT.hint; VERT.hint = null; if (!H || window.__nohud) return; const X = H.X, y = H.y, tx = keyName(USE_KEYS[0]) + ' · allumer'; ctx.save(); ctx.font = '600 22px serif'; const tw = ctx.measureText(tx).width + 24; ctx.fillStyle = 'rgba(20,14,10,.78)'; ctx.fillRect(X - tw / 2, y - 46, tw, 34); ctx.fillStyle = '#f4e6c8'; ctx.textAlign = 'center'; ctx.fillText(tx, X, y - 21); ctx.restore(); }
 function vertLantern(l, X, G) {
+  const nim = gvImg('lan_' + l.k + '_off'), non = gvImg('lan_' + l.k + '_on');
+  if (nim && non) { const sc = LAN_SC[l.k] || .55, w = Math.round(nim.naturalWidth * sc), h = Math.round(nim.naturalHeight * sc); let x = X - w / 2, y = G - l.h - h + 4;   /* posée sur l'appui (4 px enfoncés) ; le chōchin pend à sa corde */
+    if (l.k === 'chochin') { y = l.top ? G - l.top : G - l.h - 150 - h; const im = vaImg(), yt = l.top ? (l.rope ? G - l.rope : null) : vertRopeTop(l.x, l.h + 300, G); if (im && yt != null) vertRope(im, X, y + 6, yt, 15); }
+    ctx.drawImage(nim, Math.round(x), Math.round(y), w, h);
+    if (l.lit > 0) { ctx.save(); ctx.globalAlpha = l.lit * (.92 + .08 * Math.sin(l.t * 9) * Math.sin(l.t * 3.7)); ctx.drawImage(non, Math.round(X - non.naturalWidth * sc / 2), Math.round(y + h - non.naturalHeight * sc), Math.round(non.naturalWidth * sc), Math.round(non.naturalHeight * sc)); ctx.restore(); }
+    lanHint(l, X, y); return; }
   const off = VA[l.k + '_off']; let x = X - off.w / 2, y = G - l.h - off.h + 4;
   if (l.k === 'chochin' && l.top) { y = G - l.top; const im = vaImg(); if (im && l.rope) vertRope(im, X, y + 8, G - l.rope, 15); }
   else if (l.k === 'chochin') { y = G - l.h - 150 - off.h; const im = vaImg(); if (im) vertRope(im, X, y + 8, vertRopeTop(l.x, l.h + 300, G), 15); }
   else if (l.k === 'bois') { x = X - off.w + 4; y = G - l.h - off.h + 20; }
   vaDraw(l.k + '_off', x, y);
   if (l.lit > 0) { ctx.save(); ctx.globalAlpha = l.lit * (.9 + .1 * Math.sin(l.t * 9) * Math.sin(l.t * 3.7)); vaDraw(l.k + '_on', x, y); ctx.restore(); }
+  lanHint(l, X, y);
 }
 function vertDrawPlat(p) {
   const tmp = p.temp, n = tmp ? p.V + (p.born < .28 ? 0 : VERT.timer > 0 && VERT.timer < 3 && !p.keep ? 2 : 1) : p.V, m = VA[n], im = vaImg(); if (!m || !im) return;
@@ -7068,7 +7136,7 @@ function folBehind(b) {   // une façade (cabane, cascade) passe derrière Kaeru
   return ACT.y < (F.minY != null ? F.minY : bot - 40);
 }
 function vertFront(back) {   // devant Kaeru : les feuillages des cimes et les façades
-  if (!back) mkFront();
+  if (!back) { mkFront(); lanHintDraw(); }
   if (VERT.lv !== LVID || !VERT.big.length) return; const G = CFG.groundLine;
   for (const b of VERT.big) { const F = b.M.fol; if (!F || folBehind(b) !== !!back) continue; const im = gvImg(F.img), FM = GV[F.img]; if (!im) continue;
     const X = wx2sx(b.x) - b.M.a[0] + F.at[0] - FM.a[0], Y = G - b.h - b.M.a[1] + F.at[1] - FM.a[1]; if (X > VW + 80 || X + FM.w < -80) continue;
@@ -7134,21 +7202,24 @@ function mkBuild(D) {
   for (const f of L) if (f.t === 'brume') MK.fogs.push(f);
   let ji = 0;
   for (const s of L) {
-    const e = Object.assign({}, s); MK.list.push(e);
+    const e = Object.assign({}, s); MK.list.push(e); for (const n of [e.img, e.cap, e.foot]) if (typeof n === 'string') invImg('gv_' + n + '.webp');
     const at = e.x != null ? e.x + (e.w || 0) / 2 : e.a ? e.a[0] : 0, hh = e.h != null ? e.h : e.h1 != null ? e.h1 : e.h0 || 0;
     e.off = e.t !== 'brume' && MK.fogs.length > 0 && mkFogged(at, hh);
     if (e.t === 'bloc') mkPlat(e, e.x, e.w, e.h);
-    else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; e.i0 = MK.list.length; if (e.img) invImg('gv_' + e.img + '.webp'); }
+    else if (e.t === 'cede') { mkPlat(e, e.x, e.w, e.h, { cede: 1 }); e.st = 0; e.k = 0; e.i0 = MK.list.length; e.dbr = []; for (const n of [e.img, e.img2].concat(MK_DEB[e.deb] || [])) if (n) invImg('gv_' + n + '.webp'); }
     else if (e.t === 'peint' || e.t === 'facade') invImg('gv_' + e.img + '.webp');
     else if (e.t === 'derive') { e.v = e.v || 140; e.dir = 1; e.wait = 0; mkPlat(e, e.x0, e.w, e.h, { mov: 1 }); }
     else if (e.t === 'rebond') { e.sq = 0; mkPlat(e, e.x, e.w, e.h); }
     else if (e.t === 'mobile') mkPlat(e, e.a[0], e.w, e.a[1], { mov: 1 });
     else if (e.t === 'nacelle') { mkPlat(e, e.x, e.w, e.h0, { mov: 1 }); }
     else if (e.t === 'paire') { e.o = 0; e.d = e.d || 260; e.pa = mkPlat(e, e.a[0], e.a[2], e.a[1], { mov: 1 }); e.pb = mkPlat(e, e.b[0], e.b[2], e.b[1], { mov: 1 }); }
-    else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null }); if (!e.notop) mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }   /* notop : un tronc qui continue, sans dessus où se poser */
+    else if (e.t === 'mur') { const hw = e.hw || 46; e.hw = hw; VERT.walls.push({ k: 'pierre', painted: true, grey: true, x: e.x, h0: e.h0 || 0, base: e.h0 || 0, h1: e.h1, hw, cv: null, solid: !!(e.solid || e.notop && e.h0 > 0) });   /* seuls les pieux volants sont solides : un mât planté au sol laisse passer Kaeru devant */ if (!e.notop) mkPlat(e, e.x - hw, hw * 2, e.h1, { hid: true }); }   /* notop : un tronc qui continue, sans dessus où se poser */
     else if (e.t === 'crochet' || e.t === 'balance') { if (!e.off) { VERT.hooks = VERT.hooks || []; VERT.hooks.push({ k: null, painted: true, x: e.x, h: e.h, tx: e.x, ty: e.h, sw: e.t === 'balance', need: e.t === 'balance' ? 'langue2' : e.need, mk: e }); } }
     else if (e.t === 'vide') MK.pits.push([e.x0, e.x1]);
-    else if (e.t === 'jarre') { e.i = ji++; e.broken = !!MK.jar[e.i]; e.bt = 9; }
+    else if (e.t === 'jarre') { e.i = ji++; e.broken = !!MK.jar[e.i]; e.bt = 9; for (const n of ['pt_jarre', 'pt_tesson1', 'pt_tesson2', 'pt_tesson3', 'pt_tesson4', 'pt_tesson5', 'pt_tesson6']) invImg('gv_' + n + '.webp'); }
+    else if (e.t === 'barque') { e.a = 0; e.slip = 0; e.r = ((e.ay || 0) - (e.iy || 0)) * (e.sc || 1); mkPlat(e, e.x - e.w / 2, e.w, e.h, { mov: 1 }); }
+    if (e.legs || e.t === 'barque') for (const n of ['pt_fourche', 'pt_pilotis', 'pt_pilotis_pied']) invImg('gv_' + n + '.webp');
+    if (e.base) invImg('gv_' + e.base + '.webp');
   }
 }
 function mkOn(p) { const A = ACT; return p && A.onGround && PROG.plats.includes(p) && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8; }
@@ -7156,12 +7227,16 @@ function mkMove(p, nx, nh) {   // déplace un appui et porte Kaeru s'il est dess
   const on = mkOn(p) && !ACT.hang, dx = nx - p.x; p.x = nx; p.h = nh;
   if (on) { hero.x += dx; ACT.y = nh; ACT.vy = 0; }
 }
+const MK_DEB = { terre: ['mp_d_terre1', 'mp_d_terre2', 'mp_d_terre3', 'mp_d_terre4', 'mp_d_terre5', 'mp_d_ofuda1', 'mp_d_ofuda3'], pierre: ['mp_d_pierre1', 'mp_d_pierre2', 'mp_d_pierre3', 'mp_d_pierre4', 'mp_d_pierre5', 'mp_d_corde1', 'mp_d_corde2', 'mp_d_corde3'], feuille: ['mp_d_feuille1', 'mp_d_feuille2', 'mp_d_feuille3', 'mp_d_feuille4', 'mp_d_feuille5', 'mp_d_ofuda2', 'mp_d_ofuda1'] };   /* débris peints par matière (planche level_design/M_debris_marais.webp) */
+function mkDebris(e, n) { const L = MK_DEB[e.deb]; if (!L || !e.dbr) return; const p = e.p;
+  for (let i = 0; i < n; i++) e.dbr.push({ n: L[(Math.random() * L.length) | 0], x: p.x + p.w * (.15 + .7 * Math.random()), h: p.h - 20 - 40 * Math.random(), vx: rr(-120, 120), vh: rr(-60, 260), r: rr(0, 6.28), vr: rr(-5, 5), t: 0, s: rr(.32, .48) }); }
 function mkUpdate(dt) {
   if (MK.lv !== LVID) return; const A = ACT;
   for (const e of MK.list) {
     if (e.t === 'cede') { const p = e.p;
-      if (e.st === 0 && mkOn(p)) { e.st = 1; e.k = 0; sfx('step'); vertChips(p.x + p.w / 2, p.h, 4); }
-      else if (e.st === 1) { e.k += dt; if (e.k > .55) { e.st = 2; e.k = 0; const i = PROG.plats.indexOf(p); if (i >= 0) PROG.plats.splice(i, 1); if (A.hang && A.hang.p === p) A.hang = null; if (A.onGround && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8) A.onGround = false; vertChips(p.x + p.w / 2, p.h, 10); shake = Math.max(shake, 3); } }
+      if (e.dbr && e.dbr.length) { for (const d of e.dbr) { d.vh -= 1500 * dt; d.x += d.vx * dt; d.h += d.vh * dt; d.r += d.vr * dt; d.t += dt; } e.dbr = e.dbr.filter(d => d.t < 2.2); }
+      if (e.st === 0 && mkOn(p)) { e.st = 1; e.k = 0; sfx('step'); vertChips(p.x + p.w / 2, p.h, 4); mkDebris(e, 2); }
+      else if (e.st === 1) { e.k += dt; if (e.k > .55) { e.st = 2; e.k = 0; const i = PROG.plats.indexOf(p); if (i >= 0) PROG.plats.splice(i, 1); if (A.hang && A.hang.p === p) A.hang = null; if (A.onGround && Math.abs(A.y - p.h) < 4 && hero.x > p.x - 8 && hero.x < p.x + p.w + 8) A.onGround = false; vertChips(p.x + p.w / 2, p.h, 10); mkDebris(e, 6); shake = Math.max(shake, 3); } }
       else if (e.st === 2) { e.k += dt; if (e.k > 3 && !(Math.abs(hero.x - (p.x + p.w / 2)) < p.w / 2 + 60 && Math.abs(A.y - p.h) < 220)) { e.st = 0; e.k = 0; if (!e.off) PROG.plats.push(p); } } }
     else if (e.t === 'rebond') { e.sq = Math.max(0, e.sq - dt * 3);   /* on retombe dessus : propulsé très haut (Saut tenu : un peu plus) */
       if (mkOn(e.p) && A.vy <= 0 && !A.hang) { A.vy = e.v * (isDown(...JUMP_KEYS) ? 1.1 : 1); A.onGround = false; A.airJumps = 1; A.airDash = true; A.coyote = 0; A.jumpBuf = 0; A.crouch = 0; A.holdT = 0; e.sq = 1; sfx('dash'); puff(hero.x, e.h, 5, .8); } }
@@ -7177,6 +7252,12 @@ function mkUpdate(dt) {
         const n = MK.list.filter(j => j.t === 'jarre' && j.broken).length, N = MK.list.filter(j => j.t === 'jarre').length;
         invMsg('Un têtard libéré !  ' + n + ' / ' + N + ' dans ce lieu', 4); if (HK) { HK.mood = 'joy'; HK.moodT = 1.2; } } }
     else if (e.t === 'jarre') e.bt += dt;
+    else if (e.t === 'barque') { const p = e.p, amax = e.amax || .3, H = e.w / 2, on = mkOn(p) && !A.hang;   /* barque en bascule sur sa fourche : penche vers Kaeru (plus vite au bout), revient à plat quand il part */
+      if (e.slip > 0) { e.slip -= dt; if (e.slip <= 0) { if (Math.abs(hero.x - e.x) < H + 60 && Math.abs(A.y - p.h) < 160) e.slip = .1; else if (!PROG.plats.includes(p)) PROG.plats.push(p); } }
+      const d = clamp((hero.x - e.x) / H, -1, 1), tg = on ? Math.sign(d || 1) * amax * (.45 + .55 * Math.abs(d)) : 0, sp = on ? .34 : .7;
+      e.a += clamp(tg - e.a, -sp * dt, sp * dt);
+      const hx = clamp(hero.x, p.x, p.x + p.w); mkMove(p, p.x, e.h - Math.tan(e.a) * (hx - e.x) - e.r * (1 / Math.cos(e.a) - 1));   /* le dessus suit le bordage incliné sous les pieds de Kaeru */
+      if (on && Math.abs(e.a) > amax * .97) { const i = PROG.plats.indexOf(p); if (i >= 0) PROG.plats.splice(i, 1); e.slip = .9; A.onGround = false; hero.vx = Math.sign(e.a) * 280; sfx('step'); } }
     else if (e.t === 'autel' && e.don && !hasDon(e.don)) { if (Math.abs(hero.x - e.x) < 110 && Math.abs(A.y - e.h) < 60 && A.onGround) { INV.dons = INV.dons || {}; INV.dons[e.don] = 1; if (typeof invSave === 'function') invSave(); DONB.q.push(e.don); } }
     else if (e.t === 'sortie' && !TRANS.to && A.onGround && Math.abs(hero.x - e.x) < 90 && Math.abs(A.y - e.h) < 30 && NODE[e.to]) {
       TRANS.to = e.to; TRANS.t = 0; TRANS.phase = 0; TRANS.fromX = hero.x; TRANS.dx = 0; TRANS.spawnFrac = null; sfx('portal'); }
@@ -7207,6 +7288,41 @@ if (/[?&]gris=1/.test(location.search)) window.__gris = 1;
 function mkShow(e) { return !e.wip || window.__peint; }
 function mkPaint(e, im, x, yBot, sc, al) { const w = im.naturalWidth * sc, h = im.naturalHeight * sc, X = wx2sx(x); if (X > VW + 80 || X + w < -80) return;
   ctx.save(); if (al != null) ctx.globalAlpha = al; if (VERT.flt) ctx.filter = VERT.flt; ctx.drawImage(im, Math.round(X), Math.round(CFG.groundLine - yBot - h), Math.round(w), Math.round(h)); ctx.restore(); }
+/* habillage peint d'un élément de maquette (planches de modules à taille réelle, level_design/marais_decoupe.json) :
+   img = gv_<img>.webp, sc = échelle (≤ 1, jamais agrandi), ix / iy = point de l'image posé au milieu du dessus de l'appui (pixels de l'image).
+   mur : img = tronçon répété, cap = bout du haut, foot = bout du bas (pendu sous h0). crochet : (ix, iy) = point d'accroche. */
+function mkTie(wx, h, top) {   /* hauteur écran où nouer une corde qui monte de (wx, h) : sous le premier îlot au-dessus, sinon le haut de l'écran */
+  let best = null; for (const o of MK.list) if (o.t === 'bloc' && o.p && o.p.h > h + 60 && wx > o.p.x + 10 && wx < o.p.x + o.p.w - 10 && (best == null || o.p.h < best)) best = o.p.h;
+  return best == null ? top : CFG.groundLine - best + 70;
+}
+function mkPilotis(X, yTop, ps) {   /* pilotis peint (planche M_jetee_hasu) : tronçons répétés de yTop jusqu'au pied planté au sol */
+  const tl = gvImg('pt_pilotis'), pd = gvImg('pt_pilotis_pied'), G = CFG.groundLine; if (!tl || !pd) return;
+  const yp = G - 221 * ps, w = tl.naturalWidth * ps, cut = 6, Hc = (tl.naturalHeight - 2 * cut) * ps; let y = yTop;
+  while (y < yp + 2) { const h = Math.min(Hc, yp + 4 - y); ctx.drawImage(tl, 0, cut, tl.naturalWidth, h / ps, Math.round(X - w / 2), Math.round(y), Math.round(w), Math.round(h)); y += h - 1; }
+  ctx.drawImage(pd, Math.round(X - 105 * ps), Math.round(yp), Math.round(pd.naturalWidth * ps), Math.round(pd.naturalHeight * ps));
+}
+function mkSkin(e) {
+  const im = gvImg(e.img); if (!im) return false; const G = CFG.groundLine, sc = e.sc || 1, W = im.naturalWidth * sc, H = im.naturalHeight * sc;
+  ctx.save(); if (VERT.flt) ctx.filter = VERT.flt;
+  if (e.t === 'mur') { const X = wx2sx(e.x), cap = e.cap && gvImg(e.cap), ft = e.foot && gvImg(e.foot); if (X < -200 || X > VW + 200) { ctx.restore(); return true; }
+    let y = G - e.h1; const y0 = G - (e.h0 || 0);
+    if (cap) { const h = cap.naturalHeight * sc, w = cap.naturalWidth * sc; if (e.capFlip) { ctx.save(); ctx.translate(Math.round(X), Math.round(y + h)); ctx.scale(1, -1); ctx.drawImage(cap, -w / 2, 0, w, h); ctx.restore(); } else ctx.drawImage(cap, Math.round(X - w / 2), Math.round(y - 6 * sc), w, h); y += h - 10 * sc; }   /* capFlip : bout pointu retourné en haut (sommet où l'on ne tient pas) */
+    let yE = y0; const bi = e.base && gvImg(e.base); if (bi) { const bw = bi.naturalWidth * sc, bh = bi.naturalHeight * sc; yE = y0 + 8 - bh + 4; ctx.drawImage(bi, Math.round(X - (e.bx != null ? e.bx : bi.naturalWidth / 2) * sc), Math.round(y0 + 8 - bh), Math.round(bw), Math.round(bh)); }   /* base : pied planté, posé au sol */
+    const cut = 14, Hc = (im.naturalHeight - 2 * cut) * sc; while (y < yE - 2) { const h = Math.min(Hc, yE - y), sh = h / sc; ctx.drawImage(im, 0, cut, im.naturalWidth, sh, Math.round(X - W / 2), Math.round(y), W, h); y += h - 1; }
+    if (ft && e.h0) { const w = ft.naturalWidth * sc; ctx.drawImage(ft, Math.round(X - w / 2), Math.round(y0 - 4), w, ft.naturalHeight * sc); }
+    ctx.restore(); return true; }
+  if (e.t === 'crochet' || e.t === 'balance') { const X = wx2sx(e.x), Y = G - e.h, Yr = Y + ((e.rt || 0) - (e.iy || 0)) * sc;
+    ctx.strokeStyle = '#8f7a52'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(X, mkTie(e.x, e.h, -(cam.y || 0) - 40)); ctx.lineTo(X, Yr + 2); ctx.stroke(); ctx.drawImage(im, Math.round(X - (e.ix || 0) * sc), Math.round(Y - (e.iy || 0) * sc), W, H); ctx.restore(); return true; }
+  if (e.t === 'barque') { const X = wx2sx(e.x), Ya = G - e.h + e.r, ps = e.ps || sc; if (X < -W - 100 || X > VW + W + 100) { ctx.restore(); return true; }
+    const fk = !e.nopil && gvImg('pt_fourche'), yf = Ya - 42 * ps; if (!e.nopil) mkPilotis(X, yf + 250 * ps, ps); if (fk) ctx.drawImage(fk, Math.round(X - 117 * ps), Math.round(yf), Math.round(fk.naturalWidth * ps), Math.round(fk.naturalHeight * ps));   /* fourche : l'axe (y 42 de l'image) sous la quille */
+    ctx.translate(X, Ya); ctx.rotate(e.a); ctx.drawImage(im, Math.round(-(e.ix || 0) * sc), Math.round(-(e.ay || 0) * sc), Math.round(W), Math.round(H)); ctx.restore(); return true; }
+  const p = e.p; if (!p) { ctx.restore(); return false; }
+  if (e.legs) { const cx0 = wx2sx(p.x + p.w / 2), yl = G - p.h + ((e.lb || 0) - (e.iy || 0)) * sc - 6; for (const lx of e.legs) mkPilotis(cx0 + (lx - (e.ix || 0)) * sc, yl, e.ps || .6); }   /* bloc sur pilotis : un pilotis planté sous chaque pied */
+  const cx = wx2sx(p.x + p.w / 2), Y = G - p.h, ix = e.ix != null ? e.ix : im.naturalWidth / 2, iy = e.iy || 0;
+  if (cx < -W - 100 || cx > VW + W + 100) { ctx.restore(); return true; }
+  if (e.t === 'rebond' && e.sq) { const k = e.sq; ctx.translate(cx, Y + 40); ctx.scale(1 + .12 * k, 1 - .22 * k); ctx.translate(-cx, -Y - 40); }
+  ctx.drawImage(im, Math.round(cx - ix * sc), Math.round(Y - iy * sc), Math.round(W), Math.round(H)); ctx.restore(); return true;
+}
 function mkFront() {   /* façades peintes, devant Kaeru */
   if (MK.lv !== LVID) return;
   for (const e of MK.list) { if (e.t !== 'facade' || !mkShow(e)) continue; const im = gvImg(e.img); if (!im) continue; const z = e.zone,
@@ -7221,15 +7337,25 @@ function mkDraw() {
   for (const [a, b] of MK.pits) { const X0 = wx2sx(a), X1 = wx2sx(b); if (X1 < -50 || X0 > VW + 50) continue; const gr = ctx.createLinearGradient(0, G - 20, 0, G + 340);
     gr.addColorStop(0, '#1a1410'); gr.addColorStop(1, '#050304'); ctx.fillStyle = gr; ctx.fillRect(X0, G - 18, X1 - X0, 600); ctx.fillStyle = '#4a3a2a'; ctx.fillRect(X0 - 8, G - 22, 16, 60); ctx.fillRect(X1 - 8, G - 22, 16, 60); mkLabel('vide', (X0 + X1) / 2, G + 60, '#e88'); }
   for (const e of MK.list) {
-    if (ghost && e.t !== 'jarre' && e.t !== 'autel' && e.t !== 'sortie' && !(e.t === 'cede' && e.img)) continue;
+    if (ghost && !e.img && e.t !== 'jarre' && e.t !== 'autel' && e.t !== 'sortie') continue;   /* pièces peintes (img) dessinées même sous une peinture */
+    if (e.img && e.t !== 'cede' && e.t !== 'peint' && e.t !== 'facade' && mkShow(e) && mkSkin(e)) continue;
+    if (e.t === 'barque') { mkSlab(e.p, MK_COL.cede, 'barque'); continue; }
     const need = e.need ? ' [' + e.need + ']' : '';
     if (e.t === 'bloc') { const p = e.p; if (e.pend) { const X = wx2sx(p.x); mkRope(X + 20, top, G - p.h); mkRope(X + p.w - 20, top, G - p.h); } else if (e.plein) { const X = wx2sx(p.x); ctx.fillStyle = '#7a7060'; ctx.fillRect(X, G - p.h + 20, p.w, p.h - 20); ctx.strokeStyle = 'rgba(28,18,12,.8)'; ctx.lineWidth = 2; ctx.strokeRect(X, G - p.h + 20, p.w, p.h - 20); } else if (e.vol) { const X = wx2sx(p.x); ctx.fillStyle = '#5d6b48'; ctx.beginPath(); ctx.moveTo(X + 6, G - p.h + 24); ctx.lineTo(X + p.w / 2, G - p.h + 24 + Math.min(150, p.w * .5)); ctx.lineTo(X + p.w - 6, G - p.h + 24); ctx.closePath(); ctx.fill(); } else mkPosts(p, '#6d6455'); mkSlab(p, e.off ? 'rgba(141,130,112,.35)' : MK_COL.bloc, (e.lab || '') + need); }
     else if (e.t === 'cede') { const p = e.p, sh = e.st === 1 ? Math.sin(t * 70) * 4 : 0, dy = e.st === 2 ? Math.min(900, e.k * e.k * 1400) : 0, al = e.st === 2 ? Math.max(0, 1 - e.k * 1.6) : 1;
+      const fl = e.img && e.sc && mkShow(e), cr = fl && e.img2 && (e.st === 1 || e.st === 2 && al > 0), fim = fl ? gvImg(cr ? e.img2 : e.img) : null;
+      if (fl) { if (MK.peint && !window.__gris) ctx.restore(); ctx.save(); if (VERT.flt) ctx.filter = VERT.flt;
+        if (fim) { const a2 = al > 0 ? al : e.k > 2.4 ? Math.min(1, (e.k - 2.4) * .6) : 0, sc = e.sc, ix = cr ? e.ix2 : e.ix, iy = cr ? e.iy2 : e.iy;   /* plateforme flottante : (ix, iy) de l'image au milieu du dessus de l'appui */
+          if (a2 > 0) { const cx = wx2sx(p.x + p.w / 2) + sh, Y = G - p.h + (al > 0 ? dy : 0), w = fim.naturalWidth * sc, h = fim.naturalHeight * sc;
+            ctx.save(); ctx.globalAlpha = a2; ctx.translate(cx, Y); if (e.st === 2 && al > 0) ctx.rotate(e.k * .9 * (e.i0 % 2 ? 1 : -1)); ctx.drawImage(fim, Math.round(-ix * sc), Math.round(-iy * sc), Math.round(w), Math.round(h)); ctx.restore(); } }
+        for (const d of e.dbr || []) { const di = gvImg(d.n); if (!di) continue; const w = di.naturalWidth * d.s, h = di.naturalHeight * d.s; ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, 2.2 - d.t)); ctx.translate(wx2sx(d.x), G - d.h); ctx.rotate(d.r); ctx.drawImage(di, -w / 2, -h / 2, w, h); ctx.restore(); }
+        ctx.restore(); if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } continue; }
       const pim = e.img && mkShow(e) ? gvImg(e.img) : null;
       if (pim) { const sc = (e.pw || p.w + 30) / pim.naturalWidth, a2 = al > 0 ? al : e.k > 2.4 ? Math.min(1, (e.k - 2.4) * .6) : 0;   /* planche peinte : le dessus de la planche au niveau de l'appui, elle bascule en tombant */
         if (a2 > 0) { const w = pim.naturalWidth * sc, h = pim.naturalHeight * sc, X = wx2sx(p.x + p.w / 2) - w / 2 + sh, Y = CFG.groundLine - p.h - h * (e.pt != null ? e.pt : .22) + (al > 0 ? dy : 0);
           if (MK.peint && !window.__gris) ctx.restore(); ctx.save(); ctx.globalAlpha = a2; if (VERT.flt) ctx.filter = VERT.flt; ctx.translate(X + w / 2, Y + h / 2); if (e.st === 2 && al > 0) ctx.rotate(e.k * 1.8 * (e.i0 % 2 ? 1 : -1));
-          ctx.drawImage(pim, -w / 2, -h / 2, w, h); ctx.restore(); if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } } }
+          ctx.drawImage(pim, -w / 2, -h / 2, w, h); ctx.restore();
+          if (e.rx && e.st !== 2) { ctx.save(); ctx.strokeStyle = '#8f7a52'; ctx.lineWidth = Math.max(3, 9 * sc); for (const r of e.rx) { const RX = X + r * w; ctx.beginPath(); ctx.moveTo(RX, mkTie(p.x + p.w / 2 + (r - .5) * w, p.h, top)); ctx.lineTo(RX, Y + 4); ctx.stroke(); } ctx.restore(); } if (MK.peint && !window.__gris) { ctx.save(); ctx.globalAlpha = 1; } } }
       else if (al > 0) { ctx.save(); ctx.translate(sh, 0); mkSlab(p, MK_COL.cede, 'cède' + need, dy, al); ctx.restore(); } else if (e.k > 2.4) mkSlab(p, MK_COL.cede, false, 0, (e.k - 2.4) * .6); }
     else if (e.t === 'rebond') { const p = e.p, X = wx2sx(p.x + p.w / 2), Y = G - p.h; if (X < -200 || X > VW + 200) continue; const sq = 1 - .45 * e.sq;
       if (!e.vol) { ctx.fillStyle = '#5f7a3a'; ctx.fillRect(X - 10, Y + 12, 20, G - Y - 12); }
@@ -7248,6 +7374,11 @@ function mkDraw() {
     else if (e.t === 'sortie') { const X = wx2sx(e.x), Y = G - e.h; ctx.fillStyle = '#a8432c'; ctx.fillRect(X - 70, Y - 230, 16, 230); ctx.fillRect(X + 54, Y - 230, 16, 230); ctx.fillRect(X - 95, Y - 250, 190, 20); ctx.fillRect(X - 80, Y - 205, 160, 12); mkLabel('sortie → ' + (e.lab || e.to), X, Y - 262, '#ffd27a'); }
     else if (e.t === 'autel') { const X = wx2sx(e.x), Y = G - e.h, got = hasDon(e.don); ctx.fillStyle = got ? '#5d5a52' : '#8c7a4a'; ctx.fillRect(X - 40, Y - 70, 80, 70); ctx.strokeStyle = '#2a1e14'; ctx.lineWidth = 3; ctx.strokeRect(X - 40, Y - 70, 80, 70); mkLabel('autel : ' + (DONS[e.don] ? DONS[e.don].n : e.don) + (got ? ' (pris)' : ''), X, Y - 84, '#ffd27a'); }
     else if (e.t === 'jarre') { const X = wx2sx(e.x), Y = G - e.h; if (X < -100 || X > VW + 100) continue;
+      const jim = gvImg('pt_jarre'); if (jim) { const js = .6; ctx.save(); if (VERT.flt) ctx.filter = VERT.flt;   /* jarre peinte (planche M_jetee_hasu) */
+        if (!e.broken) ctx.drawImage(jim, Math.round(X - 65.5 * js), Math.round(Y - 190 * js + 4), Math.round(jim.naturalWidth * js), Math.round(jim.naturalHeight * js));
+        else if (e.bt < 2.2) for (let k = 1; k <= 6; k++) { const ti = gvImg('pt_tesson' + k); if (!ti) continue; const T = e.bt, up = Math.max(0, (240 + (k % 3) * 70) * T - 900 * T * T), dx = (k - 3.5) * 46 * Math.min(T, .55);
+          ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, (2.2 - T) * 1.5)); ctx.translate(X + dx, Y - 18 * js - up); ctx.rotate((k % 2 ? 1 : -1) * Math.min(T, .55) * 5); ctx.drawImage(ti, -ti.naturalWidth * js * .5, -ti.naturalHeight * js * .5, ti.naturalWidth * js, ti.naturalHeight * js); ctx.restore(); }
+        ctx.restore(); continue; }
       if (!e.broken) { ctx.fillStyle = '#7a4e30'; ctx.beginPath(); ctx.ellipse(X, Y - 46, 34, 44, 0, 0, 6.283); ctx.fill(); ctx.fillStyle = '#5c3a22'; ctx.fillRect(X - 18, Y - 98, 36, 14); ctx.fillStyle = '#efe3c8'; ctx.fillRect(X - 7, Y - 72, 14, 34); ctx.strokeStyle = '#2a1a10'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(X, Y - 46, 34, 44, 0, 0, 6.283); ctx.stroke(); mkLabel('jarre', X, Y - 108); }
       else if (e.bt < 1.2) { ctx.save(); ctx.globalAlpha = 1 - e.bt / 1.2; ctx.fillStyle = '#7a4e30'; for (let k = 0; k < 5; k++) ctx.fillRect(X - 40 + k * 18, Y - 12 + e.bt * 40 * (k % 2), 14, 10); ctx.restore(); } }
   }
